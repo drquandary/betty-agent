@@ -1,0 +1,463 @@
+# =============================================================================
+# Betty Cluster — LLM Model Registry
+# =============================================================================
+# Resource requirements for popular LLMs on PARCC Betty (NVIDIA B200 GPUs).
+#
+# Hardware reference:
+#   - B200 full GPU:  192 GB VRAM
+#   - MIG-90 slice:    90 GB VRAM
+#   - MIG-45 slice:    45 GB VRAM
+#
+# VRAM estimation rules:
+#   FP16 weights:          ~2 bytes/param  -> params_b * 2 GB
+#   FP16 full fine-tune:   ~16-18 bytes/param (model + grads + AdamW states)
+#   LoRA FP16:             base FP16 + ~5-10% adapter/optimizer overhead
+#   QLoRA 4-bit:           ~0.5 bytes/param + ~0.5-1 GB LoRA overhead
+#   Add 2-4 GB for KV cache, activations, framework overhead
+# =============================================================================
+
+models:
+
+  # ---------------------------------------------------------------------------
+  # Meta Llama 3 family
+  # ---------------------------------------------------------------------------
+  - hf_id: meta-llama/Meta-Llama-3-8B
+    params_b: 8.0
+    architecture: llama
+    gated: true
+    license: Meta Llama 3 Community License
+    vram_gb:
+      fp16_inference: 19
+      fp16_full_finetune: 140
+      lora_fp16: 22
+      qlora_4bit: 7
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 12000
+    notes: >-
+      Gated model; request access at huggingface.co/meta-llama and set
+      HF_TOKEN. Base (non-instruct) model, best for continued pre-training
+      or custom fine-tuning.
+
+  - hf_id: meta-llama/Meta-Llama-3-8B-Instruct
+    params_b: 8.0
+    architecture: llama
+    gated: true
+    license: Meta Llama 3 Community License
+    vram_gb:
+      fp16_inference: 19
+      fp16_full_finetune: 140
+      lora_fp16: 22
+      qlora_4bit: 7
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 12000
+    notes: >-
+      Instruction-tuned variant of Llama 3 8B. Gated; requires HF access
+      approval. Good starting point for chat/instruction tasks.
+
+  - hf_id: meta-llama/Meta-Llama-3-70B
+    params_b: 70.0
+    architecture: llama
+    gated: true
+    license: Meta Llama 3 Community License
+    vram_gb:
+      fp16_inference: 144
+      fp16_full_finetune: 1190
+      lora_fp16: 152
+      qlora_4bit: 40
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 8
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 2200
+    notes: >-
+      Gated. FP16 inference fits on a single B200 (192 GB). Full fine-tune
+      requires ZeRO-3 across 8 GPUs. QLoRA fits on a MIG-45 slice.
+
+  - hf_id: meta-llama/Meta-Llama-3-70B-Instruct
+    params_b: 70.0
+    architecture: llama
+    gated: true
+    license: Meta Llama 3 Community License
+    vram_gb:
+      fp16_inference: 144
+      fp16_full_finetune: 1190
+      lora_fp16: 152
+      qlora_4bit: 40
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 8
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 2200
+    notes: >-
+      Instruction-tuned 70B. Gated. Same resource profile as the base 70B
+      model. Excellent for downstream chat and reasoning tasks via LoRA.
+
+  - hf_id: meta-llama/Meta-Llama-3.1-405B-Instruct
+    params_b: 405.0
+    architecture: llama
+    gated: true
+    license: Meta Llama 3.1 Community License
+    vram_gb:
+      fp16_inference: 814
+      fp16_full_finetune: 6890
+      lora_fp16: 850
+      qlora_4bit: 210
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 5
+        method: vllm-tp5
+      lora:
+        partition: dgx-b200
+        gpus: 2
+        deepspeed_config: ds_zero3.json
+      full_finetune:
+        partition: dgx-b200
+        gpus: 48
+        deepspeed_config: ds_zero3_offload.json
+    tokens_per_sec_b200: 350
+    notes: >-
+      Largest open Llama model. FP16 inference needs 5 B200 GPUs with tensor
+      parallelism. QLoRA on 2 GPUs is the practical fine-tuning path. Full
+      fine-tune is extremely resource-intensive (6+ nodes). Gated access.
+
+  # ---------------------------------------------------------------------------
+  # Mistral AI family
+  # ---------------------------------------------------------------------------
+  - hf_id: mistralai/Mistral-7B-v0.3
+    params_b: 7.3
+    architecture: mistral
+    gated: false
+    license: Apache-2.0
+    vram_gb:
+      fp16_inference: 18
+      fp16_full_finetune: 128
+      lora_fp16: 20
+      qlora_4bit: 7
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 13000
+    notes: >-
+      Apache-2.0 licensed, no gating. Sliding-window attention (4096 window).
+      Good baseline 7B model with permissive license.
+
+  - hf_id: mistralai/Mixtral-8x7B-v0.1
+    params_b: 46.7
+    architecture: mixtral-moe
+    gated: false
+    license: Apache-2.0
+    vram_gb:
+      fp16_inference: 97
+      fp16_full_finetune: 794
+      lora_fp16: 104
+      qlora_4bit: 28
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 5
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 4000
+    notes: >-
+      Mixture-of-Experts: 46.7B total params but only ~13B active per token.
+      FP16 still requires loading all expert weights. Apache-2.0 license.
+      QLoRA is very efficient due to sparse activation.
+
+  - hf_id: mistralai/Mixtral-8x22B-v0.1
+    params_b: 141.0
+    architecture: mixtral-moe
+    gated: false
+    license: Apache-2.0
+    vram_gb:
+      fp16_inference: 286
+      fp16_full_finetune: 2400
+      lora_fp16: 300
+      qlora_4bit: 78
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 2
+        method: vllm-tp2
+      lora:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 16
+        deepspeed_config: ds_zero3_offload.json
+    tokens_per_sec_b200: 1500
+    notes: >-
+      Large MoE with 141B total params (~39B active per token). FP16 needs
+      2 B200 GPUs for inference. QLoRA on 1 GPU is feasible. Apache-2.0.
+
+  # ---------------------------------------------------------------------------
+  # Qwen 2.5 family
+  # ---------------------------------------------------------------------------
+  - hf_id: Qwen/Qwen2.5-7B
+    params_b: 7.6
+    architecture: qwen2
+    gated: false
+    license: Apache-2.0
+    vram_gb:
+      fp16_inference: 19
+      fp16_full_finetune: 133
+      lora_fp16: 21
+      qlora_4bit: 7
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 12500
+    notes: >-
+      Apache-2.0, no gating. Supports 128K context window natively. Strong
+      multilingual and code capabilities for a 7B model.
+
+  - hf_id: Qwen/Qwen2.5-32B
+    params_b: 32.5
+    architecture: qwen2
+    gated: false
+    license: Apache-2.0
+    vram_gb:
+      fp16_inference: 68
+      fp16_full_finetune: 555
+      lora_fp16: 73
+      qlora_4bit: 21
+    recommended:
+      inference:
+        partition: b200-mig90
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig90
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 3
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 5000
+    notes: >-
+      Apache-2.0. Good balance between quality and resource cost. FP16
+      inference fits comfortably on a MIG-90 slice.
+
+  - hf_id: Qwen/Qwen2.5-72B
+    params_b: 72.7
+    architecture: qwen2
+    gated: false
+    license: Qwen License (research + commercial)
+    vram_gb:
+      fp16_inference: 149
+      fp16_full_finetune: 1240
+      lora_fp16: 158
+      qlora_4bit: 41
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 8
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 2100
+    notes: >-
+      Qwen license allows research and commercial use. 128K context. FP16
+      fits on 1 B200 GPU (149 GB < 192 GB). QLoRA fits on MIG-45.
+
+  # ---------------------------------------------------------------------------
+  # DeepSeek
+  # ---------------------------------------------------------------------------
+  - hf_id: deepseek-ai/DeepSeek-V3
+    params_b: 671.0
+    architecture: deepseek-moe
+    gated: false
+    license: DeepSeek License (permissive)
+    vram_gb:
+      fp16_inference: 1346
+      fp16_full_finetune: 11400
+      lora_fp16: 1380
+      qlora_4bit: 342
+    recommended:
+      inference:
+        partition: dgx-b200
+        gpus: 8
+        method: vllm-tp8
+      lora:
+        partition: dgx-b200
+        gpus: 2
+        deepspeed_config: ds_zero3.json
+      full_finetune:
+        partition: dgx-b200
+        gpus: 64
+        deepspeed_config: ds_zero3_offload.json
+    tokens_per_sec_b200: 200
+    notes: >-
+      Massive MoE model (671B total, ~37B active per token). FP16 needs a
+      full 8-GPU DGX node for inference. QLoRA on 2 GPUs is the practical
+      fine-tuning approach. Multi-head latent attention architecture.
+      FP8 quantization recommended for inference where supported.
+
+  # ---------------------------------------------------------------------------
+  # Microsoft Phi
+  # ---------------------------------------------------------------------------
+  - hf_id: microsoft/phi-4
+    params_b: 14.0
+    architecture: phi
+    gated: false
+    license: MIT
+    vram_gb:
+      fp16_inference: 31
+      fp16_full_finetune: 242
+      lora_fp16: 34
+      qlora_4bit: 11
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 2
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 9000
+    notes: >-
+      MIT licensed. 14B parameters with strong reasoning for its size.
+      Trained on high-quality synthetic and filtered web data. Fits
+      comfortably on MIG-45 for inference and LoRA.
+
+  # ---------------------------------------------------------------------------
+  # Google Gemma 2 family
+  # ---------------------------------------------------------------------------
+  - hf_id: google/gemma-2-9b
+    params_b: 9.2
+    architecture: gemma2
+    gated: true
+    license: Gemma Terms of Use
+    vram_gb:
+      fp16_inference: 22
+      fp16_full_finetune: 160
+      lora_fp16: 24
+      qlora_4bit: 8
+    recommended:
+      inference:
+        partition: b200-mig45
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 1
+        deepspeed_config: ds_zero2.json
+    tokens_per_sec_b200: 11000
+    notes: >-
+      Gated; accept Gemma license on HuggingFace. Uses sliding-window +
+      global attention alternating layers. Strong 9B model for research.
+
+  - hf_id: google/gemma-2-27b
+    params_b: 27.2
+    architecture: gemma2
+    gated: true
+    license: Gemma Terms of Use
+    vram_gb:
+      fp16_inference: 58
+      fp16_full_finetune: 466
+      lora_fp16: 62
+      qlora_4bit: 18
+    recommended:
+      inference:
+        partition: b200-mig90
+        gpus: 1
+        method: vllm-fp16
+      lora:
+        partition: b200-mig45
+        gpus: 1
+        deepspeed_config: null
+      full_finetune:
+        partition: dgx-b200
+        gpus: 3
+        deepspeed_config: ds_zero3.json
+    tokens_per_sec_b200: 5500
+    notes: >-
+      Gated. 27B parameters, FP16 inference fits on MIG-90. QLoRA fits on
+      MIG-45. Alternating sliding-window and global attention layers.

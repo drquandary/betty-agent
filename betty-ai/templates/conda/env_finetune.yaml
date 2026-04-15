@@ -1,0 +1,58 @@
+# =============================================================================
+# Betty HPC — Conda Environment for LLM Fine-Tuning
+# =============================================================================
+# Targets: NVIDIA B200 GPUs, CUDA 12.6, Python 3.11
+#
+# Usage on Betty:
+#   module load anaconda3/2023.09-0
+#   conda env create -f env_finetune.yaml
+#   source activate llm-finetune
+#
+# NOTE: Use `source activate` — `conda activate` requires `conda init` which
+#       is not configured on Betty login nodes.
+# =============================================================================
+
+name: llm-finetune
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+
+  - pip:
+    # PyTorch (CUDA 12.6)
+    - torch>=2.4.0 --index-url https://download.pytorch.org/whl/cu126
+
+    # HuggingFace ecosystem
+    - transformers>=4.44.0
+    - datasets>=2.20.0
+    - accelerate>=0.33.0
+    - peft>=0.12.0
+    - trl>=0.9.0
+    - huggingface-hub>=0.24.0
+    - safetensors>=0.4.0
+    - tokenizers>=0.19.0
+
+    # Quantization
+    - bitsandbytes>=0.43.0
+
+    # Distributed training
+    - deepspeed>=0.14.0
+
+    # Flash Attention (build from source for B200 support)
+    - flash-attn>=2.6.0 --no-build-isolation
+
+    # Experiment tracking
+    - wandb>=0.17.0
+
+    # Utilities
+    - scipy
+    - scikit-learn
+    - sentencepiece
+    - protobuf
+    - einops

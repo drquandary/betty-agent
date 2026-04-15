@@ -1,0 +1,79 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — Single-GPU LoRA / QLoRA Fine-Tuning
+#
+# Template variables (Jinja2):
+#   job_name          — Slurm job name
+#   partition         — Slurm partition (e.g. dgx-b200)
+#   gpus              — Number of GPUs (default: 1)
+#   qos               — QOS tier
+#   cpus              — CPUs per task
+#   mem_gb            — Memory in GB
+#   walltime          — Wall-clock limit (HH:MM:SS)
+#   conda_env         — Conda environment name
+#   hf_home           — HuggingFace cache directory (project storage)
+#   model_id          — HuggingFace model identifier
+#   dataset           — Dataset name or path
+#   output_dir        — Where to save checkpoints
+#   lora_r            — LoRA rank (e.g. 16, 32, 64)
+#   lora_alpha        — LoRA alpha (typically 2x rank)
+#   learning_rate     — Learning rate (e.g. 2e-4)
+#   epochs            — Number of training epochs
+#   batch_size        — Per-device batch size
+#   gradient_accumulation — Gradient accumulation steps
+#   method            — "lora" or "qlora"
+#   training_script   — Path to the training Python script
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200, Slurm 24.11.7, Ubuntu 24.04)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --partition={{ partition }}
+#SBATCH --qos={{ qos }}
+#SBATCH --gpus={{ gpus | default(1) }}
+#SBATCH --cpus-per-task={{ cpus | default(16) }}
+#SBATCH --mem={{ mem_gb | default(64) }}G
+#SBATCH --time={{ walltime | default("08:00:00") }}
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} started on $(hostname) at $(date) ==="
+echo "=== GPUs allocated: ${CUDA_VISIBLE_DEVICES:-none} ==="
+
+# Create logs directory (idempotent)
+mkdir -p logs
+
+# Load Anaconda module and activate environment
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+
+# Point HuggingFace caches to project storage — never fill home quota
+export HF_HOME="{{ hf_home }}"
+export TRANSFORMERS_CACHE="{{ hf_home }}"
+export HF_DATASETS_CACHE="{{ hf_home }}/datasets"
+
+# Disable tokenizer parallelism warnings
+export TOKENIZERS_PARALLELISM=false
+
+###############################################################################
+# Launch training
+###############################################################################
+python {{ training_script }} \
+    --model_id "{{ model_id }}" \
+    --dataset "{{ dataset }}" \
+    --output_dir "{{ output_dir }}" \
+    --method "{{ method | default('lora') }}" \
+    --lora_r {{ lora_r | default(16) }} \
+    --lora_alpha {{ lora_alpha | default(32) }} \
+    --learning_rate {{ learning_rate | default("2e-4") }} \
+    --num_train_epochs {{ epochs | default(3) }} \
+    --per_device_train_batch_size {{ batch_size | default(4) }} \
+    --gradient_accumulation_steps {{ gradient_accumulation | default(4) }}
+
+echo "=== Job ${SLURM_JOB_ID} finished at $(date) ==="

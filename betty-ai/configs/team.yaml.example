@@ -1,0 +1,27 @@
+# Betty AI — Team Member Configuration
+# Copy this to team.yaml and fill in your values.
+# team.yaml is gitignored — your personal settings stay local.
+
+user:
+  pennkey: "jvadala"  # Your PennKey
+  project: "jcombar1-betty-testing"  # Your ColdFront project name
+  account: "jcombar1-betty-testing"  # Slurm account (usually same as project)
+
+paths:
+  project_storage: "/vast/projects/jcombar1-betty-testing"
+  conda_envs: "/vast/projects/jcombar1-betty-testing/envs"
+  hf_cache: "/vast/projects/jcombar1-betty-testing/hf_cache"
+  output_base: "/vast/projects/jcombar1-betty-testing/runs"
+
+preferences:
+  default_partition: "dgx-b200"
+  default_qos: "normal"
+  prefer_quantized: false  # true = prefer QLoRA over LoRA when possible
+  experiment_tracker: "wandb"  # wandb, tensorboard, or none
+  max_walltime_hours: 48
+  checkpoint_every_steps: 500
+
+# HuggingFace settings
+# Do NOT put your HF token here — use: export HF_TOKEN=<token> in ~/.bashrc
+huggingface:
+  default_cache: "/vast/projects/jcombar1-betty-testing/hf_cache"

@@ -1,0 +1,109 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — Multi-Node Distributed Training
+#
+# Uses `srun torchrun` for multi-node training with NCCL backend.
+# MASTER_ADDR is derived from SLURM_JOB_NODELIST automatically.
+#
+# Template variables (Jinja2):
+#   job_name            — Slurm job name
+#   partition           — Slurm partition (e.g. dgx-b200)
+#   num_nodes           — Number of nodes
+#   gpus_per_node       — GPUs per node (e.g. 8)
+#   qos                 — QOS tier
+#   cpus                — CPUs per task
+#   mem_gb              — Memory in GB per node
+#   walltime            — Wall-clock limit (HH:MM:SS)
+#   conda_env           — Conda environment name
+#   hf_home             — HuggingFace cache directory (project storage)
+#   model_id            — HuggingFace model identifier
+#   dataset             — Dataset name or path
+#   output_dir          — Where to save checkpoints
+#   deepspeed_config    — Path to DeepSpeed JSON config (optional)
+#   learning_rate       — Learning rate
+#   epochs              — Number of training epochs
+#   batch_size          — Per-device batch size
+#   gradient_accumulation — Gradient accumulation steps
+#   training_script     — Path to the training Python script
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200, Slurm 24.11.7, Ubuntu 24.04)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --partition={{ partition }}
+#SBATCH --qos={{ qos }}
+#SBATCH --nodes={{ num_nodes | default(2) }}
+#SBATCH --gpus-per-node={{ gpus_per_node | default(8) }}
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task={{ cpus | default(32) }}
+#SBATCH --mem={{ mem_gb | default(512) }}G
+#SBATCH --time={{ walltime | default("48:00:00") }}
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} started at $(date) ==="
+echo "=== Nodes: ${SLURM_JOB_NODELIST} ==="
+echo "=== Num nodes: {{ num_nodes | default(2) }}, GPUs/node: {{ gpus_per_node | default(8) }} ==="
+
+# Create logs directory (idempotent)
+mkdir -p logs
+
+# Load Anaconda module and activate environment
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+
+# Point HuggingFace caches to project storage — never fill home quota
+export HF_HOME="{{ hf_home }}"
+export TRANSFORMERS_CACHE="{{ hf_home }}"
+export HF_DATASETS_CACHE="{{ hf_home }}/datasets"
+
+# Disable tokenizer parallelism warnings
+export TOKENIZERS_PARALLELISM=false
+
+###############################################################################
+# Derive master address from Slurm node list
+###############################################################################
+MASTER_ADDR=$(scontrol show hostnames "${SLURM_JOB_NODELIST}" | head -n 1)
+MASTER_PORT=${MASTER_PORT:-29500}
+
+export MASTER_ADDR
+export MASTER_PORT
+
+echo "=== MASTER_ADDR=${MASTER_ADDR}, MASTER_PORT=${MASTER_PORT} ==="
+
+# NCCL tuning for multi-node communication
+export NCCL_DEBUG=INFO
+export NCCL_IB_DISABLE=0
+export NCCL_SOCKET_IFNAME=^lo,docker
+
+# Total GPU count
+NUM_GPUS_TOTAL=$(( {{ num_nodes | default(2) }} * {{ gpus_per_node | default(8) }} ))
+
+###############################################################################
+# Launch training across all nodes
+###############################################################################
+srun torchrun \
+    --nnodes={{ num_nodes | default(2) }} \
+    --nproc_per_node={{ gpus_per_node | default(8) }} \
+    --rdzv_id="${SLURM_JOB_ID}" \
+    --rdzv_backend=c10d \
+    --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" \
+    {{ training_script }} \
+        --model_id "{{ model_id }}" \
+        --dataset "{{ dataset }}" \
+        --output_dir "{{ output_dir }}" \
+{% if deepspeed_config is defined and deepspeed_config %}
+        --deepspeed "{{ deepspeed_config }}" \
+{% endif %}
+        --learning_rate {{ learning_rate | default("2e-5") }} \
+        --num_train_epochs {{ epochs | default(3) }} \
+        --per_device_train_batch_size {{ batch_size | default(2) }} \
+        --gradient_accumulation_steps {{ gradient_accumulation | default(4) }}
+
+echo "=== Job ${SLURM_JOB_ID} finished at $(date) ==="

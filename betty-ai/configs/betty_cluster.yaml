@@ -1,0 +1,169 @@
+# Betty Cluster Configuration
+# Machine-readable specs for gpu_calculator.py and betty-ai agent
+# Last updated: 2026-04-08
+
+cluster:
+  name: betty
+  organization: PARCC (Penn Advanced Research Computing Center)
+  os: Ubuntu 24.04.4 LTS
+  slurm_version: "24.11.7"
+  scheduler: sched/backfill
+  login_host: login.betty.parcc.upenn.edu
+  ood_url: https://ood.betty.parcc.upenn.edu
+  max_array_size: 15001
+  max_job_count: 100000
+
+partitions:
+  dgx-b200:
+    description: "Main GPU partition — NVIDIA DGX B200 nodes"
+    nodes: 27
+    node_names: "dgx[001-027]"
+    cpus_per_node: 224
+    memory_mb_per_node: 2063916  # ~2 TB actual
+    memory_gb_schedulable: 202   # what Slurm reports
+    gpus_per_node: 8
+    gpu_type: "NVIDIA B200"
+    gpu_vram_gb: 192
+    total_gpus: 216
+    max_nodes_per_job: 8
+    max_walltime: "7-00:00:00"
+    default_walltime: "01:00:00"
+    default_cpus_per_gpu: 28
+    default_mem_per_gpu_gb: 224
+    allowed_qos: [normal, dgx, wharton, gpu-max]
+    billing_weight_cpu: 35.7145
+    billing_weight_gpu: 1000
+    nvlink: true
+    nvlink_gen: 5
+    nvlink_bandwidth_tb_s: 1.8
+    interconnect: infiniband
+
+  b200-mig45:
+    description: "MIG 45GB slices on B200"
+    nodes: 1
+    node_names: "dgx028"
+    cpus_per_node: 224
+    gpus_per_node: 32  # MIG slices
+    gpu_type: "NVIDIA B200 MIG-45GB"
+    gpu_vram_gb: 45
+    total_gpus: 32
+    max_nodes_per_job: 1
+    max_walltime: "7-00:00:00"
+    default_cpus_per_gpu: 7
+    default_mem_per_gpu_gb: 56
+    allowed_qos: [normal, mig, wharton, mig-max]
+    billing_weight_gpu: 250
+    nvlink: false
+
+  b200-mig90:
+    description: "MIG 90GB slices on B200"
+    nodes: 1
+    node_names: "dgx029"
+    cpus_per_node: 224
+    gpus_per_node: 16  # MIG slices
+    gpu_type: "NVIDIA B200 MIG-90GB"
+    gpu_vram_gb: 90
+    total_gpus: 16
+    max_nodes_per_job: 1
+    max_walltime: "7-00:00:00"
+    default_cpus_per_gpu: 7
+    allowed_qos: [normal, mig, wharton, mig-max]
+    billing_weight_gpu: 500
+    nvlink: false
+
+  genoa-std-mem:
+    description: "AMD EPYC Genoa CPU nodes — standard memory"
+    nodes: 64
+    cpus_per_node: 64
+    memory_gb_per_node: 340
+    gpus_per_node: 0
+    max_nodes_per_job: 15
+    max_walltime: "7-00:00:00"
+    default_mem_per_cpu_mb: 5120
+    max_mem_per_cpu_mb: 6144
+    allowed_qos: [normal, genoa-std, wharton, cpu-max]
+    billing_weight_cpu: 10
+    is_default: true
+
+  genoa-lrg-mem:
+    description: "AMD EPYC Genoa CPU nodes — large memory (~1 TB)"
+    nodes: 10
+    cpus_per_node: 64
+    memory_gb_per_node: 1024
+    gpus_per_node: 0
+    max_nodes_per_job: 2
+    max_walltime: "7-00:00:00"
+    default_mem_per_cpu_mb: 15872
+    max_mem_per_cpu_mb: 18432
+    allowed_qos: [normal, genoa-lrg, wharton]
+    billing_weight_cpu: 15
+
+qos:
+  normal:
+    max_cpus: 160
+    max_gpus: 8
+    description: "Default QOS for general use"
+  dgx:
+    max_gpus: 32
+    description: "Large GPU jobs"
+  gpu-max:
+    max_gpus: 40
+    description: "Maximum GPU allocation"
+  mig:
+    max_gpus: 8
+    description: "MIG GPU slices"
+  mig-max:
+    max_gpus: 40
+    description: "Maximum MIG allocation"
+  genoa-std:
+    max_cpus: 640
+    description: "CPU-only standard memory"
+  genoa-lrg:
+    max_cpus: 128
+    description: "Large-memory CPU"
+  cpu-max:
+    max_cpus: 960
+    description: "Maximum CPU allocation"
+
+storage:
+  home:
+    path: "/vast/home/{first_letter}/{pennkey}"
+    quota_gb: 50
+    purpose: "Configs, code, light data"
+    warning: "Do NOT store models or datasets here"
+  projects:
+    path: "/vast/projects/{project_name}"
+    purpose: "Shared research data, models, datasets"
+    total_capacity_pb: 1.8
+  hf_cache:
+    recommended_path: "/vast/projects/{project_name}/hf_cache"
+    env_vars:
+      - "HF_HOME=/vast/projects/{project_name}/hf_cache"
+      - "TRANSFORMERS_CACHE=/vast/projects/{project_name}/hf_cache"
+      - "HF_DATASETS_CACHE=/vast/projects/{project_name}/hf_datasets_cache"
+
+software:
+  anaconda_module: "anaconda3/2023.09-0"
+  cuda_modules: ["cuda/12.8.1", "cuda/12.9.0", "cuda/13.1.0"]
+  gcc_module: "gcc/13.3.0"
+  apptainer_module: "apptainer/1.4.1"
+  conda_activate_method: "source activate"  # NOT "conda activate"
+  shared_pytorch_env:
+    pytorch_version: "2.7.1+cu126"
+    cuda_version: "12.6"
+    transformers_version: "4.32.1"  # outdated
+    note: "Read-only shared env. Create your own for LLM work."
+
+parcc_tools:
+  quota: "parcc_quota.py"
+  disk_usage: "parcc_du.py"
+  free_resources: "parcc_sfree.py"
+  qos_limits: "parcc_sqos.py"
+  usage_report: "parcc_sreport.py"
+  debug_job: "parcc_sdebug.py"
+  jupyter: "betty-jupyter.sh"
+
+internet:
+  huggingface: accessible
+  pypi: accessible
+  docker_hub: accessible  # for apptainer pulls

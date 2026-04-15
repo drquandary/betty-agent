@@ -1,0 +1,25 @@
+# Betty AI
+betty-ai/configs/team.yaml
+betty-ai/generated/
+*.pyc
+__pycache__/
+.env
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code
+.claude/plans/
+.claude/settings.local.json
+
+# Obsidian
+.obsidian/
+
+# Conversation transcripts
+*.txt

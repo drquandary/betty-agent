@@ -1,0 +1,279 @@
+{
+  "resource_name": "PARCC getting-started knowledge graph",
+  "compiled_at": "2026-04-08",
+  "workspace": "C:\\Users\\jeffr\\parcc1",
+  "scope": {
+    "cluster": "Betty",
+    "focus": [
+      "access",
+      "authentication",
+      "storage",
+      "software modules",
+      "slurm",
+      "ML onboarding",
+      "MPI onboarding",
+      "PARCC helper tools"
+    ],
+    "sources": [
+      "https://parcc.upenn.edu/training/getting-started/",
+      "https://parcc.upenn.edu/training/getting-started/logging-in/",
+      "https://parcc.upenn.edu/training/getting-started/logging-in/windows-setup/",
+      "https://parcc.upenn.edu/training/getting-started/looking-around/",
+      "https://parcc.upenn.edu/training/getting-started/zero-to-mnist/",
+      "https://parcc.upenn.edu/training/getting-started/zero-to-mpi/",
+      "https://parcc.upenn.edu/training/getting-started/parcc-tools/"
+    ]
+  },
+  "entities": [
+    {
+      "id": "parcc",
+      "type": "platform",
+      "name": "Penn Advanced Research Computing Center"
+    },
+    {
+      "id": "betty",
+      "type": "cluster",
+      "name": "Betty"
+    },
+    {
+      "id": "coldfront",
+      "type": "system",
+      "name": "ColdFront",
+      "purpose": "project and membership management"
+    },
+    {
+      "id": "pi",
+      "type": "role",
+      "name": "Principal Investigator"
+    },
+    {
+      "id": "researcher",
+      "type": "role",
+      "name": "Researcher"
+    },
+    {
+      "id": "guest_pennkey",
+      "type": "credential",
+      "name": "Guest PennKey"
+    },
+    {
+      "id": "login_host",
+      "type": "endpoint",
+      "name": "login.betty.parcc.upenn.edu"
+    },
+    {
+      "id": "kerberos",
+      "type": "auth",
+      "name": "Kerberos"
+    },
+    {
+      "id": "duo_2fa",
+      "type": "auth",
+      "name": "Duo 2FA"
+    },
+    {
+      "id": "vpn",
+      "type": "network_requirement",
+      "name": "Penn VPN or on-campus network"
+    },
+    {
+      "id": "home_storage",
+      "type": "storage",
+      "name": "Home storage",
+      "path_pattern": "/vast/home/<initial>/<PennKey>"
+    },
+    {
+      "id": "project_storage",
+      "type": "storage",
+      "name": "Project storage",
+      "path_pattern": "/vast/projects/<your-project>"
+    },
+    {
+      "id": "modules",
+      "type": "software_system",
+      "name": "Lmod modules"
+    },
+    {
+      "id": "slurm",
+      "type": "scheduler",
+      "name": "Slurm"
+    },
+    {
+      "id": "zero_to_mnist",
+      "type": "tutorial",
+      "name": "Zero to MNIST"
+    },
+    {
+      "id": "zero_to_mpi",
+      "type": "tutorial",
+      "name": "Zero to MPI"
+    },
+    {
+      "id": "tool_parcc_quota",
+      "type": "tool",
+      "name": "parcc_quota.py"
+    },
+    {
+      "id": "tool_parcc_du",
+      "type": "tool",
+      "name": "parcc_du.py"
+    },
+    {
+      "id": "tool_parcc_sfree",
+      "type": "tool",
+      "name": "parcc_sfree.py"
+    },
+    {
+      "id": "tool_parcc_sqos",
+      "type": "tool",
+      "name": "parcc_sqos.py"
+    },
+    {
+      "id": "tool_parcc_sreport",
+      "type": "tool",
+      "name": "parcc_sreport.py"
+    },
+    {
+      "id": "tool_parcc_sdebug",
+      "type": "tool",
+      "name": "parcc_sdebug.py"
+    }
+  ],
+  "relationships": [
+    { "from": "parcc", "type": "hosts", "to": "betty" },
+    { "from": "researcher", "type": "requires_membership_in", "to": "coldfront" },
+    { "from": "pi", "type": "manages_membership_for", "to": "researcher" },
+    { "from": "researcher", "type": "logs_into", "to": "login_host" },
+    { "from": "login_host", "type": "uses_auth", "to": "kerberos" },
+    { "from": "login_host", "type": "uses_auth", "to": "duo_2fa" },
+    { "from": "login_host", "type": "may_require", "to": "vpn" },
+    { "from": "researcher", "type": "uses_storage", "to": "home_storage" },
+    { "from": "researcher", "type": "uses_storage", "to": "project_storage" },
+    { "from": "betty", "type": "uses", "to": "modules" },
+    { "from": "betty", "type": "uses", "to": "slurm" },
+    { "from": "slurm", "type": "assisted_by", "to": "tool_parcc_sfree" },
+    { "from": "slurm", "type": "constrained_by", "to": "tool_parcc_sqos" },
+    { "from": "slurm", "type": "reported_by", "to": "tool_parcc_sreport" },
+    { "from": "slurm", "type": "debugged_by", "to": "tool_parcc_sdebug" },
+    { "from": "home_storage", "type": "inspected_by", "to": "tool_parcc_quota" },
+    { "from": "project_storage", "type": "inspected_by", "to": "tool_parcc_quota" },
+    { "from": "project_storage", "type": "inspected_by", "to": "tool_parcc_du" },
+    { "from": "researcher", "type": "onboarded_by", "to": "zero_to_mnist" },
+    { "from": "researcher", "type": "onboarded_by", "to": "zero_to_mpi" }
+  ],
+  "commands": [
+    {
+      "name": "identity checks",
+      "examples": ["whoami", "hostname", "pwd", "date"],
+      "purpose": "confirm current user, host, path, and timezone"
+    },
+    {
+      "name": "quota check",
+      "examples": ["parcc_quota.py"],
+      "purpose": "inspect quota usage across storage pools"
+    },
+    {
+      "name": "directory usage",
+      "examples": ["parcc_du.py /vast/projects/<your-project>"],
+      "purpose": "find large directories consuming project storage"
+    },
+    {
+      "name": "module discovery",
+      "examples": ["module avail", "module spider anaconda3", "module show anaconda3", "module load anaconda3"],
+      "purpose": "discover and load installed software"
+    },
+    {
+      "name": "conda basics",
+      "examples": ["conda env list", "conda create -n tutorial"],
+      "purpose": "manage personal Python environments"
+    },
+    {
+      "name": "slurm overview",
+      "examples": ["sinfo", "squeue -u $USER", "squeue | wc -l", "parcc_sfree.py"],
+      "purpose": "inspect partitions, jobs, and available resources"
+    },
+    {
+      "name": "gpu smoke test",
+      "examples": ["srun -p dgx-b200 --gpus=1 -t 00:01:00 nvidia-smi"],
+      "purpose": "verify basic GPU scheduling and visibility"
+    },
+    {
+      "name": "qos inspection",
+      "examples": ["parcc_sqos.py"],
+      "purpose": "check allowed QOS settings and limits"
+    },
+    {
+      "name": "usage report",
+      "examples": ["parcc_sreport.py --user YOUR_PennKey"],
+      "purpose": "review recent job usage"
+    },
+    {
+      "name": "job debug",
+      "examples": ["parcc_sdebug.py --job JOBID", "parcc_sdebug.py --node NODENAME"],
+      "purpose": "inspect failures, node health, or preemption"
+    },
+    {
+      "name": "mpi compile and run",
+      "examples": [
+        "mpicc -O2 -o hello_mpi_dgx hello_mpi.c",
+        "srun --mpi=pmix ./hello_mpi_dgx",
+        "sbatch mpi_genoa.sbatch",
+        "sbatch mpi_dgx.sbatch",
+        "tail -f slurm-<JobID>.out"
+      ],
+      "purpose": "build, submit, and inspect MPI tutorial jobs"
+    },
+    {
+      "name": "data transfer",
+      "examples": [
+        "scp <your-local-file> <PennKey>@login.betty.parcc.upenn.edu:/vast/projects/<your-project>"
+      ],
+      "purpose": "copy local files into PARCC project storage"
+    }
+  ],
+  "decision_rules": [
+    {
+      "if": "user cannot log in",
+      "then": [
+        "confirm PI added them to the right project",
+        "confirm enough propagation time has passed",
+        "confirm Penn VPN or campus network if required",
+        "confirm Kerberos and Duo flow"
+      ]
+    },
+    {
+      "if": "user asks where to store data",
+      "then": [
+        "recommend home for configs/code/light data",
+        "recommend project storage for shared research data"
+      ]
+    },
+    {
+      "if": "user job is rejected or pending unexpectedly",
+      "then": [
+        "check account, partition, and QOS",
+        "inspect parcc_sqos.py output",
+        "inspect parcc_sfree.py and squeue"
+      ]
+    },
+    {
+      "if": "user says disk is full",
+      "then": [
+        "run parcc_quota.py",
+        "run parcc_du.py on home or project path",
+        "remove temp/cache outputs or relocate data"
+      ]
+    },
+    {
+      "if": "user needs first runnable example",
+      "then": [
+        "route ML users toward Zero to MNIST",
+        "route MPI/HPC users toward Zero to MPI"
+      ]
+    }
+  ],
+  "notes": [
+    "The Looking Around page references parcc_free.py while the dedicated PARCC Tools page documents parcc_sfree.py. Prefer parcc_sfree.py unless the shell environment shows a compatibility alias.",
+    "This graph is intentionally compact and optimized for future task assistance rather than full site mirroring."
+  ]
+}

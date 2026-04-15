@@ -1,0 +1,21 @@
+{
+    "_comment": "DeepSpeed ZeRO Stage 3 — Betty HPC (NVIDIA B200). For 4-8 GPUs with parameter partitioning.",
+    "bf16": {
+        "enabled": true
+    },
+    "zero_optimization": {
+        "stage": 3,
+        "overlap_comm": true,
+        "contiguous_gradients": true,
+        "reduce_bucket_size": 5e8,
+        "stage3_prefetch_bucket_size": 5e8,
+        "stage3_param_persistence_threshold": 1e6,
+        "stage3_gather_16bit_weights_on_model_save": true,
+        "sub_group_size": 1e9
+    },
+    "gradient_clipping": 1.0,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": "auto",
+    "gradient_accumulation_steps": "auto",
+    "wall_clock_breakdown": false
+}

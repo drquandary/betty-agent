@@ -1,0 +1,78 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — Single-GPU vLLM Serving (OpenAI-Compatible API)
+#
+# Launches the vLLM OpenAI-compatible server on a single GPU.
+# Access the API at http://<node>:<port>/v1 from the cluster network.
+#
+# Template variables (Jinja2):
+#   job_name          — Slurm job name
+#   partition         — Slurm partition (e.g. dgx-b200)
+#   qos               — QOS tier
+#   cpus              — CPUs per task
+#   mem_gb            — Memory in GB
+#   walltime          — Wall-clock limit (HH:MM:SS)
+#   conda_env         — Conda environment name
+#   hf_home           — HuggingFace cache directory (project storage)
+#   model_id          — HuggingFace model identifier
+#   port              — API server port (default: 8000)
+#   max_model_len     — Maximum sequence length (default: 4096)
+#   dtype             — Data type (default: auto)
+#   gpu_memory_utilization — GPU memory fraction (default: 0.90)
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200, Slurm 24.11.7, Ubuntu 24.04)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --partition={{ partition }}
+#SBATCH --qos={{ qos }}
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task={{ cpus | default(16) }}
+#SBATCH --mem={{ mem_gb | default(64) }}G
+#SBATCH --time={{ walltime | default("04:00:00") }}
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} started on $(hostname) at $(date) ==="
+echo "=== GPUs allocated: ${CUDA_VISIBLE_DEVICES:-none} ==="
+
+# Create logs directory (idempotent)
+mkdir -p logs
+
+# Load Anaconda module and activate environment
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+
+# Point HuggingFace caches to project storage — never fill home quota
+export HF_HOME="{{ hf_home }}"
+export TRANSFORMERS_CACHE="{{ hf_home }}"
+
+###############################################################################
+# Print access info
+###############################################################################
+NODE_HOSTNAME=$(hostname)
+echo "============================================================"
+echo "  vLLM API server will be available at:"
+echo "  http://${NODE_HOSTNAME}:{{ port | default(8000) }}/v1"
+echo ""
+echo "  Test with:"
+echo "  curl http://${NODE_HOSTNAME}:{{ port | default(8000) }}/v1/models"
+echo "============================================================"
+
+###############################################################################
+# Launch vLLM server
+###############################################################################
+python -m vllm.entrypoints.openai.api_server \
+    --model "{{ model_id }}" \
+    --host 0.0.0.0 \
+    --port {{ port | default(8000) }} \
+    --max-model-len {{ max_model_len | default(4096) }} \
+    --dtype "{{ dtype | default('auto') }}" \
+    --gpu-memory-utilization {{ gpu_memory_utilization | default(0.90) }} \
+    --trust-remote-code

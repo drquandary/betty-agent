@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""
+Betty HPC — Supervised Fine-Tuning (SFT) Script
+================================================
+Generated from Jinja2 template for PARCC Betty cluster (NVIDIA B200).
+
+Supports both LoRA/QLoRA and full fine-tuning via the `method` variable.
+Uses HuggingFace transformers + trl SFTTrainer.
+
+Template variables (Jinja2):
+    model_id            — HuggingFace model identifier
+    dataset             — Dataset name or local path
+    method              — "lora", "qlora", or "full"
+    lora_r              — LoRA rank (default: 16)
+    lora_alpha          — LoRA alpha (default: 32)
+    epochs              — Number of training epochs (default: 3)
+    batch_size          — Per-device batch size (default: 4)
+    gradient_accumulation — Gradient accumulation steps (default: 4)
+    learning_rate       — Learning rate (default: 2e-4)
+    output_dir          — Checkpoint output directory
+    max_seq_length      — Maximum sequence length (default: 2048)
+"""
+
+import os
+import torch
+from datasets import load_dataset
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    TrainingArguments,
+)
+from trl import SFTTrainer
+
+{% if method in ("lora", "qlora") %}
+from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training
+{% endif %}
+
+
+def main():
+    # -------------------------------------------------------------------------
+    # Configuration
+    # -------------------------------------------------------------------------
+    model_id = "{{ model_id }}"
+    dataset_name = "{{ dataset }}"
+    output_dir = "{{ output_dir }}"
+    method = "{{ method | default('lora') }}"
+    max_seq_length = {{ max_seq_length | default(2048) }}
+
+    print(f"=== SFT Training ===")
+    print(f"  Model:    {model_id}")
+    print(f"  Dataset:  {dataset_name}")
+    print(f"  Method:   {method}")
+    print(f"  Output:   {output_dir}")
+
+    # -------------------------------------------------------------------------
+    # Load tokenizer
+    # -------------------------------------------------------------------------
+    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # -------------------------------------------------------------------------
+    # Load model with appropriate quantization
+    # -------------------------------------------------------------------------
+{% if method == "qlora" %}
+    # QLoRA: load in 4-bit with NF4 quantization
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=bnb_config,
+        device_map="auto",
+        trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
+        attn_implementation="flash_attention_2",
+    )
+    model = prepare_model_for_kbit_training(model)
+{% elif method == "lora" %}
+    # LoRA: load in BF16 (no quantization)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        device_map="auto",
+        trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
+        attn_implementation="flash_attention_2",
+    )
+{% else %}
+    # Full fine-tuning: load in BF16
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        device_map="auto",
+        trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
+        attn_implementation="flash_attention_2",
+    )
+{% endif %}
+
+{% if method in ("lora", "qlora") %}
+    # -------------------------------------------------------------------------
+    # LoRA configuration
+    # -------------------------------------------------------------------------
+    lora_config = LoraConfig(
+        task_type=TaskType.CAUSAL_LM,
+        r={{ lora_r | default(16) }},
+        lora_alpha={{ lora_alpha | default(32) }},
+        lora_dropout=0.05,
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+                        "gate_proj", "up_proj", "down_proj"],
+        bias="none",
+    )
+{% endif %}
+
+    # -------------------------------------------------------------------------
+    # Load dataset
+    # -------------------------------------------------------------------------
+    if os.path.exists(dataset_name):
+        # Local path: load from disk
+        dataset = load_dataset("json", data_files=dataset_name, split="train")
+    else:
+        # HuggingFace Hub dataset
+        dataset = load_dataset(dataset_name, split="train")
+
+    print(f"  Dataset size: {len(dataset)} examples")
+
+    # -------------------------------------------------------------------------
+    # Training arguments
+    # -------------------------------------------------------------------------
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        num_train_epochs={{ epochs | default(3) }},
+        per_device_train_batch_size={{ batch_size | default(4) }},
+        gradient_accumulation_steps={{ gradient_accumulation | default(4) }},
+        learning_rate={{ learning_rate | default("2e-4") }},
+        lr_scheduler_type="cosine",
+        warmup_ratio=0.05,
+        weight_decay=0.01,
+        logging_steps=10,
+        save_strategy="epoch",
+        save_total_limit=3,
+        bf16=True,
+        gradient_checkpointing=True,
+{% if method in ("lora", "qlora") %}
+        gradient_checkpointing_kwargs={"use_reentrant": False},
+{% endif %}
+        dataloader_num_workers=4,
+        report_to="wandb",
+        run_name="{{ job_name | default('sft-training') }}",
+    )
+
+    # -------------------------------------------------------------------------
+    # Trainer
+    # -------------------------------------------------------------------------
+    trainer = SFTTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=dataset,
+        tokenizer=tokenizer,
+{% if method in ("lora", "qlora") %}
+        peft_config=lora_config,
+{% endif %}
+        max_seq_length=max_seq_length,
+        dataset_text_field="text",
+        packing=True,
+    )
+
+    # -------------------------------------------------------------------------
+    # Train
+    # -------------------------------------------------------------------------
+    print("=== Starting training ===")
+    trainer.train()
+
+    # -------------------------------------------------------------------------
+    # Save final model
+    # -------------------------------------------------------------------------
+    print(f"=== Saving model to {output_dir} ===")
+    trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    print("=== Training complete ===")
+
+
+if __name__ == "__main__":
+    main()

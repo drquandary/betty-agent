@@ -1,0 +1,44 @@
+# =============================================================================
+# Betty HPC — Conda Environment for LLM Inference / vLLM Serving
+# =============================================================================
+# Targets: NVIDIA B200 GPUs, CUDA 12.6, Python 3.11
+#
+# Usage on Betty:
+#   module load anaconda3/2023.09-0
+#   conda env create -f env_serve.yaml
+#   source activate llm-serve
+#
+# NOTE: Use `source activate` — `conda activate` requires `conda init` which
+#       is not configured on Betty login nodes.
+# =============================================================================
+
+name: llm-serve
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+
+  - pip:
+    # PyTorch (CUDA 12.6)
+    - torch>=2.4.0 --index-url https://download.pytorch.org/whl/cu126
+
+    # vLLM inference engine
+    - vllm>=0.5.0
+
+    # OpenAI client library (for testing the vLLM API)
+    - openai>=1.35.0
+
+    # HuggingFace (for model downloads and tokenizers)
+    - huggingface-hub>=0.24.0
+    - transformers>=4.44.0
+    - safetensors>=0.4.0
+
+    # Utilities
+    - requests
+    - aiohttp
