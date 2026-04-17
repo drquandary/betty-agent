@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-04-16] handoff | Session handoff written for incoming agent
+- Created: `raw/docs/2026-04-16-session-handoff.md`
+- Context: Jeff wanted to expand Betty AI beyond LLMs to multi-task orchestrator. Initially proposed MATLAB+OOD sandbox; Jeff confirmed Betty has NO MATLAB, so pivoted to enumerating real workflows on Betty (Jupyter, RStudio, MONAI, Nextflow, AlphaFold, GROMACS, RAPIDS, NetLogo, etc.). Session paused at Kerberos-ticket renewal step — ticket expired Apr 13, needs `kinit jvadala@UPENN.EDU`. Plan on resume: run `module spider` recon on Betty, then build task registry + cross-cutting pattern templates.
+- Safety note: Jeff pasted PennKey password in chat; agent refused to use it, recommended password rotation.
+- Still open: Ceph benchmarking (write-access blocker), spider cache regeneration by ryb, OOD ticket submission, git commit of wiki changes.
+
 ## [2026-04-08] bootstrap | Wiki initialized from Karpathy LLM Wiki pattern
 - Created: `wiki/SCHEMA.md`, `wiki/index.md`, `wiki/log.md`
 - Created seed entity pages: [[betty-cluster]], [[dgx-b200-partition]], [[b200-mig45-partition]], [[b200-mig90-partition]], [[genoa-std-mem-partition]], [[genoa-lrg-mem-partition]], [[vast-storage]], [[parcc-helper-tools]], [[open-ondemand-betty]], [[slurm-on-betty]]
