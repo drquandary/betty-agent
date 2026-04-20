@@ -3,11 +3,24 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { ChatMessage, type DisplayMessage } from './ChatMessage';
 import { QuickStartTiles } from './QuickStartTiles';
+import {
+  ToolPermissionCard,
+  type ToolPermissionRequest,
+} from './ToolPermissionCard';
+import { readStoredChatPreferences } from '@/lib/chat-preferences';
 
 type StreamEvent =
   | { type: 'text'; delta: string }
   | { type: 'tool'; name: string; status: 'start' | 'end' }
   | { type: 'system'; tools: string[]; model: string }
+  | {
+      type: 'tool_permission';
+      id: string;
+      toolName: string;
+      tier?: 0 | 1 | 2;
+      input: unknown;
+      summary?: string;
+    }
   | { type: 'done'; result?: string; durationMs?: number; costUsd?: number; turns?: number }
   | { type: 'error'; message: string };
 
@@ -16,6 +29,7 @@ export function ChatPane() {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingPermissions, setPendingPermissions] = useState<ToolPermissionRequest[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -43,6 +57,7 @@ export function ChatPane() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          preferences: readStoredChatPreferences(),
           history: nextHistory
             .filter((m) => !(m.role === 'assistant' && m.streaming))
             .map((m) => ({ role: m.role, content: m.content })),
@@ -113,6 +128,17 @@ export function ChatPane() {
           }
           return copy;
         });
+      } else if (event.type === 'tool_permission') {
+        setPendingPermissions((ps) => [
+          ...ps,
+          {
+            id: event.id,
+            toolName: event.toolName,
+            tier: event.tier,
+            input: event.input,
+            summary: event.summary,
+          },
+        ]);
       } else if (event.type === 'error') {
         setError(event.message);
       }
@@ -139,6 +165,15 @@ export function ChatPane() {
           <div className="mx-auto flex max-w-3xl flex-col gap-4">
             {messages.map((m, i) => (
               <ChatMessage key={i} message={m} />
+            ))}
+            {pendingPermissions.map((req) => (
+              <ToolPermissionCard
+                key={req.id}
+                request={req}
+                onResolved={() =>
+                  setPendingPermissions((ps) => ps.filter((p) => p.id !== req.id))
+                }
+              />
             ))}
             {error && (
               <div className="rounded-lg border border-rose-900/60 bg-rose-950/40 px-3 py-2 text-sm text-rose-300">
@@ -174,7 +209,7 @@ export function ChatPane() {
             </button>
           </div>
           <p className="text-[10px] text-slate-600">
-            Enter to send · Shift+Enter for newline · Phase 1: chat only, no job submission yet
+            Enter to send · Shift+Enter for newline · Phase 2: wiki writes + cluster tools live (with confirmation)
           </p>
         </div>
       </div>

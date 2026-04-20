@@ -10,6 +10,11 @@ Usage:
     python gpu_calculator.py --model meta-llama/Meta-Llama-3-8B --method qlora --dataset-tokens 10000000
 """
 
+# Lazy-evaluate all annotations so PEP 604 `X | None` works on Python 3.7+
+# (macOS default is 3.9.6 which rejects PEP 604 at class-body / function-def
+# time; Betty nodes default to 3.11+ but we should work anywhere).
+from __future__ import annotations
+
 import argparse
 import json
 import math

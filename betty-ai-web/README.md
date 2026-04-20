@@ -3,8 +3,8 @@
 Conversational web app for the PARCC Betty HPC cluster, built on the
 [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk/typescript).
 
-**Status:** Phase 1 — chat only. Terminal pane, Slurm submission, and learning
-loop come in later phases.
+**Status:** Phase 2 — chat plus user-driven terminal. Slurm submission and
+learning loop come in later phases.
 
 ## Quick start
 
@@ -17,8 +17,8 @@ npm install
 cp .env.example .env.local
 # then edit .env.local and fill in ANTHROPIC_API_KEY
 
-# 3. Run the dev server
-npm run dev
+# 3. Run the dev server and terminal bridge
+npm run dev:phase2
 # open http://localhost:3000
 ```
 
@@ -44,7 +44,7 @@ The app reads from `../wiki/` and `../betty-ai/` relative to this directory
 | Phase | Scope | Status |
 | --- | --- | --- |
 | **P1** | Chat + wiki tools + quick-start tiles + status bar stub | ✅ this commit |
-| **P2** | Terminal pane (xterm.js + node-pty), PTY bridge to Betty over SSH | 🟡 planned |
+| **P2** | Terminal pane (xterm.js + node-pty), PTY bridge to Betty over SSH | ✅ current |
 | **P3** | Slurm submit tools with `pty_preview` / `pty_exec` confirmation gating | 🟡 planned |
 | **P4** | Session logging to SQLite + golden eval harness in `harness/` | 🟡 planned |
 

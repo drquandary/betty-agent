@@ -41,8 +41,8 @@
 - [[deepseek-v3]] — 671B MoE, requires 8+ B200 GPUs
 
 ## Experiments
-<!-- Populated as experiments are run -->
-_(none yet)_
+<!-- Populated as experiments are run. See [[experiments/TEMPLATE]] for the page template. -->
+- [[experiments/TEMPLATE]] — Canonical template for new experiment pages (agent-owned `## Status` / `## Runtime`, user-owned `## Goal` / `## Lessons`)
 
 ## Sources
 - [[2026-04-08-betty-initial-exploration]] — Full cluster audit via OOD shell

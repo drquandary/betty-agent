@@ -14,21 +14,45 @@ import { paths } from '../knowledge/loader';
 
 const CALCULATOR = join(paths.bettyAi, 'models', 'gpu_calculator.py');
 
-function runPython(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    // Try "python" first; on Betty it's anaconda, locally it could be "python3"
-    const proc = spawn('python', [CALCULATOR, ...args], {
-      cwd: paths.bettyAi,
-      env: process.env,
-    });
-    let stdout = '';
-    let stderr = '';
-    proc.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
-    proc.stderr.on('data', (d: Buffer) => (stderr += d.toString()));
-    proc.on('close', (code) => resolve({ code: code ?? -1, stdout, stderr }));
-    proc.on('error', (err) => resolve({ code: -1, stdout, stderr: String(err) }));
+/**
+ * Spawn the Python interpreter. Tries `python3` first (macOS default, modern
+ * Linux), falls back to `python` (Betty's anaconda / some container envs).
+ * Override with env var BETTY_PYTHON if neither default works.
+ */
+function spawnPython(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
+  const candidates = process.env.BETTY_PYTHON
+    ? [process.env.BETTY_PYTHON]
+    : ['python3', 'python'];
+
+  return new Promise(async (resolve) => {
+    let lastErr = '';
+    for (const bin of candidates) {
+      const result = await new Promise<{ code: number; stdout: string; stderr: string; launched: boolean }>((res) => {
+        const proc = spawn(bin, [CALCULATOR, ...args], {
+          cwd: paths.bettyAi,
+          env: process.env,
+        });
+        let stdout = '';
+        let stderr = '';
+        let launched = true;
+        proc.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
+        proc.stderr.on('data', (d: Buffer) => (stderr += d.toString()));
+        proc.on('close', (code) => res({ code: code ?? -1, stdout, stderr, launched }));
+        proc.on('error', (err) => {
+          launched = false;
+          res({ code: -1, stdout, stderr: String(err), launched: false });
+        });
+      });
+
+      if (result.launched) return resolve(result);
+      lastErr = result.stderr;
+    }
+    resolve({ code: -1, stdout: '', stderr: `No Python interpreter found (tried: ${candidates.join(', ')}). Last error: ${lastErr}` });
   });
 }
+
+// Keep old name as an alias so existing imports don't break.
+const runPython = spawnPython;
 
 export const gpuCalculateTool = tool(
   'gpu_calculate',

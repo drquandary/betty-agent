@@ -151,6 +151,37 @@ status: running | complete | failed | killed
 <!-- What we learned, next steps -->
 ```
 
+### Machine-written experiment pages
+
+When a user submits a training run through Betty AI (the `cluster_submit` tool), the agent automatically creates an experiment page. These pages are **co-owned** by the agent and the user — getting the boundary right matters, because the agent will overwrite its own sections on every `cluster_status` poll.
+
+**Location**: `wiki/experiments/YYYY-MM-DD-<slug>.md` (one per run). `wiki/experiments/TEMPLATE.md` is the reference template.
+
+**Frontmatter set by Betty AI on create** (do not delete these; the agent needs them to find the page again on status updates):
+
+```yaml
+---
+type: experiment
+status: submitted | running | completed | failed | cancelled
+job_id: <slurm-jobid>
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+name: <short name>
+description: <one-line description>
+---
+```
+
+**Section ownership**:
+
+| Section       | Owner  | Marker-delimited?                                      |
+|---------------|--------|--------------------------------------------------------|
+| `## Goal`     | User   | No — agent never touches this after create             |
+| `## Status`   | Agent  | Yes — between `<!-- betty:auto-start -->` / `<!-- betty:auto-end -->` |
+| `## Runtime`  | Agent  | Yes — marker-delimited                                  |
+| `## Lessons`  | User   | No — agent never touches this                           |
+
+The **marker-region convention** is the only safe way for the agent to edit an existing experiment page without clobbering user content. `wiki_write` in `update` mode preserves everything outside the marker pair and rewrites everything inside it. If a user wants to move agent-generated content out of the agent's reach, they should copy it outside the markers — the agent will not re-overwrite it there.
+
 ### Never duplicate data from `betty-ai/`
 The `betty-ai/` directory has **machine-readable configs** (YAML, templates). The wiki has **human-readable knowledge**. Don't copy the YAML into wiki pages — link to it with: `See \`betty-ai/models/model_registry.yaml\` for full specs.`
 

@@ -12,19 +12,126 @@ import { createSdkMcpServer, query, type SDKMessage } from '@anthropic-ai/claude
 import { wikiSearchTool } from './tools/wiki-search';
 import { wikiReadTool } from './tools/wiki-read';
 import { gpuCalculateTool } from './tools/gpu-calculate';
+import { wikiWriteTool } from './tools/wiki-write';
+import { clusterRunTool } from './tools/cluster-run';
+import { clusterSubmitTool } from './tools/cluster-submit';
+import { clusterStatusTool } from './tools/cluster-status';
 import { buildSystemPrompt } from './system-prompt';
+import { prepareClaudeEnvironment, type ChatPreferences } from './providers';
+
+// Re-export so Track C (and other server-side callers) can do:
+//   import { writeWikiPage } from '@/agent/server';
+export { writeWikiPage } from './tools/wiki-write';
 
 const MODEL = process.env.BETTY_AI_MODEL ?? 'claude-sonnet-4-5';
 
 const bettyTools = createSdkMcpServer({
   name: 'betty-ai-tools',
   version: '0.1.0',
-  tools: [wikiSearchTool, wikiReadTool, gpuCalculateTool],
+  tools: [
+    wikiSearchTool,
+    wikiReadTool,
+    gpuCalculateTool,
+    wikiWriteTool,
+    clusterRunTool,
+    clusterSubmitTool,
+    clusterStatusTool,
+  ],
 });
 
 export interface ChatTurn {
   role: 'user' | 'assistant';
   content: string;
+}
+
+/**
+ * Permission tiers for tool calls (decision D4 in PLAN.md).
+ *
+ *   Tier 0 — auto-approve silently.
+ *     - wiki_search, wiki_read, gpu_calculate
+ *     - wiki_write mode="append" targeting wiki/log.md
+ *
+ *   Tier 1 — prompt once per session. The agent session runs per-request today,
+ *            so "once per session" is effectively once per `runAgentQuery` call.
+ *     - wiki_write mode="update"
+ *     - wiki_write mode="create" under experiments/
+ *     - (future: whitelisted cluster_run commands)
+ *
+ *   Tier 2 — always prompt.
+ *     - wiki_write mode="create" outside experiments/
+ *     - (future: cluster_submit)
+ */
+export type PermissionTier = 0 | 1 | 2;
+
+export interface PermissionRequest {
+  id: string;
+  toolName: string;
+  input: Record<string, unknown>;
+  tier: PermissionTier;
+  summary: string;
+}
+
+export type PermissionDecision =
+  | { behavior: 'allow'; updatedInput?: Record<string, unknown> }
+  | { behavior: 'deny'; message: string };
+
+/** Pluggable UI prompter — the HTTP route supplies one per request. */
+export type PermissionPrompter = (
+  req: PermissionRequest,
+) => Promise<PermissionDecision>;
+
+const WIKI_WRITE_TOOL = 'mcp__betty-ai-tools__wiki_write';
+const CLUSTER_RUN_TOOL = 'mcp__betty-ai-tools__cluster_run';
+const CLUSTER_SUBMIT_TOOL = 'mcp__betty-ai-tools__cluster_submit';
+const CLUSTER_STATUS_TOOL = 'mcp__betty-ai-tools__cluster_status';
+
+export function classifyPermissionTier(
+  toolName: string,
+  input: Record<string, unknown>,
+): PermissionTier {
+  if (toolName === WIKI_WRITE_TOOL) {
+    const mode = typeof input.mode === 'string' ? input.mode : '';
+    const page = typeof input.page === 'string' ? input.page : '';
+    const normPage = page.endsWith('.md') ? page : `${page}.md`;
+    if (mode === 'append' && normPage === 'log.md') return 0;
+    if (mode === 'update') return 1;
+    if (mode === 'create') {
+      if (normPage.startsWith('experiments/')) return 1;
+      return 2;
+    }
+    return 2;
+  }
+  // Cluster tools
+  if (toolName === CLUSTER_RUN_TOOL) return 1;
+  if (toolName === CLUSTER_STATUS_TOOL) return 1;
+  if (toolName === CLUSTER_SUBMIT_TOOL) return 2;
+  // Unknown tools default to always-prompt.
+  return 2;
+}
+
+export function summarizePermissionRequest(
+  toolName: string,
+  input: Record<string, unknown>,
+): string {
+  if (toolName === WIKI_WRITE_TOOL) {
+    const mode = String(input.mode ?? '?');
+    const page = String(input.page ?? '?');
+    return `wiki_write ${mode} → wiki/${page}`;
+  }
+  if (toolName === CLUSTER_RUN_TOOL) {
+    const cmd = String(input.command ?? '?');
+    return `cluster_run: ${cmd}`;
+  }
+  if (toolName === CLUSTER_SUBMIT_TOOL) {
+    const slug = String(input.experiment_slug ?? '?');
+    const args = Array.isArray(input.sbatch_args) ? (input.sbatch_args as string[]).join(' ') : '';
+    return `cluster_submit: slug="${slug}"${args ? ` args="${args}"` : ''}`;
+  }
+  if (toolName === CLUSTER_STATUS_TOOL) {
+    const jobId = String(input.job_id ?? '?');
+    return `cluster_status: job ${jobId}`;
+  }
+  return toolName;
 }
 
 /**
@@ -35,24 +142,90 @@ export interface ChatTurn {
  * SDK's session resume, because we're stateless-per-request and the transcript
  * is the UI's source of truth. Phase 4 will switch to persistent sessions.
  */
-export async function* runAgentQuery(history: ChatTurn[]): AsyncGenerator<SDKMessage> {
+export async function* runAgentQuery(
+  history: ChatTurn[],
+  preferences?: ChatPreferences,
+  prompter?: PermissionPrompter,
+): AsyncGenerator<SDKMessage> {
+  prepareClaudeEnvironment();
+
   const systemPrompt = await buildSystemPrompt();
   const prompt = formatHistoryAsPrompt(history);
+
+  // Per-session memo of tier-1 approvals (mirrors D4: "prompt once per session").
+  const tier1Approved = new Set<string>();
 
   for await (const message of query({
     prompt,
     options: {
-      model: MODEL,
+      model: preferences?.model || MODEL,
       systemPrompt,
       mcpServers: {
         'betty-ai-tools': bettyTools,
       },
-      // Phase 1: only our SDK tools are available. No built-in Bash/Write/etc.
+      // Phase 2: wiki_write is now available. Confirmation is handled via canUseTool.
       allowedTools: [
         'mcp__betty-ai-tools__wiki_search',
         'mcp__betty-ai-tools__wiki_read',
         'mcp__betty-ai-tools__gpu_calculate',
+        'mcp__betty-ai-tools__wiki_write',
+        'mcp__betty-ai-tools__cluster_run',
+        'mcp__betty-ai-tools__cluster_submit',
+        'mcp__betty-ai-tools__cluster_status',
       ],
+      canUseTool: async (toolName, input) => {
+        const tier = classifyPermissionTier(toolName, input);
+        if (tier === 0) {
+          return { behavior: 'allow', updatedInput: input };
+        }
+        // Tier 1: once-per-session
+        if (tier === 1) {
+          const key =
+            toolName === WIKI_WRITE_TOOL
+              ? `${toolName}:${(input.page as string) ?? ''}:${(input.mode as string) ?? ''}`
+              : toolName;
+          if (tier1Approved.has(key)) {
+            return { behavior: 'allow', updatedInput: input };
+          }
+          if (!prompter) {
+            // No UI attached — fail closed.
+            return {
+              behavior: 'deny',
+              message: 'No permission prompter attached; tier-1 tool denied.',
+            };
+          }
+          const decision = await prompter({
+            id: cryptoRandomId(),
+            toolName,
+            input,
+            tier,
+            summary: summarizePermissionRequest(toolName, input),
+          });
+          if (decision.behavior === 'allow') {
+            tier1Approved.add(key);
+            return { behavior: 'allow', updatedInput: decision.updatedInput ?? input };
+          }
+          return { behavior: 'deny', message: decision.message };
+        }
+        // Tier 2: always prompt
+        if (!prompter) {
+          return {
+            behavior: 'deny',
+            message: 'No permission prompter attached; tier-2 tool denied.',
+          };
+        }
+        const decision = await prompter({
+          id: cryptoRandomId(),
+          toolName,
+          input,
+          tier,
+          summary: summarizePermissionRequest(toolName, input),
+        });
+        if (decision.behavior === 'allow') {
+          return { behavior: 'allow', updatedInput: decision.updatedInput ?? input };
+        }
+        return { behavior: 'deny', message: decision.message };
+      },
       // Unused paths the SDK might otherwise try to auto-load
       settingSources: [],
       maxTurns: 8,
@@ -60,6 +233,14 @@ export async function* runAgentQuery(history: ChatTurn[]): AsyncGenerator<SDKMes
   })) {
     yield message;
   }
+}
+
+function cryptoRandomId(): string {
+  // Prefer crypto.randomUUID() where available; fall back to Math.random.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const g = globalThis as any;
+  if (g.crypto?.randomUUID) return g.crypto.randomUUID();
+  return `perm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /**
