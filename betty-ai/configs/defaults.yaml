@@ -25,6 +25,20 @@ inference:
   default_port: 8000
   default_max_model_len: 4096
   default_quantization: null  # null, awq, gptq, or squeezellm
+  # Available inference backends. Pick one when invoking the agent.
+  #   local-vllm   : spin up vLLM on a Betty GPU allocation (default, full control)
+  #   litellm-parcc: call PARCC's hosted LiteLLM gateway (no GPU allocation needed)
+  default_provider: "local-vllm"
+
+providers:
+  litellm-parcc:
+    base_url: "https://litellm.parcc.upenn.edu/v1"
+    chat_endpoint: "/chat/completions"
+    # OpenAI-compatible API. Set api_key in team.yaml (gitignored), not here.
+    # Models are namespaced as "openai/<model>", e.g. "openai/gpt-oss-120b".
+    default_model: "openai/gpt-oss-120b"
+    default_max_tokens: 100
+    default_temperature: 0.5
 
 slurm:
   walltime_buffer_factor: 1.3  # multiply estimated time by this for --time

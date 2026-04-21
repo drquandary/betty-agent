@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, storage, nfs, vast, infiniband, rdma]
 created: 2026-04-08
-updated: 2026-04-10
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide]
+updated: 2026-04-21
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion]
 related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty]
 status: current
 ---
@@ -50,6 +50,9 @@ See [[parcc-helper-tools]].
 - 1 MB read/write blocks optimize for large sequential I/O (model weights, datasets)
 - 40 remote storage endpoints provide parallel throughput
 - All compute nodes mount identically
+
+## Open threads
+- **Tenant-level setting (2026-04-21)**: Jeff noted VAST support told him a certain configuration needs to be applied at the **tenant** level (not cluster-wide / not per-user). Specific setting not yet recorded. Follow up with VAST support + capture the setting name here once identified. Context: [[2026-04-21-parcc-ops-discussion]].
 
 ## See also
 - [[betty-storage-architecture]] -- full storage architecture including Ceph and local NVMe

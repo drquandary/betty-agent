@@ -32,6 +32,10 @@
 - [[betty-software-deployment]] — overspack, Spack environments, container runtimes, CUDA modules
 - [[betty-storage-architecture]] — Dual VAST+Ceph architecture with local NVMe scratch
 - [[betty-network-architecture]] — InfiniBand RDMA, bonded Ethernet, BMC/Redfish, IP ranges
+- [[slurm-gres-conf]] — `gres.conf` role, fields, and Betty's missing-file + null-UniqueId anomaly
+- [[slurm-node-state-modifiers]] — `sinfo` suffix glossary (`*`, `~`, `-`, etc.); what `mix-` means
+- [[slurm-select-type-parameters]] — `CR_Core_Memory` vs `CR_Pack_Nodes` tradeoff (tentative)
+- [[interact-script-vs-salloc]] — why `interact` reloads the profile and `salloc --pty bash` doesn't
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**
@@ -52,3 +56,5 @@
 - [[2026-04-09-jvadala-ood-bug-reproduction]] — Live reproduction of 3 OOD bugs
 - [[2026-04-10-jaime-modules-sh-fix]] — Jaime's fix to /etc/profile.d/modules.sh resolving lmod crash
 - [[2026-04-10-ryb-overspack-deployment-docs]] — ryb's overspack tool and 26.1.zen4 deployment context
+- [[2026-04-17-dgx002-gpu5-oversubscription]] — two jobs double-booked GPU-5 on dgx002 (tentative root cause)
+- [[2026-04-21-parcc-ops-discussion]] — ops chat: GPU oversub, SLURM states, `interact` vs salloc, VAST tenant setting, SelectTypeParameters

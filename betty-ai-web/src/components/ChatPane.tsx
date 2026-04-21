@@ -24,6 +24,8 @@ type StreamEvent =
   | { type: 'done'; result?: string; durationMs?: number; costUsd?: number; turns?: number }
   | { type: 'error'; message: string };
 
+const CHAT_HISTORY_STORAGE_KEY = 'betty-ai-chat-history';
+
 export function ChatPane() {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [input, setInput] = useState('');
@@ -33,12 +35,48 @@ export function ChatPane() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Rehydrate messages from localStorage on mount. We deliberately skip any
+  // "streaming" messages from a prior session — those are partial and would
+  // confuse the UI; losing a torn-off streaming message is acceptable.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as DisplayMessage[];
+      if (Array.isArray(parsed)) {
+        setMessages(parsed.filter((m) => !m.streaming));
+      }
+    } catch {
+      /* corrupt storage — ignore */
+    }
+  }, []);
+
+  // Persist on every change. Writing during streaming is intentional: if the
+  // user reloads mid-stream, they still see the partial answer.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      /* quota full — drop silently */
+    }
+  }, [messages]);
+
   // Auto-scroll to bottom on new content
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const clearHistory = useCallback(() => {
+    setMessages([]);
+    setError(null);
+    try {
+      window.localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const send = useCallback(async (text: string) => {
     const trimmed = text.trim();
@@ -163,6 +201,18 @@ export function ChatPane() {
           <EmptyState />
         ) : (
           <div className="mx-auto flex max-w-3xl flex-col gap-4">
+            {messages.length > 0 && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={clearHistory}
+                  className="text-[11px] text-slate-500 transition hover:text-slate-300"
+                  title="Clear saved conversation history"
+                >
+                  Clear chat
+                </button>
+              </div>
+            )}
             {messages.map((m, i) => (
               <ChatMessage key={i} message={m} />
             ))}
@@ -185,10 +235,10 @@ export function ChatPane() {
       </div>
 
       {/* Composer */}
-      <div className="border-t border-slate-800 bg-slate-950/80 px-4 py-3 backdrop-blur">
-        <div className="mx-auto max-w-3xl space-y-2">
+      <div className="border-t border-white/[0.06] bg-[var(--surface-raised)]/70 px-4 py-3.5 backdrop-blur-xl">
+        <div className="mx-auto max-w-3xl space-y-2.5">
           <QuickStartTiles onPick={(p) => void send(p)} disabled={busy} />
-          <div className="relative">
+          <div className="group relative">
             <textarea
               ref={inputRef}
               value={input}
@@ -197,19 +247,23 @@ export function ChatPane() {
               placeholder="Ask Betty AI anything about the cluster…"
               rows={2}
               disabled={busy}
-              className="w-full resize-none rounded-xl border border-slate-800 bg-slate-900/60 px-3.5 py-2.5 pr-20 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 disabled:opacity-60"
+              className="w-full resize-none rounded-2xl border border-white/10 bg-[var(--surface-elevated)]/60 px-4 py-3 pr-24 text-sm text-zinc-100 placeholder:text-zinc-500 shadow-inner shadow-black/20 transition focus:border-indigo-400/60 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60"
             />
             <button
               type="button"
               disabled={busy || !input.trim()}
               onClick={() => void send(input)}
-              className="absolute bottom-2 right-2 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-700"
+              className="absolute bottom-2.5 right-2.5 rounded-lg bg-gradient-to-b from-indigo-500 to-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-950/40 ring-1 ring-white/10 transition hover:from-indigo-400 hover:to-indigo-500 disabled:cursor-not-allowed disabled:from-zinc-700 disabled:to-zinc-800 disabled:shadow-none disabled:ring-white/5"
             >
               {busy ? 'Thinking…' : 'Send ↵'}
             </button>
           </div>
-          <p className="text-[10px] text-slate-600">
-            Enter to send · Shift+Enter for newline · Phase 2: wiki writes + cluster tools live (with confirmation)
+          <p className="text-[10.5px] text-zinc-600">
+            <kbd className="mx-0.5 rounded border border-white/10 bg-white/5 px-1 font-mono text-[10px]">Enter</kbd>
+            to send ·{' '}
+            <kbd className="mx-0.5 rounded border border-white/10 bg-white/5 px-1 font-mono text-[10px]">Shift</kbd>+
+            <kbd className="mx-0.5 rounded border border-white/10 bg-white/5 px-1 font-mono text-[10px]">Enter</kbd>
+            for newline
           </p>
         </div>
       </div>
@@ -219,17 +273,24 @@ export function ChatPane() {
 
 function EmptyState() {
   return (
-    <div className="mx-auto mt-16 flex max-w-xl flex-col items-center text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600/20 ring-1 ring-indigo-500/40">
-        <span className="text-2xl">👋</span>
+    <div className="mx-auto mt-20 flex max-w-xl flex-col items-center text-center">
+      <div className="relative mb-5">
+        <div className="absolute inset-0 -z-10 blur-xl" aria-hidden="true">
+          <div className="h-16 w-16 rounded-full bg-indigo-500/40" />
+        </div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/30 to-amber-500/20 ring-1 ring-white/10 shadow-xl shadow-indigo-950/50">
+          <span className="text-3xl">👋</span>
+        </div>
       </div>
-      <h1 className="text-xl font-semibold text-slate-100">Hi Jeff, I&apos;m Betty AI.</h1>
-      <p className="mt-2 text-sm leading-relaxed text-slate-400">
+      <h1 className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-2xl font-semibold tracking-tight text-transparent">
+        Hi Jeff, I&apos;m Betty AI.
+      </h1>
+      <p className="mt-3 text-[13.5px] leading-relaxed text-zinc-400">
         I help you use the Betty cluster without writing sbatch by hand. Ask me about
         partitions, storage, OOD, fine-tuning a model, or known issues — I&apos;ll check the
         wiki and answer with citations.
       </p>
-      <p className="mt-3 text-xs text-slate-500">Pick a quick-start below, or type a question.</p>
+      <p className="mt-4 text-xs text-zinc-500">Pick a quick-start below, or type a question.</p>
     </div>
   );
 }

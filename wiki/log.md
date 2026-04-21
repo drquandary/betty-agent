@@ -6,6 +6,24 @@
 
 ---
 
+## [2026-04-21] ingest | PARCC ops chat — GPU oversubscription, SLURM states, VAST tenant setting
+- Source captured: `raw/ops_chat/2026-04-21-parcc-ops-discussion.md` (verbatim chat between Jaime Combariza, Kenneth Chaney, jvadala)
+- Created source pages: [[2026-04-21-parcc-ops-discussion]], [[2026-04-17-dgx002-gpu5-oversubscription]]
+- Created concept pages: [[slurm-gres-conf]], [[slurm-node-state-modifiers]], [[slurm-select-type-parameters]], [[interact-script-vs-salloc]]
+- Updated: [[vast-storage]] (added open thread on tenant-level setting), [[index]]
+- Key findings filed:
+  - dgx002 GPU-5 double-booking incident (2026-04-17): two jobs, both got `CUDA_VISIBLE_DEVICES=0`; `/etc/slurm/gres.conf` missing on node, `UniqueId:(null)` on every GRES row despite `AutoDetect=nvml`; cgroup plugins loaded. Not reproducible on 2026-04-21 — status `tentative`.
+  - `sinfo` node-state trailing `-` means "planned by backfill for higher-priority job"; `parcc_sfree.py --by node` renders this as `MIXED+PLANNED`. Full modifier glossary captured.
+  - `interact` helper uses `bash -i` which re-sources login profile (resets Lmod); plain `salloc --pty bash` inherits caller's env. Chaney argues `-i` should be dropped.
+  - `SelectTypeParameters=CR_Core_Memory` currently; Jaime evaluating `CR_Pack_Nodes` add-on. Needs a test cluster to validate.
+- Open threads (unresolved, NOT filed as fixes):
+  - VAST tenant-level setting (exact setting name TBD)
+  - `gres.conf` not symlinked next to `slurm.conf` — is `/etc/slurm` ground truth on Betty?
+  - dgx024: user `ldugan` running processes without matching SLURM job while `jojolee` held the allocation (job 5359912) — Chaney investigating
+  - Nsight install/activate pending on Ahead
+  - Dell quote awaiting internal approval; ETA concerning
+- Notes: the chat also included Jaime's desire for a test cluster (noted on both [[slurm-select-type-parameters]] and [[2026-04-17-dgx002-gpu5-oversubscription]]).
+
 ## [2026-04-16] handoff | Session handoff written for incoming agent
 - Created: `raw/docs/2026-04-16-session-handoff.md`
 - Context: Jeff wanted to expand Betty AI beyond LLMs to multi-task orchestrator. Initially proposed MATLAB+OOD sandbox; Jeff confirmed Betty has NO MATLAB, so pivoted to enumerating real workflows on Betty (Jupyter, RStudio, MONAI, Nextflow, AlphaFold, GROMACS, RAPIDS, NetLogo, etc.). Session paused at Kerberos-ticket renewal step — ticket expired Apr 13, needs `kinit jvadala@UPENN.EDU`. Plan on resume: run `module spider` recon on Betty, then build task registry + cross-cutting pattern templates.

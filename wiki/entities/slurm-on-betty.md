@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, slurm, scheduler, qos]
 created: 2026-04-08
-updated: 2026-04-08
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide]
+updated: 2026-04-21
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion]
 related: [betty-cluster, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, betty-billing-model, parcc-helper-tools]
 status: current
 ---
@@ -63,7 +63,13 @@ scancel <JOBID>
 - [[betty-cluster]]
 - [[parcc-helper-tools]]
 - [[betty-billing-model]]
+- [[slurm-gres-conf]] — how GPU devices are declared to slurmd
+- [[slurm-node-state-modifiers]] — decoding `mix-`, `alloc*`, `idle~`, etc.
+- [[slurm-select-type-parameters]] — current `CR_Core_Memory`; open question about adding `CR_Pack_Nodes`
+- [[interact-script-vs-salloc]] — why `interact` reloads the profile
+- [[2026-04-17-dgx002-gpu5-oversubscription]] — GPU double-booking incident
 
 ## Sources
 - [[2026-04-08-betty-initial-exploration]]
 - [[2026-04-08-betty-system-guide]]
+- [[2026-04-21-parcc-ops-discussion]]

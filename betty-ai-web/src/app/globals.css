@@ -4,6 +4,31 @@
 
 :root {
   color-scheme: dark;
+
+  /* Design tokens — warm-dark palette inspired by Linear / Raycast */
+  --surface-canvas: #0f1012;          /* page bg, slightly warmer than zinc-950 */
+  --surface-raised: #17181c;          /* cards, header, footer */
+  --surface-elevated: #1d1e23;        /* dropdowns, modals */
+  --surface-muted: #24262c;           /* subtle hovers */
+  --surface-chat-user: #4f46e5;       /* indigo-600 */
+  --surface-chat-assistant: #1a1b20;  /* assistant bubble */
+  --surface-terminal: #0b0c0f;        /* darker for terminal */
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  --text-primary: #e9e9ec;
+  --text-secondary: #a6a6ad;
+  --text-muted: #74747c;
+  --text-dim: #52525a;
+
+  --accent: #818cf8;                  /* indigo-400 */
+  --accent-strong: #6366f1;           /* indigo-500 */
+  --accent-warm: #f4a460;             /* warm highlight for Betty avatar */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
 }
 
 html,
@@ -12,27 +37,51 @@ body {
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 font-sans antialiased;
+  @apply font-sans antialiased;
+  color: var(--text-primary);
+  background-color: var(--surface-canvas);
+  /* Subtle radial accent glow — gives the page warmth without brightness */
+  background-image:
+    radial-gradient(1200px 600px at 15% -5%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(800px 500px at 85% 110%, rgba(244, 164, 96, 0.05), transparent 60%);
+  background-attachment: fixed;
 }
 
-/* Scrollbar styling for chat pane */
+/* Scrollbar — subtler, warmer */
 .scroll-custom::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 .scroll-custom::-webkit-scrollbar-track {
   background: transparent;
 }
 .scroll-custom::-webkit-scrollbar-thumb {
-  background: rgb(51 65 85); /* slate-700 */
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 .scroll-custom::-webkit-scrollbar-thumb:hover {
-  background: rgb(71 85 105); /* slate-600 */
+  background: rgba(255, 255, 255, 0.12);
+  background-clip: padding-box;
+}
+
+/* Subtle surface utilities */
+.surface-raised {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+}
+.surface-elevated {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* Markdown prose tuning inside chat bubbles */
 .prose-chat {
-  @apply text-sm leading-relaxed;
+  @apply text-[13.5px] leading-relaxed;
 }
 .prose-chat p {
   @apply mb-2 last:mb-0;
@@ -40,39 +89,59 @@ body {
 .prose-chat h1,
 .prose-chat h2,
 .prose-chat h3 {
-  @apply font-semibold mt-3 mb-1;
+  @apply font-semibold mt-3 mb-1 tracking-tight;
+  color: var(--text-primary);
 }
-.prose-chat h1 { @apply text-base; }
+.prose-chat h1 { @apply text-[15px]; }
 .prose-chat h2 { @apply text-sm; }
 .prose-chat h3 { @apply text-sm; }
-.prose-chat ul {
-  @apply list-disc pl-5 mb-2;
-}
-.prose-chat ol {
-  @apply list-decimal pl-5 mb-2;
-}
-.prose-chat li {
-  @apply mb-1;
-}
+.prose-chat ul { @apply list-disc pl-5 mb-2; }
+.prose-chat ol { @apply list-decimal pl-5 mb-2; }
+.prose-chat li { @apply mb-1; }
+.prose-chat strong { color: var(--text-primary); }
 .prose-chat code {
-  @apply font-mono bg-slate-800 text-indigo-300 px-1 py-0.5 rounded text-xs;
+  @apply font-mono rounded px-1.5 py-0.5 text-[12px];
+  background: rgba(129, 140, 248, 0.12);
+  color: #c4b5fd;
+  border: 1px solid rgba(129, 140, 248, 0.18);
 }
 .prose-chat pre {
-  @apply bg-slate-900 border border-slate-800 rounded-lg p-3 my-2 overflow-x-auto;
+  @apply rounded-lg p-3.5 my-2.5 overflow-x-auto;
+  background: #0c0d10;
+  border: 1px solid var(--border-default);
 }
 .prose-chat pre code {
-  @apply bg-transparent p-0 text-slate-200;
+  @apply bg-transparent p-0 border-0 text-[12.5px];
+  color: #d1d5db;
 }
 .prose-chat a {
-  @apply text-indigo-400 underline decoration-indigo-700 underline-offset-2 hover:decoration-indigo-500;
+  color: var(--accent);
+  @apply underline decoration-dotted underline-offset-2;
+}
+.prose-chat a:hover {
+  color: #a5b4fc;
 }
 .prose-chat blockquote {
-  @apply border-l-2 border-slate-700 pl-3 text-slate-300 italic my-2;
+  @apply pl-3 italic my-2;
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-secondary);
 }
 .prose-chat table {
-  @apply text-xs border-collapse my-2;
+  @apply text-xs border-collapse my-2.5 rounded-md overflow-hidden;
+  border: 1px solid var(--border-default);
 }
-.prose-chat th,
+.prose-chat th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  @apply px-2.5 py-1.5 text-left font-medium;
+  border-bottom: 1px solid var(--border-default);
+}
 .prose-chat td {
-  @apply border border-slate-700 px-2 py-1;
+  @apply px-2.5 py-1.5;
+  border-top: 1px solid var(--border-subtle);
+}
+.prose-chat hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  @apply my-4;
 }

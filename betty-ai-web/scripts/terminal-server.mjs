@@ -10,10 +10,55 @@ const BETTY_SSH_USER = (process.env.BETTY_SSH_USER || 'jvadala').trim();
 const BETTY_SSH_HOST = (process.env.BETTY_SSH_HOST || 'login.betty.parcc.upenn.edu').trim();
 const SHELL = process.env.SHELL || (process.platform === 'win32' ? 'powershell.exe' : '/bin/zsh');
 
+const connectedClients = new Set();
+
+function broadcastToClients(message) {
+  const payload = JSON.stringify(message);
+  for (const ws of connectedClients) {
+    if (ws.readyState === ws.OPEN) ws.send(payload);
+  }
+}
+
 const server = http.createServer((req, res) => {
   if (req.url === '/healthz') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  // Mirror endpoint — the agent POSTs {text} here after running a cluster
+  // command so the user sees what Betty did in the visible terminal pane.
+  // We write an `output` frame (display-only, doesn't touch any PTY).
+  // Guarded by BETTY_MIRROR_SECRET: /mirror requires `x-mirror-secret` to
+  // match, so random local processes can't scribble on the terminal.
+  if (req.url === '/mirror' && req.method === 'POST') {
+    const expected = process.env.BETTY_MIRROR_SECRET?.trim();
+    if (!expected) {
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'mirror disabled: BETTY_MIRROR_SECRET not set' }));
+      return;
+    }
+    const provided = String(req.headers['x-mirror-secret'] ?? '').trim();
+    if (provided !== expected) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'bad or missing x-mirror-secret' }));
+      return;
+    }
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', () => {
+      try {
+        const { text } = JSON.parse(body || '{}');
+        if (typeof text === 'string' && text.length > 0) {
+          broadcastToClients({ type: 'output', data: text });
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, clients: connectedClients.size }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: String(err) }));
+      }
+    });
     return;
   }
 
@@ -24,6 +69,7 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server, path: '/terminal' });
 
 wss.on('connection', (ws) => {
+  connectedClients.add(ws);
   let cols = 100;
   let rows = 28;
   let term = null;
@@ -121,8 +167,14 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', disposeTerminal);
-  ws.on('error', disposeTerminal);
+  ws.on('close', () => {
+    connectedClients.delete(ws);
+    disposeTerminal();
+  });
+  ws.on('error', () => {
+    connectedClients.delete(ws);
+    disposeTerminal();
+  });
 
   spawnLocal();
 });

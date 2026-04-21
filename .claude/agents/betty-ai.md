@@ -99,7 +99,11 @@ When a user says something like "I want to fine-tune Llama 70B" or "serve Mistra
 - Any budget constraints? (max PC to spend, max hours)
 - Do you have a HuggingFace token? (needed for gated models like Llama)
 
-**For inference/serving, ask:**
+**For inference/serving, ask first — which backend?**
+1. **`litellm-parcc`** — PARCC's hosted LiteLLM gateway. No GPU allocation, no Slurm job, no PC cost. Default model: `openai/gpt-oss-120b`. Good for: quick queries, prototyping, anything that fits a hosted model. Call it via `python betty-ai/scripts/litellm_chat.py "<prompt>"` (reads key from `betty-ai/configs/team.yaml`; supports `--model`, `--system`, `--max-tokens`, `--temperature`, `--json`, and `-` for stdin). Config lives under `providers.litellm-parcc` in `betty-ai/configs/defaults.yaml`.
+2. **`local-vllm`** — spin up vLLM on a Betty GPU allocation. Use when: the model isn't on LiteLLM, you need a specific checkpoint/LoRA, you're benchmarking, or you need throughput control.
+
+If the user picks `litellm-parcc`, skip the resource-calculation/Slurm steps — just run the helper script (or show the curl equivalent). Only ask the vLLM-specific questions below if they pick `local-vllm`:
 - What model?
 - How will people access it? (Just you via CLI, or API for team?)
 - How long should it stay up?

@@ -1,4 +1,4 @@
-export type ChatProvider = 'claude-code' | 'local-qwen' | 'openai';
+export type ChatProvider = 'claude-code' | 'local-qwen' | 'openai' | 'litellm-parcc';
 
 export type ChatProviderInput = ChatProvider | 'chatgpt-login';
 
@@ -25,6 +25,7 @@ export const DEFAULT_CHAT_PREFERENCES: ChatPreferences = {
 
 const LOCAL_QWEN_DEFAULT_BASE_URL = 'http://127.0.0.1:1234/v1';
 const OPENAI_DEFAULT_BASE_URL = 'https://api.openai.com/v1';
+const LITELLM_PARCC_DEFAULT_BASE_URL = 'https://litellm.parcc.upenn.edu/v1';
 
 const LOCAL_QWEN_DEFAULTS: ChatPreferences = {
   provider: 'local-qwen',
@@ -38,6 +39,13 @@ const OPENAI_DEFAULTS: ChatPreferences = {
   label: 'OpenAI',
   model: 'gpt-4o-mini',
   baseUrl: OPENAI_DEFAULT_BASE_URL,
+};
+
+const LITELLM_PARCC_DEFAULTS: ChatPreferences = {
+  provider: 'litellm-parcc',
+  label: 'PARCC LiteLLM',
+  model: 'openai/gpt-oss-120b',
+  baseUrl: LITELLM_PARCC_DEFAULT_BASE_URL,
 };
 
 function normalizeBaseUrl(value: string | undefined, fallback: string): string {
@@ -66,6 +74,14 @@ export function resolveChatPreferences(input: unknown): ChatPreferences {
       ...OPENAI_DEFAULTS,
       model: raw.model?.trim() || OPENAI_DEFAULTS.model,
       baseUrl: normalizeBaseUrl(raw.baseUrl, OPENAI_DEFAULT_BASE_URL),
+    };
+  }
+
+  if (provider === 'litellm-parcc') {
+    return {
+      ...LITELLM_PARCC_DEFAULTS,
+      model: raw.model?.trim() || LITELLM_PARCC_DEFAULTS.model,
+      baseUrl: normalizeBaseUrl(raw.baseUrl, LITELLM_PARCC_DEFAULT_BASE_URL),
     };
   }
 

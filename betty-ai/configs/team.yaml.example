@@ -25,3 +25,10 @@ preferences:
 # Do NOT put your HF token here — use: export HF_TOKEN=<token> in ~/.bashrc
 huggingface:
   default_cache: "/vast/projects/jcombar1-betty-testing/hf_cache"
+
+# PARCC LiteLLM gateway (hosted inference; no GPU allocation needed)
+# team.yaml is gitignored, so the key can live here. Prefer env var LITELLM_API_KEY
+# in shared setups.
+providers:
+  litellm-parcc:
+    api_key: "sk-REPLACE_ME"  # from PARCC; request via LiteLLM admin
