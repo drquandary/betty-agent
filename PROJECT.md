@@ -12,18 +12,22 @@
 **Allocation**: _TBD_
 
 ### Goal
-Betty AI is a general-purpose conversational research assistant for the Betty HPC cluster. It helps Penn researchers do **whatever research task they need** on Betty — fine-tune LLMs, serve inference endpoints, run multi-node MPI jobs, explore datasets, debug Slurm failures, set up conda environments — without having to hand-write Slurm scripts or memorize cluster quirks.
+Betty Agent is a general-purpose conversational research assistant for the Betty HPC cluster. It helps Penn researchers accomplish **any research computing task** on Betty — fine-tune LLMs, serve inference endpoints, run multi-node MPI jobs, process large datasets, set up interactive environments, debug Slurm failures, manage conda environments — without having to hand-write Slurm scripts or memorize cluster quirks.
 
-The agent is *not* tied to a specific model or dataset. It's an orchestrator: it asks what the user wants, picks appropriate resources, generates the right job scripts, submits, and monitors.
+The agent is *not* tied to LLMs or any specific workload. It's an orchestrator: it asks what the user wants, picks appropriate resources, generates the right job scripts, submits, and monitors.
+
+**Phase 1 focus (current):** LLM fine-tuning and inference workflows are fully implemented and battle-tested.
+
+**Future phases:** The same architecture extends to any research computing scenario — MPI jobs, data pipelines, interactive notebooks, custom scientific software, and more.
 
 ### Current focus
 _TBD — fill in what you're actively building next (e.g. web GUI polish, new agent tool, wiki ingestion flow, specific user workflow)_
 
 ---
 
-## What Betty AI is made of
+## What Betty Agent is made of
 
-Betty AI has two halves plus a knowledge layer:
+Betty Agent has two halves plus a knowledge layer:
 
 ### 1. Agent brain — `betty-ai/`
 Python + YAML configs, templates, and helper scripts that the agent uses to reason about the cluster:
@@ -89,15 +93,23 @@ _Add teammates here as they join._
 
 ## Common tasks the agent should handle
 
-The agent is general-purpose, but should be especially fluent at:
+The agent is general-purpose and architected to handle any research computing workload. Current capabilities by phase:
 
+**Phase 1 (fully implemented):**
 1. **Fine-tuning LLMs** — pick GPUs, generate Slurm + DeepSpeed/LoRA scripts, submit, monitor
 2. **Serving inference** — set up vLLM/TGI endpoints, expose to the team
-3. **Multi-node / MPI jobs** — generate `sbatch` scripts with `srun --mpi=pmix`
-4. **Environment management** — create/activate conda envs in `/vast/projects/...`
-5. **Debugging** — parse Slurm failure logs, diagnose node/partition issues
-6. **Wiki operations** — ingest new `raw/` docs into `wiki/`, answer "what do we know about X?" from wiki, run lint passes
-7. **Cost estimation** — estimate GPU-hours and cluster point (PC) usage before submitting
+3. **Environment management** — create/activate conda envs in `/vast/projects/...`
+4. **Debugging** — parse Slurm failure logs, diagnose node/partition issues
+5. **Wiki operations** — ingest new `raw/` docs into `wiki/`, answer "what do we know about X?" from wiki, run lint passes
+6. **Cost estimation** — estimate GPU-hours and cluster point (PC) usage before submitting
+
+**Future phases (architecture supports, templates needed):**
+7. **Multi-node / MPI jobs** — generate `sbatch` scripts with `srun --mpi=pmix` for simulations, modeling, parallel computing
+8. **Data processing pipelines** — Spark, Dask, custom Python/R workflows on CPU or GPU
+9. **Interactive computing** — Jupyter, RStudio servers with resource allocation
+10. **Batch analysis** — domain-specific workloads (bioinformatics, physics, chemistry, climate science)
+11. **Custom software stacks** — compile and deploy specialized research software
+12. **Workflow orchestration** — multi-stage pipelines with dependencies
 
 ---
 

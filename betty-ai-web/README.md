@@ -1,10 +1,12 @@
-# Betty AI — Web GUI
+# Betty Agent — Web GUI
 
-Conversational web app for the PARCC Betty HPC cluster, built on the
+Conversational web app for research computing on the PARCC Betty HPC cluster, built on the
 [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk/typescript).
 
 **Status:** Phase 2 — chat plus user-driven terminal. Slurm submission and
 learning loop come in later phases.
+
+**Current focus:** Phase 1 specializes in LLM fine-tuning and inference. The general-purpose architecture supports any research computing workload in future phases.
 
 ## Quick start
 
@@ -22,7 +24,7 @@ npm run dev:phase2
 # open http://localhost:3000
 ```
 
-Ask "What partitions does Betty have?" and Betty AI will search the wiki and
+Ask "What partitions does Betty have?" and Betty Agent will search the wiki and
 cite `[[entities/betty-cluster]]` in its answer.
 
 ## Architecture
