@@ -107,15 +107,19 @@ scp <local-file> jvadala@login.betty.parcc.upenn.edu:/vast/projects/<project>
 - Use interactive allocations only for debugging; release when done
 - Check `parcc_quota.py` before large transfers
 
-## Betty AI Agent
+## Betty Agent
 
-This repo includes **Betty AI** — a conversational agent for LLM fine-tuning and inference on Betty.
+This repo includes **Betty Agent** — a conversational AI assistant for any research computing task on Betty.
 
 ### Quick start
-Invoke the agent: `/agent betty-ai` or just ask about fine-tuning/serving LLMs.
+Invoke the agent: `/agent betty-ai` or ask about running workloads on Betty.
+
+**Current focus (Phase 1):** LLM fine-tuning and inference are fully supported with production-ready templates and workflows.
+
+**Future capabilities:** The general-purpose architecture supports any research computing scenario — MPI jobs, data pipelines, interactive environments, batch analysis, and custom scientific software. Additional templates and workflows will be added in future phases.
 
 ### Project context
-See `PROJECT.md` for research-specific info: dataset details, current experiments, team, known issues. **Keep this file updated** — it's the agent's primary context about YOUR work.
+See `PROJECT.md` for research-specific info: current capabilities, team, known issues. **Keep this file updated** — it's the agent's primary context about YOUR work.
 
 ## Knowledge base — Karpathy LLM Wiki pattern
 
@@ -146,4 +150,4 @@ See `wiki/SCHEMA.md` for the full pattern.
 ### For new team members
 1. Copy `betty-ai/configs/team.yaml.example` to `betty-ai/configs/team.yaml`
 2. Fill in your PennKey and project path
-3. Run `claude` from this directory and talk to Betty AI
+3. Run `claude` from this directory and talk to Betty Agent

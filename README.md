@@ -1,20 +1,43 @@
-# Betty AI — LLM Training & Inference for Betty Cluster
+# Betty Agent — AI Assistant for Research Computing on Betty Cluster
 
-A conversational AI agent and web interface that makes it dead simple to fine-tune and serve LLMs on UPenn's Betty HPC cluster (PARCC).
+A conversational AI agent and web interface that makes it dead simple to run any research computing workload on UPenn's Betty HPC cluster (PARCC). From LLM fine-tuning to multi-node simulations, data analysis to GPU-accelerated workflows — just describe what you need in plain English.
 
 ## What it does
 
-Tell Betty AI what you want in plain English:
+Tell Betty Agent what you want in plain English:
 
 > "I want to fine-tune Llama 3 70B on my customer support dataset"
+> "Run a multi-node MPI simulation with 8 nodes"
+> "Set up a Jupyter notebook server with GPU access"
+> "Process this 500GB dataset and generate visualizations"
 
-Betty AI will:
-1. Ask clarifying questions (dataset size, training method, budget)
-2. Calculate optimal GPU allocation and estimated cost
+Betty Agent will:
+1. Ask clarifying questions (resource needs, software requirements, budget)
+2. Calculate optimal compute allocation and estimated cost
 3. Generate production-ready Slurm job scripts
-4. Check/create conda environments
+4. Check/create conda environments and dependencies
 5. Submit the job and monitor it
 6. Update the knowledge wiki with experiment details
+
+## Capabilities by Research Phase
+
+### ✅ Phase 1: LLM Fine-tuning & Inference (Current)
+The agent is battle-tested for:
+- **Fine-tuning** foundation models (Llama, Mistral, etc.) with LoRA/QLoRA/full fine-tuning
+- **Serving** inference endpoints with vLLM/TGI
+- **Resource optimization** for GPU memory, DeepSpeed configurations
+- **Cost estimation** and GPU allocation strategies
+
+### 🚀 Future Phases: General Research Computing
+The same conversational interface and automation capabilities extend to:
+- **Multi-node MPI jobs** for simulations, modeling, and parallel computing
+- **Data processing pipelines** with Spark, Dask, or custom workflows
+- **Interactive computing** (Jupyter, RStudio) with GPU access
+- **Batch analysis** for bioinformatics, physics, chemistry, climate science
+- **Custom software environments** and dependency management
+- **Debugging** cluster issues, quota management, job optimization
+
+**The architecture is general-purpose** — LLM workflows are just the first fully-implemented use case.
 
 ## Key Features
 
@@ -130,22 +153,28 @@ For detailed setup including SSH troubleshooting, see `betty-ai-web/SETUP.md`.
 
 ### Example conversations
 
-**Fine-tuning:**
+**LLM fine-tuning (Phase 1 - fully supported):**
 > "Fine-tune Llama 3 8B on the alpaca dataset with LoRA"
 > "Train a 70B model on my custom data — I have about 100K examples"
 > "What's the cheapest way to fine-tune Mistral 7B?"
 
-**Inference:**
+**Inference (Phase 1 - fully supported):**
 > "Serve Llama 3 70B for my team"
 > "Set up vLLM for Mixtral 8x22B"
 > "I need a local API for code generation"
 
-**Cluster operations:**
+**General research computing (future phases):**
+> "Run a 16-node MPI job for my CFD simulation"
+> "Set up a Jupyter server with 2 A100s for the team"
+> "Process 200GB of genomic data with custom Python pipeline"
+> "Train a computer vision model on ImageNet"
+
+**Cluster operations (all phases):**
 > "Check my jobs"
 > "What partitions are available?"
 > "Show me the last 50 lines of job 12345's output"
 
-**Wiki operations:**
+**Wiki operations (all phases):**
 > "Ingest raw/docs/new-paper.md"
 > "What do we know about DeepSpeed ZeRO-3?"
 > "Lint the wiki"
