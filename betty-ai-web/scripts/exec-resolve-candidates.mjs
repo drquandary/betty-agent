@@ -7,6 +7,14 @@
  * and `getSshCandidates` with identical values for unit-testing.
  */
 
+/**
+ * Splits a PATH-style string into an ordered list of non-empty directories.
+ * `delimiter` is the platform PATH separator (`:` on Unix, `;` on Windows).
+ */
+export function splitPath(pathEnv, delimiter) {
+  return pathEnv.split(delimiter).filter((d) => d.length > 0);
+}
+
 /** Ordered shell candidate paths for the given Node platform string. */
 export function getShellCandidates(platform) {
   if (platform === 'win32') {

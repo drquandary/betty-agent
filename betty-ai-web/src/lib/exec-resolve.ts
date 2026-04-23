@@ -6,7 +6,12 @@
  * Node and owns the real I/O.
  */
 
-/** Returns the ordered list of shell candidate paths for a given platform. */
+/**
+ * Returns the ordered list of shell candidate paths for a given platform.
+ * Candidates are tried in priority order — first match wins.
+ * On Windows, short executable names are returned for PATH-based resolution
+ * rather than absolute paths.
+ */
 export function getShellCandidates(platform: NodeJS.Platform): readonly string[] {
   if (platform === 'win32') {
     return ['pwsh.exe', 'powershell.exe', 'cmd.exe'];
@@ -23,7 +28,12 @@ export function getShellCandidates(platform: NodeJS.Platform): readonly string[]
   ];
 }
 
-/** Returns the ordered list of fixed SSH candidate paths for a given platform. */
+/**
+ * Returns the ordered list of fixed SSH candidate paths for a given platform.
+ * Candidates are tried in priority order — first match wins.
+ * An empty array is returned on Windows, signalling that ssh should be
+ * resolved exclusively via PATH (fixed system paths are not reliable there).
+ */
 export function getSshCandidates(platform: NodeJS.Platform): readonly string[] {
   if (platform === 'win32') {
     // On Windows, ssh is usually found in PATH; fixed paths are less reliable.

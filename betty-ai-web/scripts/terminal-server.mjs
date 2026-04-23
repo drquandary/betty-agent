@@ -5,7 +5,7 @@ import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import process from 'node:process';
 import pty from 'node-pty';
 import { WebSocketServer } from 'ws';
-import { getShellCandidates, getSshCandidates } from './exec-resolve-candidates.mjs';
+import { getShellCandidates, getSshCandidates, splitPath } from './exec-resolve-candidates.mjs';
 
 // ---------------------------------------------------------------------------
 // Executable resolution helpers
@@ -27,8 +27,7 @@ function isExecutable(filePath) {
  */
 function resolveFromPath(name) {
   const pathEnv = process.env.PATH ?? '';
-  for (const dir of pathEnv.split(pathDelimiter)) {
-    if (!dir) continue;
+  for (const dir of splitPath(pathEnv, pathDelimiter)) {
     const candidate = pathJoin(dir, name);
     if (isExecutable(candidate)) return candidate;
   }

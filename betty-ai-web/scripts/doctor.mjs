@@ -13,7 +13,7 @@ import { accessSync, constants as fsConstants, existsSync, readFileSync } from '
 import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { getShellCandidates, getSshCandidates } from './exec-resolve-candidates.mjs';
+import { getShellCandidates, getSshCandidates, splitPath } from './exec-resolve-candidates.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, '..');
@@ -45,8 +45,7 @@ function isExecutable(filePath) {
 
 function resolveFromPath(name) {
   const pathEnv = process.env.PATH ?? '';
-  for (const dir of pathEnv.split(pathDelimiter)) {
-    if (!dir) continue;
+  for (const dir of splitPath(pathEnv, pathDelimiter)) {
     const candidate = pathJoin(dir, name);
     if (isExecutable(candidate)) return candidate;
   }
