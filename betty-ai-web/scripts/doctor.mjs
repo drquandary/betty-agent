@@ -13,6 +13,7 @@ import { accessSync, constants as fsConstants, existsSync, readFileSync } from '
 import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { getShellCandidates, getSshCandidates } from './exec-resolve-candidates.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, '..');
@@ -55,17 +56,13 @@ function resolveFromPath(name) {
 function resolveShellForDoctor() {
   if (process.env.SHELL && isExecutable(process.env.SHELL)) return process.env.SHELL;
   if (process.platform === 'win32') {
-    for (const name of ['pwsh.exe', 'powershell.exe', 'cmd.exe']) {
+    for (const name of getShellCandidates('win32')) {
       const r = resolveFromPath(name);
       if (r) return r;
     }
     return null;
   }
-  for (const p of [
-    '/bin/bash', '/usr/bin/bash', '/usr/local/bin/bash',
-    '/bin/sh', '/usr/bin/sh',
-    '/usr/local/bin/zsh', '/usr/bin/zsh', '/bin/zsh',
-  ]) {
+  for (const p of getShellCandidates(process.platform)) {
     if (isExecutable(p)) return p;
   }
   return null;
@@ -76,7 +73,7 @@ function resolveSshForDoctor() {
   if (override && isExecutable(override)) return override;
   const fromPath = resolveFromPath('ssh');
   if (fromPath) return fromPath;
-  for (const p of ['/usr/bin/ssh', '/usr/local/bin/ssh', '/opt/homebrew/bin/ssh', '/bin/ssh']) {
+  for (const p of getSshCandidates(process.platform)) {
     if (isExecutable(p)) return p;
   }
   return null;
@@ -174,7 +171,7 @@ async function main() {
     'install OpenSSH or set BETTY_SSH_COMMAND=/path/to/ssh in .env.local',
   );
 
-  // 7. node_modules installed
+  // 6. node_modules installed
   record(
     'node_modules',
     existsSync(resolve(REPO, 'node_modules', 'next')),
@@ -182,7 +179,7 @@ async function main() {
     'npm install',
   );
 
-  // 8. Wiki + betty-ai paths resolvable
+  // 7. Wiki + betty-ai paths resolvable
   const wikiPath = env.WIKI_PATH || '../wiki';
   const bettyPath = env.BETTY_AI_PATH || '../betty-ai';
   record(

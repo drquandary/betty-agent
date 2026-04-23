@@ -5,6 +5,7 @@ import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import process from 'node:process';
 import pty from 'node-pty';
 import { WebSocketServer } from 'ws';
+import { getShellCandidates, getSshCandidates } from './exec-resolve-candidates.mjs';
 
 // ---------------------------------------------------------------------------
 // Executable resolution helpers
@@ -47,23 +48,14 @@ function resolveShell() {
     return process.env.SHELL;
   }
   if (process.platform === 'win32') {
-    for (const name of ['pwsh.exe', 'powershell.exe', 'cmd.exe']) {
+    for (const name of getShellCandidates('win32')) {
       const resolved = resolveFromPath(name);
       if (resolved) return resolved;
     }
     return null;
   }
   // Unix/macOS: try common fixed paths before giving up.
-  for (const p of [
-    '/bin/bash',
-    '/usr/bin/bash',
-    '/usr/local/bin/bash',
-    '/bin/sh',
-    '/usr/bin/sh',
-    '/usr/local/bin/zsh',
-    '/usr/bin/zsh',
-    '/bin/zsh',
-  ]) {
+  for (const p of getShellCandidates(process.platform)) {
     if (isExecutable(p)) return p;
   }
   return null;
@@ -83,12 +75,7 @@ function resolveSsh() {
   if (override && isExecutable(override)) return override;
   const fromPath = resolveFromPath('ssh');
   if (fromPath) return fromPath;
-  for (const p of [
-    '/usr/bin/ssh',
-    '/usr/local/bin/ssh',
-    '/opt/homebrew/bin/ssh',
-    '/bin/ssh',
-  ]) {
+  for (const p of getSshCandidates(process.platform)) {
     if (isExecutable(p)) return p;
   }
   return null;
