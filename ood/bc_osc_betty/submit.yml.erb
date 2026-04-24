@@ -1,0 +1,20 @@
+---
+batch_connect:
+  template: "basic"
+  # The `basic` template generates the $port + $password + $host
+  # helpers and handles the rnode proxy wiring. We just append Slurm
+  # resource requests.
+  conn_params:
+    - password
+
+script:
+  native:
+    - "--partition=<%= partition %>"
+    - "--account=<%= account %>"
+    - "--time=<%= bc_num_hours.to_i %>:00:00"
+    - "--cpus-per-task=4"
+    - "--mem=16G"
+    <%- if gpus.to_i > 0 %>
+    - "--gres=gpu:<%= gpus %>"
+    <%- end %>
+    - "--job-name=betty-ai"

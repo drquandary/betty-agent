@@ -1,0 +1,7 @@
+#
+# after.sh.erb — called after script.sh.erb spawns the app. OOD's helper
+# blocks until the port is reachable, up to 10 minutes. If the app never
+# opens the port, OOD marks the session failed and cleans up.
+#
+
+wait_until_port_used "${host}:${port}" 600

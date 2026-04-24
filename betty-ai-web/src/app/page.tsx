@@ -8,6 +8,14 @@ import { TerminalPane } from '@/components/TerminalPane';
 import { WikiLintButton } from '@/components/WikiLintButton';
 
 export default function HomePage() {
+  // Under OOD the user already has a shell via the dashboard's Shell
+  // Access tab to the same compute node; the split-pane xterm bridge
+  // would duplicate it and require a second find_port / WS bridge.
+  // Server-only read so NEXT_PUBLIC_ isn't needed on the client — the
+  // page renders server-side and the prop flows down.
+  const deployTarget = process.env.NEXT_PUBLIC_BETTY_DEPLOY_TARGET ?? 'local';
+  const showTerminal = deployTarget !== 'ood';
+
   return (
     <div className="flex h-screen flex-col">
       <NextDevToolsOffset />
@@ -31,16 +39,17 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main split — chat + xterm.js terminal, ALWAYS both visible.
-          - >= md (768px): side-by-side (chat left, terminal right)
-          - <  md (narrow): stacked (chat on top, terminal below) */}
+      {/* Main layout.
+          - Local dev: chat + xterm.js terminal, always both visible.
+          - OOD: chat-only with jobs sidebar; terminal handled by OOD's
+                 Shell Access tab. */}
       <main className="flex min-h-0 flex-1 flex-col md:flex-row">
         <section className="flex min-h-0 min-w-0 flex-1 flex-col border-b border-white/[0.06] md:border-b-0 md:border-r">
           <ChatPane />
         </section>
         <aside className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--surface-terminal)]/60">
           <JobsPane />
-          <TerminalPane />
+          {showTerminal && <TerminalPane />}
         </aside>
       </main>
 

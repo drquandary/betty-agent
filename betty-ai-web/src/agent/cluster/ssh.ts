@@ -290,6 +290,12 @@ const OUTPUT_SENTINEL = '__BETTY_OUTPUT_START__';
  * constant scrolling noise. We bypass mirrorToTerminal here.
  */
 export async function runRemoteParseable(command: string): Promise<RemoteResult> {
+  // When running on a Betty compute node (OOD Batch Connect app), short-
+  // circuit to direct execution. See src/agent/cluster/local.ts.
+  if (process.env.BETTY_CLUSTER_MODE === 'local') {
+    const { runLocalParseable } = await import('./local');
+    return runLocalParseable(command);
+  }
   const wrapped = `printf '%s\\n' '${OUTPUT_SENTINEL}'; ${command}`;
   const host = getHost();
   const child = spawnImpl('ssh', buildUserConfigClientArgs(host, wrapped), {
@@ -303,6 +309,10 @@ export async function runRemoteParseable(command: string): Promise<RemoteResult>
 }
 
 export async function runRemote(command: string): Promise<RemoteResult> {
+  if (process.env.BETTY_CLUSTER_MODE === 'local') {
+    const { runLocal } = await import('./local');
+    return runLocal(command);
+  }
   const attempt = async (): Promise<RemoteResult> => {
     // Prefer the user's ~/.ssh/config ControlMaster (Duo-authenticated in a
     // real TTY). Fall back to our own internal master only if the user hasn't
@@ -344,6 +354,10 @@ export async function uploadFile(
   content: string | Buffer,
   remotePath: string,
 ): Promise<void> {
+  if (process.env.BETTY_CLUSTER_MODE === 'local') {
+    const { uploadLocal } = await import('./local');
+    return uploadLocal(content, remotePath);
+  }
   if (remotePath.includes("'")) {
     throw new Error(`uploadFile: refusing remote path containing a single quote: ${remotePath}`);
   }

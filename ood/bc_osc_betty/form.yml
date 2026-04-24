@@ -1,0 +1,69 @@
+---
+cluster: "betty"
+
+#
+# Fields are kept intentionally minimal. No API keys here — the submit
+# form is serialized into the job script on disk under ~/ondemand/data/,
+# so secrets live in ~/.betty-agent/secrets.env (chmod 600) instead and
+# are sourced by template/before.sh.erb.
+#
+
+attributes:
+
+  bc_num_hours:
+    widget: "number_field"
+    label: "Session length (hours)"
+    value: 4
+    min: 1
+    max: 24
+    help: |
+      How long Betty AI should stay up. Your Slurm job is torn down
+      automatically at the end. 4h covers a typical working session;
+      bump to 8h if you're iterating all day.
+
+  account:
+    widget: "auto_accounts"
+    label: "Billing account"
+
+  partition:
+    widget: "select"
+    label: "Partition"
+    options:
+      - [ "b200-mig45  —  1 GPU slice, dev / small models", "b200-mig45" ]
+      - [ "b200-mig90  —  1 larger GPU slice, 7B models",    "b200-mig90" ]
+      - [ "dgx-b200    —  Full DGX node (up to 8 GPUs)",     "dgx-b200"   ]
+      - [ "genoa-std-mem  —  CPU only (no inference)",       "genoa-std-mem" ]
+    help: |
+      The agent itself is light; the GPU only matters if you plan to
+      run local vLLM inside the session. If you're using the PARCC
+      LiteLLM gateway (`gpt-oss-120b`) or Anthropic, pick `b200-mig45`
+      or `genoa-std-mem` — cheaper, faster to schedule.
+
+  gpus:
+    widget: "number_field"
+    label: "GPUs"
+    value: 1
+    min: 0
+    max: 8
+    help: |
+      Set to 0 on `genoa-std-mem`. Set to 1 on the MIG partitions. Set
+      higher only if you're running multi-GPU local inference inside
+      the session.
+
+  working_dir:
+    widget: "path_selector"
+    directory: "/vast/projects"
+    show_hidden: false
+    show_files: false
+    label: "Project directory containing the betty-agent repo"
+    help: |
+      We `cd` into `<working_dir>/betty-agent/betty-ai-web` and launch
+      Next.js from there. `node_modules/` and `.next/` cache between
+      sessions; subsequent launches are ~15s warm.
+
+form:
+  - bc_num_hours
+  - account
+  - partition
+  - gpus
+  - working_dir

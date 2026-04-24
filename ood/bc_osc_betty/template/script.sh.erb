@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# script.sh.erb — launches the actual Betty AI server after before.sh.erb
+# has set everything up. OOD waits for ${port} to open before rendering
+# the Connect button.
+#
+
+set -euo pipefail
+
+cd "${BETTY_APP}"
+
+export PORT=${port}
+export HOST=0.0.0.0
+export NODE_ENV=production
+
+# Tells server middleware about the OOD-generated session password —
+# used as a belt-and-suspenders check on top of the OOD-portal cookie.
+export BETTY_OOD_PASSWORD="${password}"
+
+# OOD uses /rnode/<host>/<port>/ to reverse-proxy, so Next.js assets
+# need to resolve against that base path. Next.js reads NEXT_BASE_PATH
+# / NEXT_PUBLIC_BASE_PATH at build time; we'd rebuild with a dynamic
+# path, but /rnode/ strips the prefix before forwarding so assets at
+# /_next/... resolve correctly. Leave unset.
+
+echo "[betty] launching: node_modules/.bin/next start -H 0.0.0.0 -p ${port}"
+exec npx next start -H 0.0.0.0 -p ${port}

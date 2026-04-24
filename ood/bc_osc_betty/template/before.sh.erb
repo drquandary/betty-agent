@@ -1,0 +1,104 @@
+#
+# before.sh.erb — runs on the compute node BEFORE script.sh.erb.
+#
+# Responsibilities:
+#   1. Pick a free port (`find_port`) + generate a session password.
+#   2. Source user secrets from ~/.betty-agent/secrets.env (never from the
+#      OOD form — those are persisted to disk in the job script).
+#   3. Set up Node 20 (`module load` if available, else nvm fallback).
+#   4. Run `npm ci` only when package-lock.json actually changed (hash
+#      check) so warm launches skip the 2–5 minute install.
+#   5. Build Next.js in production mode.
+#
+# Everything exported here is visible in script.sh.erb and view.html.erb.
+#
+
+export port=$(find_port ${host})
+export password=$(create_passwd 16)
+
+# --- 1. App location -------------------------------------------------------
+
+export BETTY_WORKING_DIR="<%= working_dir %>"
+export BETTY_REPO="${BETTY_WORKING_DIR}/betty-agent"
+export BETTY_APP="${BETTY_REPO}/betty-ai-web"
+
+if [ ! -d "${BETTY_APP}" ]; then
+  echo "[betty] ERROR: expected betty-agent at ${BETTY_REPO}"
+  echo "[betty] git clone git@github.com:drquandary/betty-agent ${BETTY_REPO}"
+  exit 1
+fi
+
+cd "${BETTY_APP}"
+
+# --- 2. Secrets (never via OOD form) --------------------------------------
+
+if [ -f "${HOME}/.betty-agent/secrets.env" ]; then
+  # shellcheck disable=SC1091
+  source "${HOME}/.betty-agent/secrets.env"
+  echo "[betty] sourced secrets from ~/.betty-agent/secrets.env"
+else
+  echo "[betty] NOTE: no ~/.betty-agent/secrets.env — provider menu"
+  echo "[betty] will show an in-app setup prompt on first chat."
+fi
+
+# --- 3. Transport + deploy mode ------------------------------------------
+
+# Tells the agent to shell commands directly (we ARE on the compute
+# node under pam_slurm_adopt) instead of running them through SSH.
+export BETTY_CLUSTER_MODE=local
+
+# Frontend hides the split-pane terminal under OOD — users already have
+# OOD's Shell Access tab for a real terminal to this same node.
+export NEXT_PUBLIC_BETTY_DEPLOY_TARGET=ood
+
+# --- 4. Node runtime ------------------------------------------------------
+
+if module avail nodejs 2>&1 | grep -qiE "nodejs"; then
+  module load nodejs
+  echo "[betty] using module-provided node: $(node --version)"
+elif command -v node >/dev/null 2>&1 && [ "$(node --version | sed 's/v//' | cut -d. -f1)" -ge 20 ]; then
+  echo "[betty] using system node: $(node --version)"
+else
+  # nvm fallback — cached under ~/.nvm after first install
+  if [ ! -d "${HOME}/.nvm" ]; then
+    echo "[betty] installing nvm (one-time)"
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null
+  fi
+  export NVM_DIR="${HOME}/.nvm"
+  # shellcheck disable=SC1091
+  source "${NVM_DIR}/nvm.sh"
+  if ! nvm use 20 >/dev/null 2>&1; then
+    nvm install 20
+    nvm use 20
+  fi
+  echo "[betty] using nvm node: $(node --version)"
+fi
+
+# --- 5. Incremental build ------------------------------------------------
+
+mkdir -p .next/.cache
+
+LOCK_HASH=$(sha256sum package-lock.json 2>/dev/null | cut -d' ' -f1)
+LAST_HASH=$(cat .next/.cache/package-lock.sha256 2>/dev/null || true)
+
+if [ -z "${LOCK_HASH}" ]; then
+  echo "[betty] package-lock.json missing — full install"
+  npm install
+  echo "new" > .next/.cache/package-lock.sha256
+elif [ "${LOCK_HASH}" != "${LAST_HASH}" ]; then
+  echo "[betty] package-lock.json changed — npm ci"
+  npm ci
+  echo "${LOCK_HASH}" > .next/.cache/package-lock.sha256
+else
+  echo "[betty] node_modules up to date"
+fi
+
+# Build only if the source is newer than the existing build.
+if [ ! -f .next/BUILD_ID ] || [ -n "$(find src -newer .next/BUILD_ID -print -quit 2>/dev/null)" ]; then
+  echo "[betty] next build"
+  npm run build
+else
+  echo "[betty] next build up to date"
+fi
+
+echo "[betty] before.sh ready — port=${port}"

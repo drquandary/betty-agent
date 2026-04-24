@@ -1,0 +1,18 @@
+<%#
+  Connect button. /rnode/<host>/<port>/ is OOD's raw-node reverse proxy
+  — transparently forwards HTTP and upgrades WebSockets for whatever is
+  listening on ${port}. No login flow; the OOD session cookie already
+  authenticates the user, and BETTY_OOD_PASSWORD gives a secondary
+  in-app check.
+%>
+
+<form action="/rnode/<%= host %>/<%= port %>/" method="get" target="_blank">
+  <button class="btn btn-primary" type="submit">
+    Connect to Betty AI
+  </button>
+</form>
+
+<p class="help-block">
+  Opens in a new tab. The session stays alive for the Slurm time limit
+  you chose. To end early, delete the session from the OOD dashboard.
+</p>

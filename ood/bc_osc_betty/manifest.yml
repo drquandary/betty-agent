@@ -1,0 +1,14 @@
+---
+name: Betty AI
+category: Interactive Apps
+subcategory: AI Assistants
+role: batch_connect
+description: |
+  Conversational assistant for the Betty cluster. Plain-English Slurm
+  scripts, cluster-state-aware scheduling advice, a queryable wiki of
+  Betty's partitions and policies, and live dashboards for queue wait
+  times, runtimes, and your own job history.
+
+  All quantitative reasoning (wait-time percentiles, success rates,
+  recommended submission windows) is computed in Python; the LLM
+  quotes pre-computed numbers rather than estimating them.
