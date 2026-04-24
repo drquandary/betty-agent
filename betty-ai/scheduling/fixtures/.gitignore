@@ -1,0 +1,3 @@
+# Root .gitignore excludes *.log; fixtures are tracked on purpose.
+!*.log
+!*.tsv

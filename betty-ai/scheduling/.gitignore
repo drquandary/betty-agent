@@ -1,0 +1,7 @@
+# Smoke-test scratch
+.smoke/
+
+# Processed artifacts live under raw/slurm_logs/ and betty-ai/data/, but
+# tests don't drop anything here.
+*.pyc
+__pycache__/

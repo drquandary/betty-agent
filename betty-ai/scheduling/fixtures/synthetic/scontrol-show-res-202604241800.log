@@ -1,0 +1,9 @@
+ReservationName=maint_20260501 StartTime=2026-05-01T08:00:00 EndTime=2026-05-01T18:00:00 Duration=10:00:00
+   Nodes=dgx[001-027] NodeCnt=27 CoreCnt=6048 Features=(null) PartitionName=dgx-b200 Flags=MAINT,IGNORE_JOBS,SPEC_NODES
+   TRES=cpu=6048
+   Users=root,slurm Accounts=(null) Licenses=(null) State=INACTIVE BurstBuffer=(null) Watts=n/a MaxStartDelay=(null)
+
+ReservationName=icml_holding StartTime=2026-04-25T00:00:00 EndTime=2026-04-28T00:00:00 Duration=3-00:00:00
+   Nodes=dgx[001-008] NodeCnt=8 CoreCnt=1792 Features=(null) PartitionName=dgx-b200 Flags=SPEC_NODES
+   TRES=cpu=1792
+   Users=(null) Accounts=icml-2026 Licenses=(null) State=ACTIVE BurstBuffer=(null) Watts=n/a MaxStartDelay=(null)

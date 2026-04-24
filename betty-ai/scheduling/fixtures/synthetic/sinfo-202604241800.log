@@ -1,0 +1,12 @@
+PARTITION          AVAIL  TIMELIMIT   NODES  STATE    NODELIST
+dgx-b200*             up  7-00:00:00       3  down*    dgx[015,022,025]
+dgx-b200*             up  7-00:00:00      22  mix      dgx[001-014,016-021,023-024,026-027]
+dgx-b200*             up  7-00:00:00       2  idle     dgx[028-029]
+b200-mig45            up  1-00:00:00      24  mix      dgx-mig45-[01-24]
+b200-mig45            up  1-00:00:00       8  idle     dgx-mig45-[25-32]
+b200-mig90            up  1-00:00:00      12  mix      dgx-mig90-[01-12]
+b200-mig90            up  1-00:00:00       4  idle     dgx-mig90-[13-16]
+genoa-std-mem         up  3-00:00:00      40  mix      genoa[001-040]
+genoa-std-mem         up  3-00:00:00      24  idle     genoa[041-064]
+genoa-lrg-mem         up  3-00:00:00       2  mix      genoa-lrg[01-02]
+genoa-lrg-mem         up  3-00:00:00       8  idle     genoa-lrg[03-10]
