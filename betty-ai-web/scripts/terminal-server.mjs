@@ -1,14 +1,114 @@
+import { accessSync, constants as fsConstants } from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
+import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import process from 'node:process';
 import pty from 'node-pty';
 import { WebSocketServer } from 'ws';
+import { getShellCandidates, getSshCandidates, splitPath } from './exec-resolve-candidates.mjs';
+
+// ---------------------------------------------------------------------------
+// Executable resolution helpers
+// ---------------------------------------------------------------------------
+
+/** Returns true if `filePath` exists and is executable by the current process. */
+function isExecutable(filePath) {
+  try {
+    accessSync(filePath, fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Walks each directory in PATH and returns the first joined path that is
+ * executable, or null if none found.
+ */
+function resolveFromPath(name) {
+  const pathEnv = process.env.PATH ?? '';
+  for (const dir of splitPath(pathEnv, pathDelimiter)) {
+    const candidate = pathJoin(dir, name);
+    if (isExecutable(candidate)) return candidate;
+  }
+  return null;
+}
+
+/**
+ * Resolves the local shell executable.
+ *
+ * Resolution order:
+ *  1. `process.env.SHELL` — if set and executable.
+ *  2. Common shell paths for the current platform.
+ *  3. Falls back to `null` (caller should surface a clear error).
+ */
+function resolveShell() {
+  if (process.env.SHELL && isExecutable(process.env.SHELL)) {
+    return process.env.SHELL;
+  }
+  if (process.platform === 'win32') {
+    for (const name of getShellCandidates('win32')) {
+      const resolved = resolveFromPath(name);
+      if (resolved) return resolved;
+    }
+    return null;
+  }
+  // Unix/macOS: try common fixed paths before giving up.
+  for (const p of getShellCandidates(process.platform)) {
+    if (isExecutable(p)) return p;
+  }
+  return null;
+}
+
+/**
+ * Resolves the SSH client executable.
+ *
+ * Resolution order:
+ *  1. `BETTY_SSH_COMMAND` env var — if set and executable.
+ *  2. `ssh` resolved from PATH.
+ *  3. Common fixed paths for the current platform.
+ *  4. Falls back to `null` (caller should surface a clear error).
+ */
+function resolveSsh() {
+  const override = process.env.BETTY_SSH_COMMAND?.trim();
+  if (override && isExecutable(override)) return override;
+  const fromPath = resolveFromPath('ssh');
+  if (fromPath) return fromPath;
+  for (const p of getSshCandidates(process.platform)) {
+    if (isExecutable(p)) return p;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Configuration — resolved once at startup
+// ---------------------------------------------------------------------------
 
 const PORT = parsePort(process.env.BETTY_TERMINAL_WS_PORT, 3001);
 const HOST = process.env.BETTY_TERMINAL_WS_HOST || '127.0.0.1';
 const BETTY_SSH_USER = (process.env.BETTY_SSH_USER || 'jvadala').trim();
 const BETTY_SSH_HOST = (process.env.BETTY_SSH_HOST || 'login.betty.parcc.upenn.edu').trim();
-const SHELL = process.env.SHELL || (process.platform === 'win32' ? 'powershell.exe' : '/bin/zsh');
+
+const SHELL = resolveShell();
+const SSH = resolveSsh();
+
+// Startup diagnostics — emitted before the first connection so operators can
+// see exactly what was resolved in their runtime.
+console.log(`[terminal] platform: ${process.platform} (${process.arch})`);
+console.log(`[terminal] shell:    ${SHELL ?? 'NOT FOUND — local shell will be unavailable'}`);
+console.log(`[terminal] ssh:      ${SSH ?? 'NOT FOUND — Betty SSH will be unavailable'}`);
+if (!SHELL) {
+  console.warn(
+    '[terminal] WARNING: no usable shell found. ' +
+      'Set the SHELL environment variable to the full path of a shell executable.',
+  );
+}
+if (!SSH) {
+  console.warn(
+    '[terminal] WARNING: ssh not found. ' +
+      'Install OpenSSH or set BETTY_SSH_COMMAND to the full path of the ssh binary.',
+  );
+}
 
 const connectedClients = new Set();
 
@@ -79,12 +179,30 @@ wss.on('connection', (ws) => {
   };
 
   const spawnLocal = () => {
+    if (!SHELL) {
+      send({
+        type: 'error',
+        message:
+          'No usable shell found. Set the SHELL environment variable to the full path of a shell executable (e.g. /bin/bash).',
+      });
+      send({ type: 'status', status: 'error', detail: 'No shell found' });
+      return;
+    }
     spawnTerminal(SHELL, ['-l'], 'connected-local', `Local shell: ${SHELL}`);
   };
 
   const spawnBetty = () => {
+    if (!SSH) {
+      send({
+        type: 'error',
+        message:
+          'ssh not found. Install OpenSSH or set the BETTY_SSH_COMMAND environment variable to the full path of the ssh binary.',
+      });
+      send({ type: 'status', status: 'error', detail: 'ssh not found' });
+      return;
+    }
     const target = `${BETTY_SSH_USER}@${BETTY_SSH_HOST}`;
-    spawnTerminal('/usr/bin/ssh', [target], 'connected-betty', `SSH: ${target}`);
+    spawnTerminal(SSH, [target], 'connected-betty', `SSH: ${target}`);
   };
 
   const disposeTerminal = () => {
@@ -111,7 +229,10 @@ wss.on('connection', (ws) => {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      send({ type: 'error', message: `Could not start ${command}: ${message}` });
+      send({
+        type: 'error',
+        message: `Could not start ${command}: ${message} (platform: ${process.platform}/${process.arch})`,
+      });
       send({ type: 'status', status: 'error', detail: `Could not start ${command}` });
       return;
     }
@@ -181,6 +302,7 @@ wss.on('connection', (ws) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`[terminal] listening on ws://${HOST}:${PORT}/terminal`);
+  console.log(`[terminal] bridge ready — shell: ${SHELL ?? 'none'}, ssh: ${SSH ?? 'none'}`);
 });
 
 function parsePort(value, fallback) {

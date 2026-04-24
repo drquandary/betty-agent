@@ -9,9 +9,11 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { accessSync, constants as fsConstants, existsSync, readFileSync } from 'node:fs';
+import { delimiter as pathDelimiter, join as pathJoin } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { getShellCandidates, getSshCandidates, splitPath } from './exec-resolve-candidates.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, '..');
@@ -26,6 +28,54 @@ const RESET = '\x1b[0m';
 const results = [];
 function record(name, ok, detail, fixHint) {
   results.push({ name, ok, detail, fixHint });
+}
+
+// ---------------------------------------------------------------------------
+// Executable resolution helpers (mirrors terminal-server.mjs logic)
+// ---------------------------------------------------------------------------
+
+function isExecutable(filePath) {
+  try {
+    accessSync(filePath, fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveFromPath(name) {
+  const pathEnv = process.env.PATH ?? '';
+  for (const dir of splitPath(pathEnv, pathDelimiter)) {
+    const candidate = pathJoin(dir, name);
+    if (isExecutable(candidate)) return candidate;
+  }
+  return null;
+}
+
+function resolveShellForDoctor() {
+  if (process.env.SHELL && isExecutable(process.env.SHELL)) return process.env.SHELL;
+  if (process.platform === 'win32') {
+    for (const name of getShellCandidates('win32')) {
+      const r = resolveFromPath(name);
+      if (r) return r;
+    }
+    return null;
+  }
+  for (const p of getShellCandidates(process.platform)) {
+    if (isExecutable(p)) return p;
+  }
+  return null;
+}
+
+function resolveSshForDoctor() {
+  const override = process.env.BETTY_SSH_COMMAND?.trim();
+  if (override && isExecutable(override)) return override;
+  const fromPath = resolveFromPath('ssh');
+  if (fromPath) return fromPath;
+  for (const p of getSshCandidates(process.platform)) {
+    if (isExecutable(p)) return p;
+  }
+  return null;
 }
 
 function runQuick(cmd, args, timeoutMs = 4000) {
@@ -104,7 +154,23 @@ async function main() {
     'set LITELLM_API_KEY in .env.local',
   );
 
-  // 5. node_modules installed
+  // 5. Terminal bridge prerequisites: local shell and SSH client
+  const resolvedShell = resolveShellForDoctor();
+  record(
+    'Terminal shell executable',
+    resolvedShell !== null,
+    resolvedShell ?? 'not found',
+    'set SHELL=/path/to/bash (or ensure /bin/bash exists)',
+  );
+  const resolvedSsh = resolveSshForDoctor();
+  record(
+    'Terminal SSH client (ssh)',
+    resolvedSsh !== null,
+    resolvedSsh ?? 'not found',
+    'install OpenSSH or set BETTY_SSH_COMMAND=/path/to/ssh in .env.local',
+  );
+
+  // 6. node_modules installed
   record(
     'node_modules',
     existsSync(resolve(REPO, 'node_modules', 'next')),
@@ -112,7 +178,7 @@ async function main() {
     'npm install',
   );
 
-  // 6. Wiki + betty-ai paths resolvable
+  // 7. Wiki + betty-ai paths resolvable
   const wikiPath = env.WIKI_PATH || '../wiki';
   const bettyPath = env.BETTY_AI_PATH || '../betty-ai';
   record(
