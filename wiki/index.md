@@ -15,6 +15,7 @@
 - [[parcc-helper-tools]] — `parcc_*.py` scripts for quota, queue, debug (1 source)
 - [[open-ondemand-betty]] — Web portal at ood.betty.parcc.upenn.edu (1 source)
 - [[slurm-on-betty]] — Slurm 24.11.7 with backfill scheduler (1 source)
+- [[ryan-bradley]] — PARCC director (ryb); owns overspack and sponsors the GROMACS workflow on Betty (2 sources)
 
 ## Concepts
 - [[lora-fine-tuning]] — Low-Rank Adaptation, parameter-efficient fine-tuning
@@ -36,6 +37,7 @@
 - [[slurm-node-state-modifiers]] — `sinfo` suffix glossary (`*`, `~`, `-`, etc.); what `mix-` means
 - [[slurm-select-type-parameters]] — `CR_Core_Memory` vs `CR_Pack_Nodes` tradeoff (tentative)
 - [[interact-script-vs-salloc]] — why `interact` reloads the profile and `salloc --pty bash` doesn't
+- [[gromacs-on-betty]] — GPU-accelerated molecular dynamics on B200 / MIG slices; partition cheat-sheet + Slurm template (tentative, pending `module spider` confirmation)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**

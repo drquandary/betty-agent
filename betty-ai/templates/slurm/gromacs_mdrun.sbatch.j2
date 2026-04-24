@@ -1,0 +1,109 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — GROMACS mdrun (GPU-accelerated MD production)
+#
+# Runs a GROMACS production MD on a single B200 (or MIG slice). Designed for
+# the biomolecular workloads Ryan Bradley is bringing onto Betty.
+#
+# Template variables (Jinja2):
+#   job_name              — Slurm job name
+#   partition             — Slurm partition (dgx-b200, b200-mig45, b200-mig90)
+#   qos                   — QOS tier
+#   gpus                  — GPUs requested (default: 1)
+#   cpus                  — CPUs per task / OpenMP threads (default: 16)
+#   mem_gb                — Memory in GB (default: 64)
+#   walltime              — Wall-clock limit HH:MM:SS (default: 24:00:00)
+#   account               — Slurm account for billing
+#   gromacs_source        — One of: "module" | "container" | "conda"
+#   gromacs_module        — Module name if gromacs_source == "module"
+#                           (e.g. "gromacs/2024.3-cuda")
+#   gromacs_container     — Apptainer image path if gromacs_source == "container"
+#                           (e.g. "/vast/projects/<proj>/containers/gromacs_2024.3.sif")
+#   conda_env             — Conda env if gromacs_source == "conda"
+#   project_dir           — Project root on VAST
+#                           (e.g. "/vast/projects/<proj>")
+#   run_dir               — Working dir for this run, under project_dir
+#                           (e.g. "runs/exp-042-apo")
+#   tpr_file              — Input .tpr (relative to run_dir or absolute)
+#   deffnm                — -deffnm default filename base (default: "md")
+#   mdrun_extra_flags     — Extra flags appended to `gmx mdrun`
+#                           (default: "-nb gpu -pme gpu -bonded gpu -update gpu")
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200, Slurm 24.11.7, Ubuntu 24.04)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --partition={{ partition }}
+#SBATCH --qos={{ qos }}
+{% if account %}#SBATCH --account={{ account }}{% endif %}
+#SBATCH --gpus={{ gpus | default(1) }}
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task={{ cpus | default(16) }}
+#SBATCH --mem={{ mem_gb | default(64) }}G
+#SBATCH --time={{ walltime | default("24:00:00") }}
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+# --requeue lets a preempted or time-limited job auto-resume from checkpoint
+#SBATCH --requeue
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} started on $(hostname) at $(date) ==="
+echo "=== GPUs allocated: ${CUDA_VISIBLE_DEVICES:-none} ==="
+echo "=== CPUs per task: ${SLURM_CPUS_PER_TASK} ==="
+
+mkdir -p logs
+
+# Move into the run directory so all outputs land in project storage, never $HOME
+RUN_DIR="{{ project_dir }}/{{ run_dir }}"
+mkdir -p "${RUN_DIR}"
+cd "${RUN_DIR}"
+
+# OpenMP threading — match -ntomp below
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+export OMP_PLACES=cores
+export OMP_PROC_BIND=close
+
+###############################################################################
+# Load GROMACS — one of three paths
+###############################################################################
+{% if gromacs_source == "module" %}
+module purge
+module load {{ gromacs_module }}
+GMX="gmx"
+{% elif gromacs_source == "container" %}
+# Apptainer: bind the project dir so the container sees inputs/outputs
+export APPTAINER_BINDPATH="{{ project_dir }}"
+GMX="apptainer exec --nv {{ gromacs_container }} gmx"
+{% elif gromacs_source == "conda" %}
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+GMX="gmx"
+{% else %}
+echo "ERROR: unknown gromacs_source '{{ gromacs_source }}'" >&2
+exit 2
+{% endif %}
+
+${GMX} --version | head -20
+
+###############################################################################
+# Run mdrun — auto-resumes from checkpoint if {{ deffnm | default('md') }}.cpt exists
+###############################################################################
+DEFFNM="{{ deffnm | default('md') }}"
+TPR="{{ tpr_file }}"
+
+# -cpi picks up the checkpoint if present; -append keeps trajectories contiguous
+${GMX} mdrun \
+    -s "${TPR}" \
+    -deffnm "${DEFFNM}" \
+    -cpi "${DEFFNM}.cpt" -append \
+    -ntmpi 1 \
+    -ntomp ${SLURM_CPUS_PER_TASK} \
+    -pin on -pinoffset 0 -pinstride 1 \
+    {{ mdrun_extra_flags | default('-nb gpu -pme gpu -bonded gpu -update gpu') }}
+
+echo "=== Job ${SLURM_JOB_ID} finished at $(date) ==="

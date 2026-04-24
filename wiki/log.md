@@ -6,6 +6,14 @@
 
 ---
 
+## [2026-04-21] add | GROMACS workflow + Ryan Bradley entity
+- Sponsor: Ryan Bradley (ryb), PARCC director — wants GROMACS first-class on Betty
+- Created concept page: [[gromacs-on-betty]] — partition cheat-sheet (MIG45 for <50k atoms, MIG90 to 300k, full B200 beyond, Genoa for grompp/analysis), `-nb/-pme/-bonded/-update gpu` flag guidance, replica/REMD/FEP patterns, validation benchmark set (benchMEM/benchPEP/benchRIB). **Status: tentative** — no confirmed `module spider gromacs` output yet; page lists three fallback install paths (overspack module, NGC container, conda).
+- Created entity page: [[ryan-bradley]] — role, project paths, what ryb owns (overspack, lmod, OOD debugging), GROMACS open items (module-vs-container decision, benchmark set, billing account, trajectory retention).
+- Added Slurm template: `betty-ai/templates/slurm/gromacs_mdrun.sbatch.j2` — single-GPU mdrun with `-cpi` checkpoint resume, `--requeue`, three gromacs_source branches (module/container/conda), OpenMP pinning, project-dir working directory.
+- Updated: [[index]] (new entity + new concept).
+- Open for ryb: confirm module availability, supply blessed benchmark .tpr set, pick billing account, decide VAST vs Ceph for trajectory archive.
+
 ## [2026-04-21] ingest | PARCC ops chat — GPU oversubscription, SLURM states, VAST tenant setting
 - Source captured: `raw/ops_chat/2026-04-21-parcc-ops-discussion.md` (verbatim chat between Jaime Combariza, Kenneth Chaney, jvadala)
 - Created source pages: [[2026-04-21-parcc-ops-discussion]], [[2026-04-17-dgx002-gpu5-oversubscription]]
