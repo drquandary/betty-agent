@@ -54,6 +54,28 @@ async function kerberosExpiry(): Promise<string | undefined> {
 
 export async function GET() {
   const host = process.env.BETTY_SSH_HOST ?? DEFAULT_HOST;
+
+  // Under OOD (BETTY_CLUSTER_MODE=local), the app IS on the compute
+  // node. There's no ControlMaster to check; Kerberos was established
+  // by pam_slurm_adopt when the Slurm job started, and runs natively.
+  // Running `ssh -O check` here would always return "not running" and
+  // make the header badge show a misleading red.
+  if (process.env.BETTY_CLUSTER_MODE === 'local') {
+    const [kerberos, expiresAt] = await Promise.all([
+      runOnce('klist', ['-s'], 2000),
+      kerberosExpiry(),
+    ]);
+    return NextResponse.json({
+      kerberos: { ok: kerberos.code === 0, expiresAt },
+      controlmaster: {
+        ok: true,
+        detail: 'N/A — running on compute node (BETTY_CLUSTER_MODE=local)',
+      },
+      host: 'local',
+      mode: 'local',
+    });
+  }
+
   const [kerberos, controlmaster, expiresAt] = await Promise.all([
     runOnce('klist', ['-s'], 2000),
     runOnce('ssh', ['-O', 'check', host], 3000),
@@ -71,5 +93,6 @@ export async function GET() {
       detail: controlmaster.stderr.trim().slice(0, 200),
     },
     host,
+    mode: 'ssh',
   });
 }

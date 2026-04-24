@@ -30,20 +30,44 @@ No local Mac setup. No SSH. No Kerberos config. Inference providers
 
 ## Sandbox deploy (Jeff, development)
 
+**Fast path** — one command does everything:
+
 ```bash
-# On ood01, one-time:
-mkdir -p ~/ondemand/dev/betty
-
-# Drop the app in place (git-pulled repo is on VAST already):
-cp -r /vast/projects/<team>/betty-agent/ood/bc_osc_betty/* ~/ondemand/dev/betty/
-
-# Browse:
-#   https://ood.betty.parcc.upenn.edu/pun/dev/betty/
-# Click Launch.
+# On a Betty login node (or ood01):
+curl -fsSL https://raw.githubusercontent.com/drquandary/betty-agent/master/ood/bc_osc_betty/bootstrap.sh | bash
 ```
 
-To iterate: edit the files in `~/ondemand/dev/betty/`, click Launch again.
-No OOD restart needed — `/pun/dev/` is live-reloaded.
+That clones the repo, copies the OOD app to `~/ondemand/dev/betty/`,
+creates `~/.betty-agent/secrets.env` if missing, and runs `preflight.sh`.
+
+**Manual path** if you want control:
+
+```bash
+# On a Betty login node, one-time:
+git clone https://github.com/drquandary/betty-agent.git ~/betty-agent
+bash ~/betty-agent/ood/bc_osc_betty/bootstrap.sh
+```
+
+Edit `~/.betty-agent/secrets.env` to add a provider key.
+
+Browse to `https://ood.betty.parcc.upenn.edu/pun/dev/betty/` → Launch.
+
+To iterate on the OOD app itself: edit files in `~/ondemand/dev/betty/`
+(or re-run `bootstrap.sh` to pull the latest from master), click Launch
+again. No OOD restart — `/pun/dev/` is live-reloaded.
+
+## Preflight
+
+Run before every Launch to catch 80% of failures before they burn a
+Slurm allocation:
+
+```bash
+bash ~/betty-agent/ood/bc_osc_betty/preflight.sh
+```
+
+Checks: repo present, `betty-ai-web/` intact, Node 20+ available
+(module / system / nvm), Slurm reachable, Kerberos ticket, npm registry
+reachable, provider key, OOD slot populated. Exit code 0 = ready.
 
 ## Production deploy (ryb, after sandbox is solid)
 

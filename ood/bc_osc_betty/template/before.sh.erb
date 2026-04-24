@@ -93,12 +93,29 @@ else
   echo "[betty] node_modules up to date"
 fi
 
-# Build only if the source is newer than the existing build.
-if [ ! -f .next/BUILD_ID ] || [ -n "$(find src -newer .next/BUILD_ID -print -quit 2>/dev/null)" ]; then
-  echo "[betty] next build"
+# Build only if:
+#   (a) no previous build exists, OR
+#   (b) any source file is newer than the previous build, OR
+#   (c) the effective NEXT_PUBLIC_* env has changed (those get inlined at
+#       build time, so a stale bundle would use the wrong deploy target).
+BUILD_ENV_TAG="deploy=${NEXT_PUBLIC_BETTY_DEPLOY_TARGET:-local}"
+LAST_BUILD_ENV=$(cat .next/.cache/build-env 2>/dev/null || true)
+
+NEED_BUILD=no
+if [ ! -f .next/BUILD_ID ]; then
+  NEED_BUILD="yes (no previous build)"
+elif [ -n "$(find src -newer .next/BUILD_ID -print -quit 2>/dev/null)" ]; then
+  NEED_BUILD="yes (src newer than build)"
+elif [ "${BUILD_ENV_TAG}" != "${LAST_BUILD_ENV}" ]; then
+  NEED_BUILD="yes (NEXT_PUBLIC_* changed: ${LAST_BUILD_ENV:-none} -> ${BUILD_ENV_TAG})"
+fi
+
+if [ "${NEED_BUILD}" != "no" ]; then
+  echo "[betty] next build — ${NEED_BUILD}"
   npm run build
+  echo "${BUILD_ENV_TAG}" > .next/.cache/build-env
 else
-  echo "[betty] next build up to date"
+  echo "[betty] next build up to date (${BUILD_ENV_TAG})"
 fi
 
 echo "[betty] before.sh ready — port=${port}"
