@@ -38,6 +38,8 @@
 - [[slurm-select-type-parameters]] — `CR_Core_Memory` vs `CR_Pack_Nodes` tradeoff (tentative)
 - [[interact-script-vs-salloc]] — why `interact` reloads the profile and `salloc --pty bash` doesn't
 - [[gromacs-on-betty]] — GPU-accelerated molecular dynamics on B200 / MIG slices; partition cheat-sheet + Slurm template (tentative, pending `module spider` confirmation)
+- [[beast2-on-betty]] — Bayesian phylogenetics MCMC on Genoa CPU / MIG GPU; checkpoint-and-chain pattern for multi-week chains, Slurm template (tentative, pending `module spider` confirmation)
+- [[beast-phylonco]] — Single-cell phylogenetics package on top of BEAST2; install via packagemanager, replica-array workflow recipe (tentative)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**

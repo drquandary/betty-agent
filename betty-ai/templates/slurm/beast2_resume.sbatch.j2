@@ -1,0 +1,187 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — BEAST2 MCMC (resumable, array-friendly)
+#
+# Runs a BEAST2 chain on a Genoa CPU node (default) or a B200 MIG slice (opt-in
+# for large alignments where BEAGLE-GPU pays off). Designed for the Bayesian
+# phylogenetics workloads — including single-cell phylogenetics via the phylonco
+# package — that routinely need multi-week wall times.
+#
+# Three patterns supported by one template:
+#   1. Single chain, chained jobs (--dependency=afterok) for >7-day runs
+#   2. Independent replicas as a Slurm array (--array=1-N)
+#   3. Both at once: array of replicas, each replica chained
+#
+# All three rely on BEAST2's `-resume` flag, which reads the .state file written
+# every `storeEvery` steps in the XML. See [[beast2-on-betty]] for the full
+# checkpoint-and-chain pattern.
+#
+# Template variables (Jinja2):
+#   job_name            — Slurm job name
+#   partition           — Slurm partition (default: genoa-std-mem)
+#   qos                 — QOS tier
+#   account             — Slurm account for billing
+#   replicas            — Number of independent chains (default: 4)
+#                         Set to 1 to disable array submission.
+#   cpus                — CPUs per task (BEAGLE -threads target). default: 8
+#   mem_gb              — Memory in GB; sets JVM -Xmx to (mem_gb - 4). default: 32
+#   walltime            — Wall-clock limit HH:MM:SS (default: 7-00:00:00)
+#   beast_source        — One of: "tarball" | "module" | "conda" | "container"
+#   beast_root          — Tarball install dir if beast_source == "tarball"
+#                         (e.g. "/vast/projects/<proj>/sw/beast")
+#   beast_module        — Module name if beast_source == "module"
+#                         (e.g. "beast2/2.7.7")
+#   conda_env           — Conda env if beast_source == "conda"
+#   beast_container     — Apptainer image if beast_source == "container"
+#   package_dir         — Shared BEAST2 packages dir (where phylonco lives)
+#                         (e.g. "/vast/projects/<proj>/sw/beast2-packages")
+#   project_dir         — Project root on VAST
+#                         (e.g. "/vast/projects/<proj>")
+#   run_dir             — Working dir for this run, under project_dir
+#                         (e.g. "runs/exp-007-singlecell")
+#   xml_file            — Input BEAST2 XML (relative to run_dir or absolute)
+#   beagle_backend      — "cpu" (default) or "gpu". CPU uses -beagle_SSE on
+#                         Genoa; GPU requires partition=b200-mig45 and a
+#                         CUDA-BEAGLE build — verify before relying on it.
+#   beast_extra_flags   — Extra flags appended to `beast` (default: "")
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200 + AMD Genoa, Slurm 24.11.7)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --partition={{ partition | default("genoa-std-mem") }}
+#SBATCH --qos={{ qos }}
+{% if account %}#SBATCH --account={{ account }}{% endif %}
+{% if (replicas | default(4)) > 1 %}#SBATCH --array=1-{{ replicas | default(4) }}{% endif %}
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task={{ cpus | default(8) }}
+#SBATCH --mem={{ mem_gb | default(32) }}G
+#SBATCH --time={{ walltime | default("7-00:00:00") }}
+{% if beagle_backend == "gpu" %}#SBATCH --gpus=1{% endif %}
+#SBATCH --output=logs/%x_%A_%a.out
+#SBATCH --error=logs/%x_%A_%a.err
+# --requeue + --signal: BEAST2 catches the signal and flushes the .state file
+# before Slurm kills it, so the next chained job can resume cleanly.
+#SBATCH --requeue
+#SBATCH --signal=B:USR2@300
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} (array task ${SLURM_ARRAY_TASK_ID:-none}) on $(hostname) at $(date) ==="
+echo "=== CPUs per task: ${SLURM_CPUS_PER_TASK} ==="
+echo "=== Memory: {{ mem_gb | default(32) }} GB (JVM heap will be set to $(( {{ mem_gb | default(32) }} - 4 ))g) ==="
+
+mkdir -p logs
+
+# Per-replica run dir so chains don't stomp on each other's .state / .log files.
+# When replicas=1 (no array), SLURM_ARRAY_TASK_ID is unset; use 1 as the suffix.
+REPLICA="${SLURM_ARRAY_TASK_ID:-1}"
+RUN_DIR="{{ project_dir }}/{{ run_dir }}/replica-${REPLICA}"
+mkdir -p "${RUN_DIR}"
+cd "${RUN_DIR}"
+
+# Stage the XML into the per-replica dir on first run; reuse it on resume.
+if [[ ! -f "$(basename {{ xml_file }})" ]]; then
+    cp "{{ project_dir }}/{{ run_dir }}/{{ xml_file }}" .
+fi
+XML_BASENAME="$(basename {{ xml_file }})"
+
+###############################################################################
+# Load BEAST2 — one of four paths
+###############################################################################
+{% if beast_source == "tarball" %}
+# Tarball install: just point at the bin dir
+export PATH="{{ beast_root }}/bin:${PATH}"
+{% elif beast_source == "module" %}
+module purge
+module load {{ beast_module }}
+{% elif beast_source == "conda" %}
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+{% elif beast_source == "container" %}
+export APPTAINER_BINDPATH="{{ project_dir }}"
+shopt -s expand_aliases
+alias beast='apptainer exec {{ beast_container }} beast'
+alias logcombiner='apptainer exec {{ beast_container }} logcombiner'
+{% else %}
+echo "ERROR: unknown beast_source '{{ beast_source }}'" >&2
+exit 2
+{% endif %}
+
+# Shared package dir so phylonco (and any other packages) come from one place
+export BEAST_PACKAGE_PATH="{{ package_dir }}"
+
+# JVM heap: -Xmx and -Xms equal to avoid GC churn on long chains.
+# Leave 4 GB for OS / BEAGLE buffers / stack — adjust if you see OOM.
+HEAP_GB=$(( {{ mem_gb | default(32) }} - 4 ))
+export BEAST_OPTS="-Xmx${HEAP_GB}g -Xms${HEAP_GB}g"
+
+beast -version || true
+echo "=== Package path: ${BEAST_PACKAGE_PATH} ==="
+
+###############################################################################
+# BEAGLE backend selection
+###############################################################################
+{% if beagle_backend == "gpu" %}
+BEAGLE_FLAGS="-beagle -beagle_GPU -beagle_CUDA"
+echo "=== BEAGLE: GPU/CUDA (verify build supports this — fall back to CPU on error) ==="
+{% else %}
+BEAGLE_FLAGS="-beagle -beagle_CPU -beagle_SSE"
+echo "=== BEAGLE: CPU/SSE ==="
+{% endif %}
+
+###############################################################################
+# Run BEAST2 — auto-resume from .state if present
+###############################################################################
+# The state file is named "<xml-basename>.state" by default and lives in the
+# current dir. If it exists, -resume picks up where we left off. If not,
+# BEAST2 starts a fresh chain. This makes the same script work for the first
+# job and every chained continuation.
+
+STATE_FILE="${XML_BASENAME}.state"
+if [[ -f "${STATE_FILE}" ]]; then
+    RESUME_FLAG="-resume"
+    echo "=== Resuming from ${STATE_FILE} ==="
+else
+    RESUME_FLAG=""
+    echo "=== Starting fresh chain (no state file present) ==="
+fi
+
+# Each replica gets a deterministic seed derived from its array task id
+# so reruns are reproducible and replicas don't collide.
+SEED=$(( REPLICA * 1000 + 42 ))
+
+beast ${BEAST_OPTS} \
+    ${RESUME_FLAG} \
+    -threads ${SLURM_CPUS_PER_TASK} \
+    -seed ${SEED} \
+    -packagedir "${BEAST_PACKAGE_PATH}" \
+    ${BEAGLE_FLAGS} \
+    {{ beast_extra_flags | default('') }} \
+    "${XML_BASENAME}"
+
+echo "=== Job ${SLURM_JOB_ID} (replica ${REPLICA}) finished at $(date) ==="
+
+###############################################################################
+# Hint for chaining the next 7-day chunk:
+#
+#   prev=$(squeue -h -j ${SLURM_JOB_ID} -o %A)
+#   sbatch --dependency=afterok:${prev} <this-script>.rendered.sh
+#
+# Or in a loop after the first submission:
+#
+#   jid=$(sbatch --parsable run.sbatch)
+#   for i in 1 2 3; do
+#     jid=$(sbatch --parsable --dependency=afterok:${jid} run.sbatch)
+#   done
+#
+# After all replicas finish, combine on a Genoa node:
+#
+#   logcombiner -log replica-*/<xml>.log    -o combined.log    -burnin 10
+#   logcombiner -log replica-*/<xml>.trees  -o combined.trees  -burnin 10
+#   treeannotator -burnin 10 combined.trees mcc.tree
+###############################################################################

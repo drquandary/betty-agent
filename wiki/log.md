@@ -222,3 +222,17 @@
 - Remaining work: ryb needs to fix `update.sh` for future cache regenerations
 - Pages created: [[betty-lmod-architecture]]
 - Pages updated: [[ood-troubleshooting]], [[open-ondemand-betty]], [[index]], [[log]]
+
+## [2026-04-27] add | BEAST2 + phylonco workflow for Bayesian phylogenetics on Betty
+- Driver: external research group using https://github.com/bioDS/beast-phylonco asked about wall-time extensions beyond Betty's 7-day policy. The ask is the expected shape for single-cell phylogenetics — chains routinely need weeks to converge — so the answer is a documented checkpoint-and-chain pattern, not a custom long queue.
+- Pages created: [[beast2-on-betty]], [[beast-phylonco]]
+- Templates created: betty-ai/templates/slurm/beast2_resume.sbatch.j2 (parameterized for tarball/module/conda/container install, CPU or GPU BEAGLE, single-chain or array-of-replicas, --requeue + --signal + -resume for clean chained restarts)
+- Pages updated: [[index]]
+- Key design decisions:
+  - **Separate page for phylonco** (not buried in beast2-on-betty.md): it has its own install path via packagemanager, its own scientific niche (single-cell phylogenetics with error models), and the pattern of dedicated concept pages per scientific package is what the agent expects to surface on QUERY.
+  - **Source order: tarball > module > conda > container** (different from GROMACS, which prioritized module > NGC container). Reasoning: BEAST2 is Java; beast2.org distributes an all-in-one tarball with a bundled JRE that the `packagemanager` CLI assumes. There is no official NGC container for BEAST2.
+  - **Default partition: genoa-std-mem, not dgx-b200**. MCMC is sequential; only the per-step BEAGLE likelihood parallelizes, and that caps at ~4–8 threads. GPU only pays off for very large alignments — flagged in the partition cheat-sheet but defaulted off.
+  - **Default walltime: 7-00:00:00, default replicas: 4**. Encodes Betty's 7-day policy as the chunk size and 4 independent chains as the convergence-diagnostic floor.
+  - **JVM heap set explicitly to (mem - 4)g** with `-Xmx == -Xms`. BEAST2 OOMs are easy to diagnose only after wasting days; this pre-empts the most common silent failure mode.
+- Status: both pages tentative — need a real `module spider beast2` check, a tarball install log, and a benchmark from an actual phylonco run before flipping to current.
+- Next ingest opportunity: when the research group runs a real chain, capture the analysis XML and a successful run log; would anchor the phylonco page to a real source instead of general knowledge.
