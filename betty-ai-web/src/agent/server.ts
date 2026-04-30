@@ -16,6 +16,10 @@ import { wikiWriteTool } from './tools/wiki-write';
 import { clusterRunTool } from './tools/cluster-run';
 import { clusterSubmitTool } from './tools/cluster-submit';
 import { clusterStatusTool } from './tools/cluster-status';
+import { slurmCheckTool } from './tools/slurm-check';
+import { slurmRecommendTool } from './tools/slurm-recommend';
+import { slurmDiagnoseTool } from './tools/slurm-diagnose';
+import { slurmAvailabilityTool } from './tools/slurm-availability';
 import { buildSystemPrompt } from './system-prompt';
 import { prepareClaudeEnvironment, type ChatPreferences } from './providers';
 
@@ -36,6 +40,10 @@ const bettyTools = createSdkMcpServer({
     clusterRunTool,
     clusterSubmitTool,
     clusterStatusTool,
+    slurmCheckTool,
+    slurmRecommendTool,
+    slurmDiagnoseTool,
+    slurmAvailabilityTool,
   ],
 });
 
@@ -84,6 +92,10 @@ const WIKI_WRITE_TOOL = 'mcp__betty-ai-tools__wiki_write';
 const CLUSTER_RUN_TOOL = 'mcp__betty-ai-tools__cluster_run';
 const CLUSTER_SUBMIT_TOOL = 'mcp__betty-ai-tools__cluster_submit';
 const CLUSTER_STATUS_TOOL = 'mcp__betty-ai-tools__cluster_status';
+const SLURM_CHECK_TOOL = 'mcp__betty-ai-tools__slurm_check';
+const SLURM_RECOMMEND_TOOL = 'mcp__betty-ai-tools__slurm_recommend';
+const SLURM_DIAGNOSE_TOOL = 'mcp__betty-ai-tools__slurm_diagnose';
+const SLURM_AVAILABILITY_TOOL = 'mcp__betty-ai-tools__slurm_availability';
 
 export function classifyPermissionTier(
   toolName: string,
@@ -105,6 +117,13 @@ export function classifyPermissionTier(
   if (toolName === CLUSTER_RUN_TOOL) return 1;
   if (toolName === CLUSTER_STATUS_TOOL) return 1;
   if (toolName === CLUSTER_SUBMIT_TOOL) return 2;
+  // SLURM advisor: check + recommend are pure local (Python subprocess), no
+  // cluster contact, so they auto-approve. Diagnose hits SSH (scontrol show
+  // job) and availability hits SSH (sinfo) — both tier-1.
+  if (toolName === SLURM_CHECK_TOOL) return 0;
+  if (toolName === SLURM_RECOMMEND_TOOL) return 0;
+  if (toolName === SLURM_DIAGNOSE_TOOL) return 1;
+  if (toolName === SLURM_AVAILABILITY_TOOL) return 1;
   // Unknown tools default to always-prompt.
   return 2;
 }
@@ -130,6 +149,16 @@ export function summarizePermissionRequest(
   if (toolName === CLUSTER_STATUS_TOOL) {
     const jobId = String(input.job_id ?? '?');
     return `cluster_status: job ${jobId}`;
+  }
+  if (toolName === SLURM_DIAGNOSE_TOOL) {
+    const jobId = String(input.job_id ?? '?');
+    return `slurm_diagnose: job ${jobId} (runs scontrol on Betty)`;
+  }
+  if (toolName === SLURM_AVAILABILITY_TOOL) {
+    const gpus = String(input.gpus ?? '?');
+    const hours = String(input.hours ?? '?');
+    const partition = String(input.partition ?? 'dgx-b200');
+    return `slurm_availability: ${gpus} GPU(s) × ${hours}h on ${partition}`;
   }
   return toolName;
 }
@@ -172,6 +201,10 @@ export async function* runAgentQuery(
         'mcp__betty-ai-tools__cluster_run',
         'mcp__betty-ai-tools__cluster_submit',
         'mcp__betty-ai-tools__cluster_status',
+        SLURM_CHECK_TOOL,
+        SLURM_RECOMMEND_TOOL,
+        SLURM_DIAGNOSE_TOOL,
+        SLURM_AVAILABILITY_TOOL,
       ],
       canUseTool: async (toolName, input) => {
         const tier = classifyPermissionTier(toolName, input);
