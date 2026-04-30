@@ -4,6 +4,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { isWikiHref, transformWikiLinks, WikiLinkAnchor } from './WikiLink';
+import { SlurmCard } from './SlurmCards';
+
+const SLURM_LANG_RE = /^betty-slurm-([a-z][a-z0-9-]*)$/;
 
 export interface DisplayMessage {
   role: 'user' | 'assistant';
@@ -17,6 +20,10 @@ interface Props {
 
 export function ChatMessage({ message }: Props) {
   const isUser = message.role === 'user';
+  // Cards (sbatch checks, calendar tables, etc.) need more width than chat
+  // prose. When the message contains one, widen the bubble so columns and
+  // code blocks aren't clipped.
+  const hasRichCard = !isUser && /```betty-slurm-/.test(message.content);
   return (
     <div className={cn('flex gap-2.5', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
@@ -26,7 +33,8 @@ export function ChatMessage({ message }: Props) {
       )}
       <div
         className={cn(
-          'prose-chat max-w-[82%] rounded-2xl px-4 py-3 shadow-sm',
+          'prose-chat min-w-0 rounded-2xl px-4 py-3 shadow-sm',
+          hasRichCard ? 'w-full max-w-[96%]' : 'max-w-[82%]',
           isUser
             ? 'rounded-br-md bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-indigo-950/30'
             : 'rounded-bl-md border border-white/5 bg-[var(--surface-chat-assistant)] text-zinc-100',
@@ -43,6 +51,26 @@ export function ChatMessage({ message }: Props) {
                   {children}
                 </a>
               ),
+            // Render SLURM advisor tool output (fenced as
+            // ```betty-slurm-<kind>```) as a rich card instead of a plain
+            // code block. Other code blocks render normally.
+            code: ({ className, children, ...rest }) => {
+              const langMatch = /language-([\w-]+)/.exec(className ?? '');
+              const m = langMatch && SLURM_LANG_RE.exec(langMatch[1]);
+              if (m) {
+                return (
+                  <SlurmCard
+                    kind={m[1]}
+                    body={String(children ?? '').replace(/\n$/, '')}
+                  />
+                );
+              }
+              return (
+                <code className={className} {...rest}>
+                  {children}
+                </code>
+              );
+            },
           }}
         >
           {transformWikiLinks(message.content) || (message.streaming ? '…' : '')}
