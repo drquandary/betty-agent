@@ -7,17 +7,22 @@ A conversational AI agent and web interface that makes it dead simple to run any
 Tell Betty Agent what you want in plain English:
 
 > "I want to fine-tune Llama 3 70B on my customer support dataset"
+> "I need 4 GPUs for 8 hours — what partition should I use?"
+> "Why is my job 12345 still pending?"
+> "When is the best time to submit a 2-day GROMACS run this week?"
+> "Is this sbatch script reasonable?" *(paste script)*
 > "Run a multi-node MPI simulation with 8 nodes"
 > "Set up a Jupyter notebook server with GPU access"
-> "Process this 500GB dataset and generate visualizations"
 
 Betty Agent will:
 1. Ask clarifying questions (resource needs, software requirements, budget)
 2. Calculate optimal compute allocation and estimated cost
-3. Generate production-ready Slurm job scripts
-4. Check/create conda environments and dependencies
-5. Submit the job and monitor it
-6. Update the knowledge wiki with experiment details
+3. **Validate sbatch scripts and recommend partition shapes via the [SLURM Advisor](BETTY_SLURM_ADVISOR_REPORT.md) — a constraint-solver-backed tool that catches policy violations before they hit the scheduler**
+4. Generate production-ready Slurm job scripts
+5. Check/create conda environments and dependencies
+6. Submit the job and monitor it
+7. **Diagnose pending jobs** — explain why your job is stuck and what to do about it
+8. Update the knowledge wiki with experiment details
 
 ## Capabilities by Research Phase
 
@@ -41,6 +46,18 @@ The same conversational interface and automation capabilities extend to:
 
 ## Key Features
 
+### 🎯 **SLURM Advisor — constraint-solver-backed job-shape recommendation**
+*See full architecture in [`BETTY_SLURM_ADVISOR_REPORT.md`](BETTY_SLURM_ADVISOR_REPORT.md).*
+
+A subsystem of Betty Agent that helps researchers shape and validate SLURM job submissions *before* they reach the scheduler. Four specialized tools:
+
+- **`slurm_check`** — Lints any sbatch script against PARCC policy: per-partition geometry, QOS GPU caps, CPU-per-GPU ratios, memory caps, walltime backfill heuristics. Returns a status (`ok` / `revise` / `block`) with suggested fixes.
+- **`slurm_recommend`** — Given high-level intent ("2 GPUs for 8 hours, fine-tuning a 70B model"), runs a [MiniZinc](https://www.minizinc.org/) constraint solver to pick the cheapest legal partition shape. Pre-filters by VRAM floor and NVLink requirement; falls back to deterministic Python search when MiniZinc isn't installed.
+- **`slurm_availability`** — Combines live `sinfo` + `squeue --start` + `scontrol show res` with hour-of-day load profile to rank candidate time-slots. Renders a calendar table in chat.
+- **`slurm_diagnose`** — Runs `scontrol show job` + `sprio -hl` in parallel; maps SLURM Reason codes to plain-English causes and identifies which priority factor (FAIRSHARE/JOBSIZE/AGE/...) is dragging the job down.
+
+Five safety contracts encoded as code, tests, and visible UI signals: VRAM safety, synthetic-vs-historical curve labeling, backfill estimate caveats, queue privacy, graceful SSH degradation. **128 tests passing** (110 Python + 18 TypeScript) including an 82-case scenario matrix across hardware variations, VRAM requirements, walltime, time-of-day, and 10 realistic researcher personas — see [`BETTY_SLURM_ADVISOR_TEST_PLAN.md`](BETTY_SLURM_ADVISOR_TEST_PLAN.md).
+
 ### 🖥️ **Dual Interface**
 - **Web GUI**: Next.js chat interface with integrated terminal, real-time job monitoring, and status bar
 - **Claude Code CLI**: Native agent for local development and automation
@@ -57,6 +74,7 @@ The same conversational interface and automation capabilities extend to:
 - `cluster_run` — Execute whitelisted read-only commands on Betty
 - `cluster_submit` — Submit Slurm jobs with experiment tracking
 - `cluster_status` — Monitor job state and update wiki experiment pages
+- **`slurm_check`** / **`slurm_recommend`** / **`slurm_availability`** / **`slurm_diagnose`** — SLURM Advisor (see Key Features above)
 
 ### 📚 **Knowledge Management**
 - **Karpathy LLM Wiki pattern**: Persistent, compounding knowledge across sessions
