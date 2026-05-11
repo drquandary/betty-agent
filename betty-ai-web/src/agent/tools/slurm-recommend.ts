@@ -8,7 +8,7 @@
 import { tool } from '@anthropic-ai/claude-agent-sdk';
 import { z } from 'zod';
 import { runRemote } from '../cluster/ssh';
-import { renderRichCard, runSlurmCli } from './slurm-shared';
+import { logToolUsage, renderRichCard, runSlurmCli } from './slurm-shared';
 
 /**
  * Best-effort fairshare snapshot for the current user, so the recommend
@@ -157,6 +157,13 @@ export const slurmRecommendTool = tool(
       ),
   },
   async (input) => {
+    const startedAt = Date.now();
+    const timestamp = new Date(startedAt).toISOString();
+    const input_summary = {
+      gpus: input.gpus, cpus: input.cpus, mem_gb: input.mem_gb,
+      hours: input.hours, partition: input.partition, qos: input.qos,
+      interactive: input.interactive, min_vram_gb: input.min_vram_gb,
+    };
     // Fetch fairshare in parallel with the solver — saves a round-trip.
     const fairsharePromise = fetchFairshare();
 
@@ -172,6 +179,10 @@ export const slurmRecommendTool = tool(
 
     const { ok, stdout, stderr, code } = await runSlurmCli('recommend', args);
     if (!ok) {
+      logToolUsage({
+        timestamp, tool: 'slurm_recommend', input_summary,
+        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+      });
       return {
         content: [{ type: 'text', text: `slurm_recommend failed (exit ${code}).\n${stderr}` }],
         isError: true,
@@ -195,6 +206,21 @@ export const slurmRecommendTool = tool(
       dropped_count: fs.dropped_count,
       dropped_samples: fs.dropped_samples,
     };
+    const result = parsed.result as Record<string, unknown> | undefined;
+    logToolUsage({
+      timestamp,
+      tool: 'slurm_recommend',
+      input_summary,
+      output_summary: {
+        feasible: result?.feasible,
+        partition: result?.partition,
+        backend: result?.backend,
+        billing_score: result?.billing_score,
+        fairshare_rows: fs.rows.length,
+        fairshare_source: fs.source,
+      },
+      duration_ms: Date.now() - startedAt,
+    });
     return {
       content: [{ type: 'text', text: renderRichCard('recommend', parsed) }],
     };

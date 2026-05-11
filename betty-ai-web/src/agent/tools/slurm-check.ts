@@ -13,7 +13,7 @@
 
 import { tool } from '@anthropic-ai/claude-agent-sdk';
 import { z } from 'zod';
-import { renderRichCard, runSlurmCli } from './slurm-shared';
+import { logToolUsage, renderRichCard, runSlurmCli } from './slurm-shared';
 
 export const slurmCheckTool = tool(
   'slurm_check',
@@ -25,8 +25,22 @@ export const slurmCheckTool = tool(
       .describe('Full sbatch script text (shebang + #SBATCH directives + body).'),
   },
   async ({ sbatch }) => {
+    const startedAt = Date.now();
+    const timestamp = new Date(startedAt).toISOString();
+    // Log input as a summary — we deliberately don't store the full
+    // sbatch text, only its size signal, so personal/research content
+    // never lands in the audit log.
+    const input_summary = {
+      sbatch_size_bytes: sbatch.length,
+      sbatch_lines: sbatch.split('\n').length,
+    };
+
     const { ok, stdout, stderr, code } = await runSlurmCli('check', [], sbatch);
     if (!ok) {
+      logToolUsage({
+        timestamp, tool: 'slurm_check', input_summary,
+        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+      });
       return {
         content: [{
           type: 'text',
@@ -35,15 +49,31 @@ export const slurmCheckTool = tool(
         isError: true,
       };
     }
-    let parsed: unknown;
+    let parsed: { status?: string; issues?: Array<{ code?: string; severity?: string }> };
     try {
       parsed = JSON.parse(stdout);
     } catch {
+      logToolUsage({
+        timestamp, tool: 'slurm_check', input_summary,
+        duration_ms: Date.now() - startedAt, error: 'non-json output',
+      });
       return {
         content: [{ type: 'text', text: `slurm_check returned non-JSON:\n${stdout}` }],
         isError: true,
       };
     }
+    logToolUsage({
+      timestamp,
+      tool: 'slurm_check',
+      input_summary,
+      output_summary: {
+        status: parsed.status,
+        issue_count: parsed.issues?.length ?? 0,
+        // Codes are small, stable identifiers; safe to log.
+        issue_codes: parsed.issues?.map((i) => i.code).filter(Boolean),
+      },
+      duration_ms: Date.now() - startedAt,
+    });
     return {
       content: [{ type: 'text', text: renderRichCard('check', parsed) }],
     };

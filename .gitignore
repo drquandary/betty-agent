@@ -1,6 +1,10 @@
 # Betty AI
 betty-ai/configs/team.yaml
 betty-ai/generated/
+# Agent usage log + offline-computed historical features — both are runtime
+# data, not source. Per-machine, per-user; never committed.
+betty-ai/data/agent-log/
+betty-ai/data/features/
 *.pyc
 __pycache__/
 .env
