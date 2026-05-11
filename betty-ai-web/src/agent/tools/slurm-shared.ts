@@ -11,6 +11,8 @@
  */
 
 import { spawn } from 'node:child_process';
+import { appendFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { paths } from '../knowledge/loader';
 
 export interface PythonRunResult {
@@ -93,4 +95,101 @@ export function renderRichCard(kind: string, payload: unknown): string {
     '',
     fence,
   ].join('\n');
+}
+
+
+/**
+ * Agent usage log — append-only JSONL of every slurm_* tool invocation.
+ *
+ * Why: Ryan's wrong-impression risk gets less scary if we can show
+ * calibration over time ("of last 100 recommendations, 73% started within
+ * the predicted window"). That dataset doesn't exist until we start
+ * recording. This is single-user / dev-mode logging today; multi-user
+ * audit logging gates on the OOD deployment in §8.1 of the report.
+ *
+ * Format: one JSON object per line in
+ * `betty-ai/data/agent-log/slurm-tool-calls.jsonl`. Each entry has:
+ *   - timestamp:  ISO-8601 UTC of when the call started
+ *   - tool:       "slurm_check" | "slurm_recommend" | "slurm_diagnose" | "slurm_availability"
+ *   - input_summary:  small bag of input fields (gpus, hours, etc.) — no
+ *                     full sbatch text or job IDs from other users
+ *   - output_summary: small bag of result fields (partition, score, status,
+ *                     sources, etc.) — no per-job rows from squeue
+ *   - duration_ms:    wall-time of the underlying CLI/SSH call(s)
+ *   - error:          non-null if the call failed
+ *
+ * Privacy: we deliberately log SUMMARIES, not full inputs/outputs. A
+ * researcher's sbatch script may contain dataset paths or model names they
+ * don't want auditable. The JobIDs from `squeue --start` are aggregated
+ * before they ever reach this layer (§5.4 privacy contract). What we log
+ * is enough to compute calibration — what we recommended, what category
+ * of request it was — without retaining content.
+ *
+ * Failure mode: log writes are best-effort. A failed write must never
+ * affect the tool's return value or surface to the user. The data
+ * flywheel is nice-to-have; the tool's correctness is not.
+ */
+
+export interface ToolUsageRecord {
+  timestamp: string;
+  tool: string;
+  input_summary?: Record<string, unknown>;
+  output_summary?: Record<string, unknown>;
+  duration_ms: number;
+  error?: string;
+}
+
+const LOG_DIR = join(paths.bettyAi, 'data', 'agent-log');
+const LOG_FILE = join(LOG_DIR, 'slurm-tool-calls.jsonl');
+
+let logDirEnsured = false;
+
+export function logToolUsage(record: ToolUsageRecord): void {
+  // Best-effort: any error here is swallowed so the tool's behavior is
+  // never affected by logging.
+  try {
+    if (!logDirEnsured) {
+      mkdirSync(LOG_DIR, { recursive: true });
+      logDirEnsured = true;
+    }
+    appendFileSync(LOG_FILE, JSON.stringify(record) + '\n', 'utf8');
+  } catch {
+    /* swallow — calibration logging is non-essential */
+  }
+}
+
+/**
+ * Helper to wrap a tool's body with timing + logging boilerplate. The
+ * caller passes the tool name, an input summarizer (returning the small
+ * bag of input fields safe to log), and the body that produces the result.
+ * Output summarization happens by the caller passing back what to log.
+ */
+export async function withUsageLog<T>(
+  tool: string,
+  input_summary: Record<string, unknown>,
+  body: () => Promise<{ result: T; output_summary?: Record<string, unknown>; error?: string }>,
+): Promise<T> {
+  const startedAt = Date.now();
+  const timestamp = new Date(startedAt).toISOString();
+  try {
+    const { result, output_summary, error } = await body();
+    logToolUsage({
+      timestamp,
+      tool,
+      input_summary,
+      output_summary,
+      duration_ms: Date.now() - startedAt,
+      error,
+    });
+    return result;
+  } catch (err) {
+    logToolUsage({
+      timestamp,
+      tool,
+      input_summary,
+      duration_ms: Date.now() - startedAt,
+      error: (err as Error).message,
+    });
+    throw err;
+  }
 }

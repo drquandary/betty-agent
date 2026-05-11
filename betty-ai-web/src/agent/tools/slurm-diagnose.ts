@@ -20,7 +20,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { runRemote } from '../cluster/ssh';
-import { renderRichCard, runSlurmCli } from './slurm-shared';
+import { logToolUsage, renderRichCard, runSlurmCli } from './slurm-shared';
 
 const JOB_ID_RE = /^\d+(_\d+)?$/;
 
@@ -35,6 +35,14 @@ export const slurmDiagnoseTool = tool(
       .describe('SLURM job id to diagnose, e.g. "123456" or "123456_0".'),
   },
   async ({ job_id }) => {
+    const startedAt = Date.now();
+    const timestamp = new Date(startedAt).toISOString();
+    // We deliberately don't log the job_id directly — it's a foreign
+    // identifier for our calibration purposes. Log only that a diagnose
+    // happened. (The audit log is for "did our recommendations work?",
+    // not "which jobs did this user inspect?".)
+    const input_summary = { job_id_supplied: !!job_id };
+
     // Run scontrol and sprio in parallel — both are read-only and target
     // the same job. sprio's failure is non-fatal: if it errors (job
     // already started, doesn't exist, etc.) we proceed without priority
@@ -50,6 +58,11 @@ export const slurmDiagnoseTool = tool(
     ]);
 
     if (scontrolRes.exit !== 0) {
+      logToolUsage({
+        timestamp, tool: 'slurm_diagnose', input_summary,
+        duration_ms: Date.now() - startedAt,
+        error: `scontrol exit ${scontrolRes.exit}`,
+      });
       return {
         content: [{
           type: 'text',
@@ -83,6 +96,10 @@ export const slurmDiagnoseTool = tool(
     }
     const { ok, stdout, stderr, code } = result;
     if (!ok) {
+      logToolUsage({
+        timestamp, tool: 'slurm_diagnose', input_summary,
+        duration_ms: Date.now() - startedAt, error: `advisor exit ${code}: ${stderr}`,
+      });
       return {
         content: [{
           type: 'text',
@@ -91,15 +108,31 @@ export const slurmDiagnoseTool = tool(
         isError: true,
       };
     }
-    let parsed: unknown;
+    let parsed: { state?: string; reason?: string; priority_dominant_negative?: string };
     try {
       parsed = JSON.parse(stdout);
     } catch {
+      logToolUsage({
+        timestamp, tool: 'slurm_diagnose', input_summary,
+        duration_ms: Date.now() - startedAt, error: 'non-json output',
+      });
       return {
         content: [{ type: 'text', text: `slurm_diagnose returned non-JSON:\n${stdout}` }],
         isError: true,
       };
     }
+    logToolUsage({
+      timestamp,
+      tool: 'slurm_diagnose',
+      input_summary,
+      output_summary: {
+        state: parsed.state,
+        reason: parsed.reason,
+        sprio_used: sprioOut.length > 0,
+        priority_bottleneck: parsed.priority_dominant_negative,
+      },
+      duration_ms: Date.now() - startedAt,
+    });
     return {
       content: [{ type: 'text', text: renderRichCard('diagnose', parsed) }],
     };

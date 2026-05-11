@@ -13,7 +13,7 @@
 import { tool } from '@anthropic-ai/claude-agent-sdk';
 import { z } from 'zod';
 import { runRemote } from '../cluster/ssh';
-import { renderRichCard, runSlurmCli } from './slurm-shared';
+import { logToolUsage, renderRichCard, runSlurmCli } from './slurm-shared';
 
 interface SnapshotInput {
   gpus_idle_by_partition: Record<string, number>;
@@ -272,6 +272,9 @@ export const slurmAvailabilityTool = tool(
       .describe('ISO-8601 latest acceptable start. Defaults to now+7d.'),
   },
   async ({ gpus, hours, partition, earliest, latest }) => {
+    const startedAt = Date.now();
+    const timestamp = new Date(startedAt).toISOString();
+    const input_summary = { gpus, hours, partition, earliest, latest };
     const snapshot = await fetchSnapshot();
     const payload = {
       gpus,
@@ -287,6 +290,10 @@ export const slurmAvailabilityTool = tool(
       JSON.stringify(payload),
     );
     if (!ok) {
+      logToolUsage({
+        timestamp, tool: 'slurm_availability', input_summary,
+        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+      });
       return {
         content: [{
           type: 'text',
@@ -295,10 +302,14 @@ export const slurmAvailabilityTool = tool(
         isError: true,
       };
     }
-    let parsed: unknown;
+    let parsed: { sources?: string[]; load_curve_kind?: string; slots?: unknown[] };
     try {
       parsed = JSON.parse(stdout);
     } catch {
+      logToolUsage({
+        timestamp, tool: 'slurm_availability', input_summary,
+        duration_ms: Date.now() - startedAt, error: 'non-json output',
+      });
       return {
         content: [{
           type: 'text',
@@ -307,6 +318,17 @@ export const slurmAvailabilityTool = tool(
         isError: true,
       };
     }
+    logToolUsage({
+      timestamp,
+      tool: 'slurm_availability',
+      input_summary,
+      output_summary: {
+        sources: parsed.sources,
+        load_curve_kind: parsed.load_curve_kind,
+        slot_count: parsed.slots?.length ?? 0,
+      },
+      duration_ms: Date.now() - startedAt,
+    });
     return {
       content: [{ type: 'text', text: renderRichCard('calendar', parsed) }],
     };

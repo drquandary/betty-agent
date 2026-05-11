@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 /**
  * Rich renderers for the slurm_* tools' output.
  *
@@ -88,10 +90,16 @@ interface CalendarSlot {
   start: string;
   end: string;
   start_local: string;
+  /** Display window, e.g. "Tue Apr 28, 02:00 AM – 04:00 AM" — preferred over `start_local` for the calendar table to communicate that estimates are approximate. */
+  window_local?: string;
   partition: string;
   gpus: number;
+  /** Score rounded to 1 decimal for display. The unrounded value is in `score_raw`. */
   score: number;
+  score_raw?: number;
   reasons: string[];
+  /** "high" | "medium" | "low" — drives the row color in the calendar table. */
+  confidence?: 'high' | 'medium' | 'low';
 }
 
 interface CalendarPayload {
@@ -460,6 +468,54 @@ export function SlurmDiagnoseCard({ payload }: { payload: DiagnosePayload }) {
 // 4) calendar of candidate slots
 // ---------------------------------------------------------------------------
 
+/**
+ * One-time education banner. Storage key is on the calendar card itself
+ * so dismissing it on one calendar dismisses for all future calendars too.
+ * If localStorage is unavailable (SSR/private mode), the banner stays
+ * visible — fail open is the right call here since the message is short.
+ */
+function CalendarEducationBanner() {
+  const STORAGE_KEY = 'betty-slurm-calendar-edu-dismissed-v1';
+  const [dismissed, setDismissed] = useState<boolean | null>(null);
+  useEffect(() => {
+    try {
+      setDismissed(window.localStorage.getItem(STORAGE_KEY) === '1');
+    } catch {
+      setDismissed(false);
+    }
+  }, []);
+  if (dismissed !== false) return null;
+  return (
+    <div className="mb-3 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-200 ring-1 ring-inset ring-sky-400/30">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <span className="font-semibold uppercase tracking-wide">Heads up:</span>{' '}
+          time-slot recommendations are SLURM scheduling <em>hints</em>, not commitments.
+          Your job's actual start depends on what other researchers submit between now
+          and then. Treat slots as &ldquo;probably soon-ish&rdquo; not &ldquo;will start at
+          this exact minute.&rdquo; The calendar shows confidence per row so you can tell
+          ranked recommendations apart from rough heuristics.
+        </div>
+        <button
+          type="button"
+          aria-label="Dismiss"
+          onClick={() => {
+            try {
+              window.localStorage.setItem(STORAGE_KEY, '1');
+            } catch {
+              /* swallow — just don't persist */
+            }
+            setDismissed(true);
+          }}
+          className="rounded px-1.5 py-0.5 text-sky-300 hover:bg-sky-500/20 hover:text-sky-100"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function SlurmCalendarCard({ payload }: { payload: CalendarPayload }) {
   const slots = payload.slots ?? [];
   const isSynthetic = payload.load_curve_kind === 'synthetic';
@@ -468,6 +524,7 @@ export function SlurmCalendarCard({ payload }: { payload: CalendarPayload }) {
       title="Candidate time-slots"
       subtitle={`${payload.gpus} GPU${payload.gpus !== 1 ? 's' : ''} × ${payload.hours}h on ${payload.partition ?? '—'} (best first)`}
     >
+      <CalendarEducationBanner />
       {/*
         Pre-validation banner — Ryan's #2 ask. When the load curve is the
         hand-coded synthetic one (the nightly sacct→features pipeline hasn't
@@ -493,21 +550,53 @@ export function SlurmCalendarCard({ payload }: { payload: CalendarPayload }) {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wide text-zinc-500">
-                <th className="py-1.5 pr-3 font-semibold">When (local)</th>
+                <th className="py-1.5 pr-3 font-semibold">When (local, approx 2h window)</th>
+                <th className="py-1.5 pr-3 font-semibold">Confidence</th>
                 <th className="py-1.5 pr-3 font-semibold">Score</th>
                 <th className="py-1.5 font-semibold">Why</th>
               </tr>
             </thead>
             <tbody>
-              {slots.map((s, i) => (
-                <tr key={i} className="border-b border-white/5 last:border-0">
-                  <td className="py-2 pr-3 align-top text-zinc-100">{s.start_local}</td>
-                  <td className="py-2 pr-3 align-top text-zinc-300">{s.score.toFixed(2)}</td>
-                  <td className="py-2 align-top text-xs text-zinc-400">
-                    {s.reasons.join(' · ')}
-                  </td>
-                </tr>
-              ))}
+              {slots.map((s, i) => {
+                const conf = s.confidence ?? 'medium';
+                const rowTint =
+                  conf === 'high'
+                    ? ''
+                    : conf === 'medium'
+                    ? 'bg-amber-500/[0.04]'
+                    : 'bg-rose-500/[0.06]';
+                const confColor =
+                  conf === 'high'
+                    ? 'text-emerald-300'
+                    : conf === 'medium'
+                    ? 'text-amber-300'
+                    : 'text-rose-300';
+                const confLabel =
+                  conf === 'high'
+                    ? 'High'
+                    : conf === 'medium'
+                    ? 'Medium'
+                    : 'Low — heuristic only';
+                return (
+                  <tr
+                    key={i}
+                    className={cn('border-b border-white/5 last:border-0', rowTint)}
+                  >
+                    <td className="py-2 pr-3 align-top text-zinc-100">
+                      {s.window_local ?? s.start_local}
+                    </td>
+                    <td className={cn('py-2 pr-3 align-top text-xs font-semibold', confColor)}>
+                      {confLabel}
+                    </td>
+                    <td className="py-2 pr-3 align-top text-zinc-300">
+                      {s.score.toFixed(1)}
+                    </td>
+                    <td className="py-2 align-top text-xs text-zinc-400">
+                      {s.reasons.join(' · ')}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

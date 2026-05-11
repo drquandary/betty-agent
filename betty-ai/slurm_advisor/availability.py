@@ -68,12 +68,35 @@ class Slot:
     gpus: int
     score: float            # higher = better
     reasons: List[str] = field(default_factory=list)
+    # Confidence tier for the slot, surfaced to the UI for color-coding:
+    #   "high"   — within bf_window (~1 day), historical curve loaded
+    #   "medium" — within bf_window, synthetic curve only
+    #   "low"    — beyond bf_window OR no live sources at all
+    # Slots with confidence "low" should be visually de-emphasized; the UI
+    # renders them in red and the agent narrates them as "rough heuristic
+    # only" rather than as ranked recommendations.
+    confidence: str = "medium"
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d["start"] = self.start.isoformat()
         d["end"] = self.end.isoformat()
-        d["start_local"] = self.start.astimezone().strftime("%a %b %d, %I:%M %p")
+        # Window display: "Tue Apr 28, 02:00 AM – 04:00 AM" rather than
+        # a precise timestamp. Two-hour window communicates that the
+        # estimate is approximate, not a commitment.
+        local_start = self.start.astimezone()
+        window_end = (local_start + timedelta(hours=2))
+        d["start_local"] = local_start.strftime("%a %b %d, %I:%M %p")
+        d["window_local"] = (
+            f"{local_start.strftime('%a %b %d, %I:%M %p')} – "
+            f"{window_end.strftime('%I:%M %p')}"
+        )
+        # Round score to 1 decimal in the wire format. The card displays
+        # this; the LLM sees this. Three-decimal precision was misleading.
+        d["score"] = round(self.score, 1)
+        # Keep the unrounded value too in case any downstream computation
+        # needs it; explicit field name flags it as "internal use."
+        d["score_raw"] = self.score
         return d
 
 
@@ -168,8 +191,26 @@ def propose_slots(
         else:
             load_by_hour = _DEFAULT_LOAD_BY_HOUR
 
+    # When we don't have historical load data, refuse to score slots more
+    # than 12 hours out. The synthetic hour-of-day curve has no calibration
+    # against actual Betty wait-time history, so ranking a Friday slot
+    # against a Tuesday one is misleading. Honest "I don't know" beats
+    # confident-sounding heuristics. Once `scheduling/features.py` runs
+    # nightly we can re-enable the longer horizon.
+    have_historical = "historical_load" in (snapshot.sources or [])
     if not candidate_offsets_hours:
-        candidate_offsets_hours = [0, 1, 3, 6, 12, 24, 48]
+        if have_historical:
+            candidate_offsets_hours = [0, 1, 3, 6, 12, 24, 48]
+        else:
+            # Synthetic-only: cap at 12h horizon, don't pretend to rank
+            # anything further out.
+            candidate_offsets_hours = [0, 1, 3, 6, 12]
+
+    # Approximate bf_window (SLURM backfill simulator's lookahead). Default
+    # 1 day; gets overridden by future ops integration that reads the actual
+    # configured value. Slots within bf_window are higher-confidence than
+    # slots beyond it because SLURM itself can credibly predict the former.
+    bf_window_hours = 24
 
     free = snapshot.gpus_idle_by_partition.get(partition, 0)
     total = snapshot.gpus_total_by_partition.get(partition, max(free, 1))
@@ -235,9 +276,24 @@ def propose_slots(
         if label:
             reasons.append(label)
 
+        # Confidence: high if we have historical curve AND we're within
+        # bf_window; medium if either condition holds; low if neither
+        # (synthetic curve and beyond bf_window). The UI uses this to
+        # color-code slots and de-emphasize low-confidence ones.
+        within_bf = dt_hours <= bf_window_hours
+        if have_historical and within_bf:
+            confidence = "high"
+        elif have_historical or within_bf:
+            confidence = "medium"
+        else:
+            confidence = "low"
+            reasons.append(
+                "low confidence (synthetic curve + beyond backfill window)"
+            )
+
         slots.append(Slot(
             start=rounded, end=end, partition=partition, gpus=gpus,
-            score=round(score, 3), reasons=reasons,
+            score=round(score, 3), reasons=reasons, confidence=confidence,
         ))
 
     for off in candidate_offsets_hours:
