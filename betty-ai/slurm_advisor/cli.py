@@ -32,6 +32,8 @@ from .recommender import (
     diagnose_pending,
     recommend,
 )
+from .plan_writer import render_plan_md
+from .reverse import JobRequest, reverse_filter
 from .solver import JobIntent
 
 
@@ -172,6 +174,62 @@ def cmd_availability(args: argparse.Namespace) -> int:
     })
 
 
+def cmd_plan(args: argparse.Namespace) -> int:
+    """Run reverse-filter and render a plan.md to stdout (or --out file)."""
+    req = JobRequest(
+        partition=args.partition,
+        gpus=args.gpus,
+        gres=args.gres,
+        nodes=args.nodes,
+        tasks=args.tasks,
+        tasks_per_node=args.tasks_per_node,
+        cpus=args.cpus,
+        memory=args.memory,
+        mem_per_cpu=args.mem_per_cpu,
+        mem_per_gpu=args.mem_per_gpu,
+        cpus_per_gpu=args.cpus_per_gpu,
+    )
+    result = reverse_filter(req, filter_path=args.filter_path,
+                            max_candidates=args.max_candidates,
+                            max_radius=args.max_radius)
+    md = render_plan_md(result, hours=args.hours)
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            f.write(md)
+        sys.stdout.write(f"wrote {args.out}\n")
+    else:
+        sys.stdout.write(md + "\n")
+    return 0 if result.legal else (0 if result.candidates else 2)
+
+
+def cmd_reverse(args: argparse.Namespace) -> int:
+    """Run Ryan's forward filter; if rejected, find nearest legal requests.
+
+    Output JSON contract: { original, forward: {status, code, message, ...},
+    legal, candidates: [{request, distance, set}], filter_path, solver }
+    """
+    req = JobRequest(
+        partition=args.partition,
+        gpus=args.gpus,
+        gres=args.gres,
+        nodes=args.nodes,
+        tasks=args.tasks,
+        tasks_per_node=args.tasks_per_node,
+        cpus=args.cpus,
+        memory=args.memory,
+        mem_per_cpu=args.mem_per_cpu,
+        mem_per_gpu=args.mem_per_gpu,
+        cpus_per_gpu=args.cpus_per_gpu,
+    )
+    result = reverse_filter(
+        req,
+        filter_path=args.filter_path,
+        max_candidates=args.max_candidates,
+        max_radius=args.max_radius,
+    )
+    return _emit(result.to_dict())
+
+
 def main(argv: List[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="slurm_advisor")
     sub = parser.add_subparsers(dest="verb", required=True)
@@ -210,6 +268,51 @@ def main(argv: List[str] | None = None) -> int:
 
     pa = sub.add_parser("availability", help="propose calendar slots (JSON in/out)")
     pa.set_defaults(func=cmd_availability)
+
+    pv = sub.add_parser(
+        "reverse",
+        help="reverse CLI filter: project an illegal request onto the nearest "
+             "legal one using Ryan's slurm-cli-filter.py as oracle",
+    )
+    pv.add_argument("--partition", required=True)
+    pv.add_argument("--gpus", type=int)
+    pv.add_argument("--gres", type=int)
+    pv.add_argument("--nodes", type=int)
+    pv.add_argument("--tasks", type=int)
+    pv.add_argument("--tasks-per-node", type=int, dest="tasks_per_node")
+    pv.add_argument("--cpus", type=int, help="cpus-per-task")
+    pv.add_argument("--memory", type=int, help="per-node mem in GiB")
+    pv.add_argument("--mem-per-cpu", type=float, dest="mem_per_cpu")
+    pv.add_argument("--mem-per-gpu", type=float, dest="mem_per_gpu")
+    pv.add_argument("--cpus-per-gpu", type=int, dest="cpus_per_gpu")
+    pv.add_argument("--filter-path",
+                    help="path to Ryan's slurm-cli-filter.py (else $PARCC_CLI_FILTER)")
+    pv.add_argument("--max-candidates", type=int, default=3)
+    pv.add_argument("--max-radius", type=int, default=2)
+    pv.set_defaults(func=cmd_reverse)
+
+    pp = sub.add_parser(
+        "plan",
+        help="run reverse filter and render a plan.md "
+             "(forward filter + nearest-legal + #SBATCH + diff)",
+    )
+    pp.add_argument("--partition", required=True)
+    pp.add_argument("--gpus", type=int)
+    pp.add_argument("--gres", type=int)
+    pp.add_argument("--nodes", type=int)
+    pp.add_argument("--tasks", type=int)
+    pp.add_argument("--tasks-per-node", type=int, dest="tasks_per_node")
+    pp.add_argument("--cpus", type=int)
+    pp.add_argument("--memory", type=int)
+    pp.add_argument("--mem-per-cpu", type=float, dest="mem_per_cpu")
+    pp.add_argument("--mem-per-gpu", type=float, dest="mem_per_gpu")
+    pp.add_argument("--cpus-per-gpu", type=int, dest="cpus_per_gpu")
+    pp.add_argument("--hours", type=float, help="adds --time= to the sbatch block")
+    pp.add_argument("--filter-path")
+    pp.add_argument("--max-candidates", type=int, default=3)
+    pp.add_argument("--max-radius", type=int, default=2)
+    pp.add_argument("--out", help="write plan markdown here instead of stdout")
+    pp.set_defaults(func=cmd_plan)
 
     args = parser.parse_args(argv)
     return args.func(args)

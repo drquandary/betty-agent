@@ -20,6 +20,7 @@ import { slurmCheckTool } from './tools/slurm-check';
 import { slurmRecommendTool } from './tools/slurm-recommend';
 import { slurmDiagnoseTool } from './tools/slurm-diagnose';
 import { slurmAvailabilityTool } from './tools/slurm-availability';
+import { slurmReverseTool } from './tools/slurm-reverse';
 import { buildSystemPrompt } from './system-prompt';
 import { prepareClaudeEnvironment, type ChatPreferences } from './providers';
 
@@ -44,6 +45,7 @@ const bettyTools = createSdkMcpServer({
     slurmRecommendTool,
     slurmDiagnoseTool,
     slurmAvailabilityTool,
+    slurmReverseTool,
   ],
 });
 
