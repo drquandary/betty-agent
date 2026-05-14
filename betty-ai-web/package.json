@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "doctor": "node scripts/doctor.mjs",
-    "postinstall": "chmod +x node_modules/node-pty/prebuilds/darwin-*/spawn-helper 2>/dev/null; true"
+    "postinstall": "chmod +x node_modules/node-pty/prebuilds/darwin-*/spawn-helper 2>/dev/null; true",
+    "monitoring:smoke": "node scripts/monitoring-smoke.mjs"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.111",

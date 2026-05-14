@@ -10,7 +10,7 @@ The repo lives at `/Users/jvadala/BettyAgent /parcc1`. The parent directory `Bet
 
 - Next.js 15 + React 19 chat GUI, Claude Agent SDK backend
 - Entry points: [betty-ai-web/src/app/api/chat/route.ts](betty-ai-web/src/app/api/chat/route.ts) → [betty-ai-web/src/agent/server.ts](betty-ai-web/src/agent/server.ts)
-- Tools exposed: `wiki_search`, `wiki_read`, `gpu_calculate` (under [betty-ai-web/src/agent/tools/](betty-ai-web/src/agent/tools))
+- Tools exposed (under [betty-ai-web/src/agent/tools/](betty-ai-web/src/agent/tools)): `wiki_search`, `wiki_read`, `wiki_write`, `gpu_calculate`, `cluster_run`, `cluster_submit`, `cluster_status`, `slurm_availability`, `slurm_check`, `slurm_diagnose`, `slurm_recommend`
 - System prompt: [betty-ai-web/src/agent/system-prompt.ts](betty-ai-web/src/agent/system-prompt.ts)
 - Wiki: 15 concepts, 11 entities, 5 models, 7 sources; schema at [wiki/SCHEMA.md](wiki/SCHEMA.md)
 - Python brain: [betty-ai/](betty-ai) — model registry, GPU calculator, Slurm/DeepSpeed/training templates

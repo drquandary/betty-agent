@@ -4,7 +4,7 @@ tags: [betty, slurm, tres, scheduling, dimensionality, betty-agent, observabilit
 created: 2026-04-27
 updated: 2026-04-27
 status: current
-related: [betty-billing-model, slurm-select-type-parameters, slurm-gres-conf, slurm-node-state-modifiers]
+related: [betty-billing-model, slurm-select-type-parameters, slurm-gres-conf, slurm-node-state-modifiers, slurm-advisor]
 ---
 
 # SLURM state dimensionality (and what Betty agent sees of it)

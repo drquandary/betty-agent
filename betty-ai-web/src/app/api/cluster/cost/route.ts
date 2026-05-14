@@ -1,42 +1,26 @@
 /**
  * GET /api/cluster/cost — allocation usage from parcc_sreport.py.
  *
- * Parses rows like:
- *   jcombar1-betty-testing                     PC 61.06        PC 12,000.00     0.5%
+ * These routes assume single-tenant localhost deployment; no per-request auth
+ * check. Bind to 127.0.0.1 if exposing publicly.
  */
 
 import { NextResponse } from 'next/server';
 import { runRemoteParseable } from '@/agent/cluster/ssh';
+import { getValidatedSshUser } from '../_shared/user';
+import { parseSreport } from './parse';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export interface AccountUsage {
-  account: string;
-  spentPc: number;
-  allocatedPc: number;
-  usedPct: number;
-}
-
-const ROW_RE = /^(\S+)\s+PC\s+([\d,]+\.\d+)\s+PC\s+([\d,]+\.\d+)\s+([\d.]+)%/;
-
-export function parseSreport(stdout: string): AccountUsage[] {
-  const rows: AccountUsage[] = [];
-  for (const line of stdout.split('\n')) {
-    const m = ROW_RE.exec(line.trim());
-    if (!m) continue;
-    rows.push({
-      account: m[1],
-      spentPc: Number(m[2].replace(/,/g, '')),
-      allocatedPc: Number(m[3].replace(/,/g, '')),
-      usedPct: Number(m[4]),
-    });
-  }
-  return rows;
-}
-
 export async function GET() {
-  const user = process.env.BETTY_SSH_USER || 'jvadala';
+  // Validate BETTY_SSH_USER against a strict whitelist before it lands in a
+  // shell command — otherwise a malformed env value could inject metachars.
+  const validated = getValidatedSshUser();
+  if (!validated.ok) {
+    return NextResponse.json({ ok: false, error: validated.error, accounts: [] }, { status: 200 });
+  }
+  const { user } = validated;
   try {
     const res = await runRemoteParseable(`parcc_sreport.py --user ${user}`);
     if (res.exit !== 0) {

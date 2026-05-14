@@ -236,3 +236,16 @@
   - **JVM heap set explicitly to (mem - 4)g** with `-Xmx == -Xms`. BEAST2 OOMs are easy to diagnose only after wasting days; this pre-empts the most common silent failure mode.
 - Status: both pages tentative — need a real `module spider beast2` check, a tarball install log, and a benchmark from an actual phylonco run before flipping to current.
 - Next ingest opportunity: when the research group runs a real chain, capture the analysis XML and a successful run log; would anchor the phylonco page to a real source instead of general knowledge.
+
+## [2026-05-13] add | SLURM Advisor wiki coverage
+- Back-filling wiki coverage for the SLURM Advisor feature merged on the `slurm-advisor` branch (PR #7). The feature shipped without a corresponding wiki entry, leaving the system-prompt anti-hallucination contract pointing only at source files rather than a wiki page.
+- Created concept: [[slurm-advisor]] — synthesizes [`BETTY_SLURM_ADVISOR_REPORT.md`](../BETTY_SLURM_ADVISOR_REPORT.md), [`BETTY_SLURM_ADVISOR_TEST_PLAN.md`](../BETTY_SLURM_ADVISOR_TEST_PLAN.md), and the three 2026-04-27 raw docs. Covers the four `slurm_*` tools, MiniZinc + Python solver fallback, five safety contracts, the anti-hallucination contract, 128-test coverage, and the ranked gap list.
+- Created sources: [[2026-04-27-slurm-advisor-report-ryb]], [[2026-04-27-slurm-advisor-evidence-report-ryb]], [[2026-04-27-slurm-advisor-architecture-and-reply-ryb]].
+- Updated: [[index]] (new concept under Concepts, three new entries under Sources).
+- Also fixed doc drift: stale test counts in `BETTY_SLURM_ADVISOR_TEST_PLAN.md` (now 110 Python / 18 TS), stale tool lists in `PLAN.md`, `PROJECT.md`, and `.claude/agents/betty-ai.md`, added the four `slurm-*.ts` tools and `(50+ pages)` to `README.md`, and documented the dashboard routes + components in `PROJECT.md`.
+
+## [2026-05-13] add | Wave 3F monitoring tab smoke harness
+- Verified AppShell + TabStrip + MonitoringView wiring (4-tab DashboardView, '#monitoring' hash round-trip, 6 cards in slot wrappers) — all already in place from Wave 2E.
+- Added smoke script: `betty-ai-web/scripts/monitoring-smoke.mjs` — shells out to local vitest scoped to src/components/monitoring + src/components/charts + 5 cluster API endpoint dirs. Exit 0 on all green, 1 on any failure. Summary: `monitoring smoke: 6/6 cards green, 5/5 routes green, 4/4 chart primitives green`.
+- Added npm script: `monitoring:smoke` in betty-ai-web/package.json (no new deps).
+- Created concept page: [[monitoring-tab]]; updated [[index]] and [[PROJECT]] (dashboard section sub-item).

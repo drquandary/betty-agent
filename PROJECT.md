@@ -44,8 +44,9 @@ A Next.js 15 + React 19 chat interface built on `@anthropic-ai/claude-agent-sdk`
 - `src/app/api/chat/route.ts` — chat API endpoint
 - `src/agent/server.ts` — agent server setup
 - `src/agent/system-prompt.ts` — agent persona/instructions
-- `src/agent/tools/` — agent tools: `gpu-calculate`, `wiki-read`, `wiki-search`
-- `src/components/` — chat UI (ChatPane, ChatMessage, QuickStartTiles, StatusBar)
+- `src/agent/tools/` — agent tools: `wiki-search`, `wiki-read`, `wiki-write`, `gpu-calculate`, `cluster-run`, `cluster-submit`, `cluster-status`, `slurm-availability`, `slurm-check`, `slurm-diagnose`, `slurm-recommend`
+- `src/components/` — chat UI (AppShell, ChatPane, ChatMessage, QuickStartTiles, StatusBar) plus the `dashboard/` cards (cluster overview, user stats, scheduling, docs)
+- `src/app/api/cluster/` — server routes that back the dashboard: `overview`, `quota`, `cost`, `jobs`
 
 ### 3. Knowledge base — `raw/` + `wiki/`
 Karpathy-style LLM Wiki pattern:
@@ -102,6 +103,8 @@ The agent is general-purpose and architected to handle any research computing wo
 4. **Debugging** — parse Slurm failure logs, diagnose node/partition issues
 5. **Wiki operations** — ingest new `raw/` docs into `wiki/`, answer "what do we know about X?" from wiki, run lint passes
 6. **Cost estimation** — estimate GPU-hours and cluster point (PC) usage before submitting
+7. **Dashboard** — a sidebar of read-only cards alongside the chat. `ClusterOverviewCard` polls `/api/cluster/overview` (parses `sinfo` for partition idle/total nodes + GPUs and CPU allocation), `UserStatsCard` calls `/api/cluster/quota` (storage quota via `parcc_quota.py`), `/api/cluster/cost` (allocation usage via `parcc_sreport.py`), and `/api/cluster/jobs` (live `squeue -u <user>`), and `DocsLinksCard` surfaces PARCC documentation links. All routes are read-only over the shared SSH ControlMaster socket and degrade gracefully when SSH or Kerberos is unavailable.
+   - **Monitoring tab** — A Datadog-style live Slurm health view inside the dashboard (`#monitoring` hash). Six cards bound to five Wave 2D parser routes: `PendingReasonsCard` (squeue Reasons), `BackfillCard` (sdiag backfill), `SchedulerRpcCard` (sdiag RPC), `NodeHeatmapCard` (sinfo -N), `JobOutcomeCard` (sacct 24h), `FairshareCard` (sprio -hl). Each card polls at 60s, renders an SVG chart primitive (Sparkline / Donut / StackedBar / Heatmap), and appends to a 24h JSONL ringbuffer at `betty-ai/data/metrics/<endpoint>.jsonl`. Verify the contract surface with `npm run monitoring:smoke` from `betty-ai-web/` — exit 0 means all six cards, five routes, and four chart primitives are green; exit 1 lists the failures. See [[wiki/concepts/monitoring-tab]].
 
 **Future phases (architecture supports, templates needed):**
 7. **Multi-node / MPI jobs** — generate `sbatch` scripts with `srun --mpi=pmix` for simulations, modeling, parallel computing

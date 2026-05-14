@@ -18,9 +18,8 @@ Three complementary test layers:
 
 | Layer | Count | Purpose |
 |---|---|---|
-| **Unit** ([`test_parser.py`](betty-ai/slurm_advisor/tests/test_parser.py), [`test_recommender.py`](betty-ai/slurm_advisor/tests/test_recommender.py), [`test_availability.py`](betty-ai/slurm_advisor/tests/test_availability.py), [`test_load_curve.py`](betty-ai/slurm_advisor/tests/test_load_curve.py)) | 28 | Per-function correctness (parser, policy, MiniZinc model, ranker) |
-| **Scenario matrix** ([`test_scenarios.py`](betty-ai/slurm_advisor/tests/test_scenarios.py)) | 80+ parametrized cases | Multi-dimensional cross-product across realistic researcher inputs |
-| **TS adapter** ([`slurm-availability.test.ts`](betty-ai-web/src/agent/tools/slurm-availability.test.ts)) | 7 | sinfo / squeue parsers, regex correctness for typed GRES |
+| **Python suite** ([`test_parser.py`](betty-ai/slurm_advisor/tests/test_parser.py), [`test_recommender.py`](betty-ai/slurm_advisor/tests/test_recommender.py), [`test_availability.py`](betty-ai/slurm_advisor/tests/test_availability.py), [`test_load_curve.py`](betty-ai/slurm_advisor/tests/test_load_curve.py), [`test_scenarios.py`](betty-ai/slurm_advisor/tests/test_scenarios.py)) | 110 cases (82 in the scenario matrix, 28 in the per-module unit tests) | Per-function correctness (parser, policy, MiniZinc model, ranker) plus the multi-dimensional scenario cross-product |
+| **TS adapter** ([`slurm-availability.test.ts`](betty-ai-web/src/agent/tools/slurm-availability.test.ts)) | 18 | sinfo / squeue parsers, regex correctness for typed GRES |
 
 Out of scope for this plan (tracked separately):
 - **Live SLURM behavior** — non-deterministic, depends on cluster state. Verified via point-in-time E2E browser tests in [`raw/docs/2026-04-27-slurm-advisor-evidence-report-ryb.md`](raw/docs/2026-04-27-slurm-advisor-evidence-report-ryb.md).

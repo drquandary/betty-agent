@@ -26,7 +26,18 @@ type StreamEvent =
 
 const CHAT_HISTORY_STORAGE_KEY = 'betty-ai-chat-history';
 
-export function ChatPane() {
+interface ChatPaneProps {
+  /**
+   * If provided, this prompt is dispatched once on mount (and once per change
+   * to a non-empty new value). Used by the Dashboard → Workspace handoff so
+   * the scheduling form can preload a question for the agent.
+   */
+  initialPrompt?: string | null;
+  /** Cleared by the parent after dispatch so the prompt isn't replayed. */
+  onInitialPromptConsumed?: () => void;
+}
+
+export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPaneProps = {}) {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -34,6 +45,7 @@ export function ChatPane() {
   const [pendingPermissions, setPendingPermissions] = useState<ToolPermissionRequest[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const dispatchedPromptRef = useRef<string | null>(null);
 
   // Rehydrate messages from localStorage on mount. We deliberately skip any
   // "streaming" messages from a prior session — those are partial and would
@@ -183,6 +195,17 @@ export function ChatPane() {
       // 'done', 'system', 'tool' events are acknowledged but not rendered in Phase 1
     }
   }, [messages, busy]);
+
+  // Drain initialPrompt exactly once. Re-renders that pass the same string
+  // value through don't re-trigger; the parent must mutate the prop value
+  // (or clear+reset) to send a follow-up.
+  useEffect(() => {
+    if (!initialPrompt) return;
+    if (dispatchedPromptRef.current === initialPrompt) return;
+    dispatchedPromptRef.current = initialPrompt;
+    void send(initialPrompt);
+    onInitialPromptConsumed?.();
+  }, [initialPrompt, send, onInitialPromptConsumed]);
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
