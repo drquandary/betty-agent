@@ -212,7 +212,11 @@ def propose_slots(
             # anything further out.
             candidate_offsets_hours = [0, 1, 3, 6, 12]
 
-    bf_window_hours = _DEFAULT_BF_WINDOW_HOURS
+    # Approximate bf_window (SLURM backfill simulator's lookahead). Default
+    # 1 day; gets overridden by future ops integration that reads the actual
+    # configured value. Slots within bf_window are higher-confidence than
+    # slots beyond it because SLURM itself can credibly predict the former.
+    bf_window_hours = 24
 
     free = snapshot.gpus_idle_by_partition.get(partition, 0)
     total = snapshot.gpus_total_by_partition.get(partition, max(free, 1))

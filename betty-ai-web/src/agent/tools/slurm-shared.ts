@@ -142,15 +142,54 @@ export interface ToolUsageRecord {
 const LOG_DIR = join(paths.bettyAi, 'data', 'agent-log');
 const LOG_FILE = join(LOG_DIR, 'slurm-tool-calls.jsonl');
 
+let logDirEnsured = false;
+
 export function logToolUsage(record: ToolUsageRecord): void {
   // Best-effort: any error here is swallowed so the tool's behavior is
-  // never affected by logging. `mkdirSync(recursive: true)` is idempotent,
-  // so calling it on every write is safe and avoids stale-cache footguns
-  // (e.g. a test that clears the log dir between runs).
+  // never affected by logging.
   try {
-    mkdirSync(LOG_DIR, { recursive: true });
+    if (!logDirEnsured) {
+      mkdirSync(LOG_DIR, { recursive: true });
+      logDirEnsured = true;
+    }
     appendFileSync(LOG_FILE, JSON.stringify(record) + '\n', 'utf8');
   } catch {
     /* swallow — calibration logging is non-essential */
+  }
+}
+
+/**
+ * Helper to wrap a tool's body with timing + logging boilerplate. The
+ * caller passes the tool name, an input summarizer (returning the small
+ * bag of input fields safe to log), and the body that produces the result.
+ * Output summarization happens by the caller passing back what to log.
+ */
+export async function withUsageLog<T>(
+  tool: string,
+  input_summary: Record<string, unknown>,
+  body: () => Promise<{ result: T; output_summary?: Record<string, unknown>; error?: string }>,
+): Promise<T> {
+  const startedAt = Date.now();
+  const timestamp = new Date(startedAt).toISOString();
+  try {
+    const { result, output_summary, error } = await body();
+    logToolUsage({
+      timestamp,
+      tool,
+      input_summary,
+      output_summary,
+      duration_ms: Date.now() - startedAt,
+      error,
+    });
+    return result;
+  } catch (err) {
+    logToolUsage({
+      timestamp,
+      tool,
+      input_summary,
+      duration_ms: Date.now() - startedAt,
+      error: (err as Error).message,
+    });
+    throw err;
   }
 }
