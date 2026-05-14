@@ -3,38 +3,27 @@
  *
  * Calls `squeue -u jvadala -h -o "%i|%P|%j|%T|%M|%L|%R"` over the shared
  * ControlMaster socket. Cheap enough to poll every 15s from the sidebar.
+ *
+ * These routes assume single-tenant localhost deployment; no per-request auth
+ * check. Bind to 127.0.0.1 if exposing publicly.
  */
 
 import { NextResponse } from 'next/server';
 import { runRemoteParseable } from '@/agent/cluster/ssh';
+import { getValidatedSshUser } from '../_shared/user';
+import { parseSqueue } from './parse';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export interface SqueueJob {
-  jobId: string;
-  partition: string;
-  name: string;
-  state: string;
-  elapsed: string;
-  timeLeft: string;
-  reasonOrNode: string;
-}
-
-export function parseSqueue(stdout: string): SqueueJob[] {
-  return stdout
-    .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0 && l.includes('|'))
-    .map((line) => {
-      const [jobId = '', partition = '', name = '', state = '', elapsed = '', timeLeft = '', reasonOrNode = ''] =
-        line.split('|');
-      return { jobId, partition, name, state, elapsed, timeLeft, reasonOrNode };
-    });
-}
-
 export async function GET() {
-  const user = process.env.BETTY_SSH_USER || 'jvadala';
+  // Validate BETTY_SSH_USER against a strict whitelist before it lands in a
+  // shell command — otherwise a malformed env value could inject metachars.
+  const validated = getValidatedSshUser();
+  if (!validated.ok) {
+    return NextResponse.json({ ok: false, error: validated.error, jobs: [] }, { status: 200 });
+  }
+  const { user } = validated;
   try {
     const res = await runRemoteParseable(`squeue -u ${user} -h -o "%i|%P|%j|%T|%M|%L|%R"`);
     if (res.exit !== 0) {
