@@ -16,6 +16,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const CATEGORIES = ['entities', 'concepts', 'models', 'sources', 'workflows', 'experiments'];
+// Root-level wiki pages that are valid wikilink targets even though they don't
+// live under a category folder (e.g. [[SCHEMA]] in TEMPLATE.md → wiki/SCHEMA.md).
+const ROOT_PAGES = ['SCHEMA.md', 'index.md', 'log.md'];
 const WIKI_LINK_RE = /\[\[([a-z0-9][a-z0-9-]{0,80})\]\]/gi;
 const STALE_DAYS = 90;
 
@@ -27,7 +30,7 @@ interface LintResult {
 }
 
 export async function GET() {
-  const pages: Array<{ path: string; slug: string; content: string }> = [];
+  const pages: Array<{ path: string; slug: string; content: string; root: boolean }> = [];
   for (const cat of CATEGORIES) {
     try {
       const entries = await readdir(join(paths.wiki, cat));
@@ -35,10 +38,31 @@ export async function GET() {
         if (!e.endsWith('.md')) continue;
         const rel = `${cat}/${e}`;
         const content = await readFile(join(paths.wiki, rel), 'utf8');
-        pages.push({ path: rel, slug: e.replace(/\.md$/, '').toLowerCase(), content });
+        pages.push({
+          path: rel,
+          slug: e.replace(/\.md$/, '').toLowerCase(),
+          content,
+          root: false,
+        });
       }
     } catch {
       /* skip missing categories */
+    }
+  }
+  // Pull in root-level pages so wikilinks like [[SCHEMA]] resolve. Root pages
+  // are skipped from the orphan/stale reports because they are structurally
+  // not expected to receive inbound links from every page.
+  for (const name of ROOT_PAGES) {
+    try {
+      const content = await readFile(join(paths.wiki, name), 'utf8');
+      pages.push({
+        path: name,
+        slug: name.replace(/\.md$/, '').toLowerCase(),
+        content,
+        root: true,
+      });
+    } catch {
+      /* missing root page — skip */
     }
   }
 
@@ -62,13 +86,14 @@ export async function GET() {
   }
 
   const orphans = pages
-    .filter((p) => !inbound.has(p.slug))
+    .filter((p) => !p.root && !inbound.has(p.slug))
     .map((p) => p.path)
     .sort();
 
   const stale: Array<{ page: string; updated: string }> = [];
   const cutoff = Date.now() - STALE_DAYS * 24 * 60 * 60 * 1000;
   for (const p of pages) {
+    if (p.root) continue;
     const m = /^updated:\s*([\d-]+(?:T[\d:.]+Z?)?)/m.exec(p.content);
     if (!m) continue;
     const t = Date.parse(m[1]);

@@ -113,6 +113,12 @@ _DEFAULT_LOAD_BY_HOUR = [
     0.70, 0.60, 0.50, 0.40, 0.30, 0.25,  # 18–23 winds down
 ]
 
+# Approximate SLURM backfill simulator lookahead window. Default 1 day;
+# slots within this horizon are higher-confidence because SLURM itself
+# can credibly predict them. Future ops integration will override this
+# from the actual configured `bf_window` value.
+_DEFAULT_BF_WINDOW_HOURS = 24
+
 
 def _features_dir() -> str:
     """Return the absolute path to betty-ai/data/features (override-able)."""
@@ -206,11 +212,7 @@ def propose_slots(
             # anything further out.
             candidate_offsets_hours = [0, 1, 3, 6, 12]
 
-    # Approximate bf_window (SLURM backfill simulator's lookahead). Default
-    # 1 day; gets overridden by future ops integration that reads the actual
-    # configured value. Slots within bf_window are higher-confidence than
-    # slots beyond it because SLURM itself can credibly predict the former.
-    bf_window_hours = 24
+    bf_window_hours = _DEFAULT_BF_WINDOW_HOURS
 
     free = snapshot.gpus_idle_by_partition.get(partition, 0)
     total = snapshot.gpus_total_by_partition.get(partition, max(free, 1))
@@ -258,7 +260,9 @@ def propose_slots(
                 f"{free}/{total} GPUs idle ({pending} pending) — short wait expected"
             )
         score += (1.0 - load)
-        load_label = "historical" if "historical_load" in (snapshot.sources or []) else "synthetic"
+        # `have_historical` was computed once in the enclosing scope (above);
+        # reuse it here rather than re-scanning snapshot.sources per slot.
+        load_label = "historical" if have_historical else "synthetic"
         reasons.append(f"{load_label} load at {local_hour:02d}:00 = {load:.0%}")
         # Queue-depth penalty — soft, capped to avoid dominating the score.
         if pending > 0:
