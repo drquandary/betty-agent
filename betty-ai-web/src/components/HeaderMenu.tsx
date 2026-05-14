@@ -10,6 +10,12 @@ import {
   type ChatPreferences,
   type ChatProvider,
 } from '@/lib/chat-preferences';
+import {
+  DEFAULT_THEME,
+  readStoredTheme,
+  writeStoredTheme,
+  type Theme,
+} from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
 const PROVIDERS: Array<{
@@ -42,11 +48,18 @@ const PROVIDERS: Array<{
 export function HeaderMenu() {
   const [open, setOpen] = useState(false);
   const [preferences, setPreferences] = useState<ChatPreferences>(DEFAULT_CHAT_PREFERENCES);
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setPreferences(readStoredChatPreferences());
+    setTheme(readStoredTheme());
   }, []);
+
+  const selectTheme = (next: Theme) => {
+    setTheme(next);
+    writeStoredTheme(next);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -119,6 +132,39 @@ export function HeaderMenu() {
             <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-300">
               {preferences.label}
             </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] py-3">
+            <div>
+              <p className="text-[12.5px] font-medium text-zinc-100">Theme</p>
+              <p className="mt-0.5 text-[11px] text-zinc-500">Appearance for the dashboard</p>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="Theme"
+              className="flex items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.04] p-0.5"
+            >
+              {(['dark', 'light'] as const).map((id) => {
+                const active = theme === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => selectTheme(id)}
+                    className={cn(
+                      'rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold capitalize tracking-wide transition',
+                      active
+                        ? 'bg-indigo-500/20 text-indigo-100 ring-1 ring-indigo-400/40'
+                        : 'text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100',
+                    )}
+                  >
+                    {id}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-1.5 py-3">

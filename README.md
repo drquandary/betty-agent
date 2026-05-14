@@ -255,7 +255,11 @@ parcc1/
 │   │   │       ├── gpu-calculate.ts       Wrap Python calculator
 │   │   │       ├── cluster-run.ts         Execute read-only commands
 │   │   │       ├── cluster-submit.ts      Submit Slurm jobs
-│   │   │       └── cluster-status.ts      Monitor job status
+│   │   │       ├── cluster-status.ts      Monitor job status
+│   │   │       ├── slurm-availability.ts  Rank time-slots from live sinfo + squeue
+│   │   │       ├── slurm-check.ts         Lint an sbatch against PARCC policy
+│   │   │       ├── slurm-diagnose.ts      Explain why a job is pending
+│   │   │       └── slurm-recommend.ts     MiniZinc job-shape recommender
 │   │   └── components/
 │   │       ├── ChatPane.tsx             Chat UI + quick-start tiles
 │   │       ├── ChatMessage.tsx          Message bubbles
@@ -294,7 +298,7 @@ See `wiki/SCHEMA.md` for the full specification.
 
 ### Three layers
 1. **`raw/`** — Source documents (agent reads, never writes)
-2. **`wiki/`** — Agent-maintained markdown knowledge base (49+ pages)
+2. **`wiki/`** — Agent-maintained markdown knowledge base (50+ pages)
 3. **`.claude/agents/betty-ai.md` + `CLAUDE.md`** — Schema telling the agent how to operate
 
 ### Three operations

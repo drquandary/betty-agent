@@ -36,10 +36,12 @@
 - [[slurm-gres-conf]] — `gres.conf` role, fields, and Betty's missing-file + null-UniqueId anomaly
 - [[slurm-node-state-modifiers]] — `sinfo` suffix glossary (`*`, `~`, `-`, etc.); what `mix-` means
 - [[slurm-select-type-parameters]] — `CR_Core_Memory` vs `CR_Pack_Nodes` tradeoff (tentative)
+- [[slurm-advisor]] — Constraint-solver-backed SLURM job-shape recommender; four `slurm_*` tools, five safety contracts, 128 tests (3 sources)
 - [[interact-script-vs-salloc]] — why `interact` reloads the profile and `salloc --pty bash` doesn't
 - [[gromacs-on-betty]] — GPU-accelerated molecular dynamics on B200 / MIG slices; partition cheat-sheet + Slurm template (tentative, pending `module spider` confirmation)
 - [[beast2-on-betty]] — Bayesian phylogenetics MCMC on Genoa CPU / MIG GPU; checkpoint-and-chain pattern for multi-week chains, Slurm template (tentative, pending `module spider` confirmation)
 - [[beast-phylonco]] — Single-cell phylogenetics package on top of BEAST2; install via packagemanager, replica-array workflow recipe (tentative)
+- [[monitoring-tab]] — Datadog-style live Slurm monitoring tab in the Betty AI dashboard; six cards, five Wave 2D routes, four SVG chart primitives, JSONL ringbuffer history
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**
@@ -62,3 +64,6 @@
 - [[2026-04-10-ryb-overspack-deployment-docs]] — ryb's overspack tool and 26.1.zen4 deployment context
 - [[2026-04-17-dgx002-gpu5-oversubscription]] — two jobs double-booked GPU-5 on dgx002 (tentative root cause)
 - [[2026-04-21-parcc-ops-discussion]] — ops chat: GPU oversub, SLURM states, `interact` vs salloc, VAST tenant setting, SelectTypeParameters
+- [[2026-04-27-slurm-advisor-report-ryb]] — Status report to ryb introducing the four `slurm_*` tools and TRES coverage matrix
+- [[2026-04-27-slurm-advisor-evidence-report-ryb]] — End-to-end validation of the advisor tools against live cluster data
+- [[2026-04-27-slurm-advisor-architecture-and-reply-ryb]] — Architecture deep-dive (data flow, verbatim-paste contract) + reply to Ryan's review asks
