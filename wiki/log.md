@@ -6,6 +6,17 @@
 
 ---
 
+## [2026-05-18] add | BEAST2 Resume runbook + live smoke test
+- Source: user asked for a focused step-by-step page so lab members can run multi-week BEAST2 chains without losing work between sbatch walltimes
+- Created concept page: [[beast2-resume]] — two-script (one flag) pattern for chained sbatch jobs with `--dependency=afterok`, `--requeue`, `--signal=B:USR2@300`; setup steps (project dir, `arch/b200` module purge, `storeEvery` tuning); verification recipe (state-sample vs log-sample); seven gotchas ordered by how often they bite users
+- Created experiment page: [[2026-05-18-beast2-resume-smoke-test]] — Slurm job 5853526 on `epyc-5-3`, resumed the wild-aves HA empirical XML from sample 120,499,999 to verify the runbook end-to-end; staging dir at `/vast/projects/ryb/parcc-data-science/tests/beast2/smoke-resume-2026-05-18/`
+- Cross-linked: [[beast-checkpointing]] (BEAST1+2 comparison page) ↔ [[beast2-resume]] (BEAST2-only user runbook); separate purposes
+- Updated: [[index]] (new concept + new experiment entries)
+- Status: page is `current`; runbook validated against both the live smoke test and the prior production chain `slurm-5708953`
+- Smoke test caught two real bugs in the first draft, both fixed before commit:
+  - Used `afterok` for the chain dependency — wrong; walltime-killed BEAST2 is `FAILED 0:12` per `sacct`, so `afterok` stalls the chain at `DependencyNeverSatisfied`. Corrected to `afterany` (matches [[beast-checkpointing]]).
+  - Verification recipe compared the `.state` file's `sample=` attribute — wrong; that counter resets per resume segment. Corrected to compare `.log` last-sample pre vs post.
+
 ## [2026-04-21] add | GROMACS workflow + Ryan Bradley entity
 - Sponsor: Ryan Bradley (ryb), PARCC director — wants GROMACS first-class on Betty
 - Created concept page: [[gromacs-on-betty]] — partition cheat-sheet (MIG45 for <50k atoms, MIG90 to 300k, full B200 beyond, Genoa for grompp/analysis), `-nb/-pme/-bonded/-update gpu` flag guidance, replica/REMD/FEP patterns, validation benchmark set (benchMEM/benchPEP/benchRIB). **Status: tentative** — no confirmed `module spider gromacs` output yet; page lists three fallback install paths (overspack module, NGC container, conda).

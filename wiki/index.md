@@ -46,6 +46,7 @@
 - [[beagle-tuning]] — General BEAGLE flag reference (`-beagle_CPU/SSE/GPU`, `-threads`, `-beagle_double`, scaling) + the `-openmpi` module gotcha; companion to [[beagle-gpu-tuning]]
 - [[cuda-mps]] — CUDA Multi-Process Service: user-mode setup on Betty, per-client SM partitioning, full BEAST2 4-chain MPS recipe (1 source)
 - [[beast-checkpointing]] — Restart procedures comparison: BEAST2 auto `.xml.state` + `-resume` vs BEAST1 must-opt-in `-save_every` / `-load_state` (companion to [[beast1-on-betty]] which has the BEAST1 deep dive)
+- [[beast2-resume]] — User-facing step-by-step runbook for BEAST2 resume across chained 7-day sbatch jobs; two scripts, one flag, with verification recipe (live-validated 2026-05-18)
 - [[vast-group-permissions]] — Cross-group file access on VAST: chgrp/chmod/setgid/ACLs diagnostic playbook (1 source)
 - [[top-10-betty-commands]] — Facilitation cheat-sheet of the ~10 commands that handle most Betty user friction (1 source)
 - [[monitoring-tab]] — Datadog-style live Slurm monitoring tab in the Betty AI dashboard; six cards, five Wave 2D routes, four SVG chart primitives, JSONL ringbuffer history
@@ -62,6 +63,7 @@
 - [[experiments/TEMPLATE]] — Canonical template for new experiment pages (agent-owned `## Status` / `## Runtime`, user-owned `## Goal` / `## Lessons`)
 - [[2026-05-15-beast2-ha-wild-aves-bench]] — BEAST2 + BEAGLE 15-cell bench on 690-pattern DNA: CPU `-threads 1` wins single-chain, GPU MPS wins 4-chain workflows
 - [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 5535-taxa deep tree: GPU 1.73× over CPU with `-beagle_double` (FP32 underflows in 3s)
+- [[2026-05-18-beast2-resume-smoke-test]] — Live verification of the [[beast2-resume]] runbook against the wild-aves HA XML at sample 120.5M
 
 ## Sources
 - [[2026-04-08-betty-initial-exploration]] — Full cluster audit via OOD shell
