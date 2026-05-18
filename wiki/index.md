@@ -39,8 +39,11 @@
 - [[slurm-advisor]] — Constraint-solver-backed SLURM job-shape recommender; four `slurm_*` tools, five safety contracts, 128 tests (3 sources)
 - [[interact-script-vs-salloc]] — why `interact` reloads the profile and `salloc --pty bash` doesn't
 - [[gromacs-on-betty]] — GPU-accelerated molecular dynamics on B200 / MIG slices; partition cheat-sheet + Slurm template (tentative, pending `module spider` confirmation)
-- [[beast2-on-betty]] — Bayesian phylogenetics MCMC on Genoa CPU / MIG GPU; checkpoint-and-chain pattern for multi-week chains, Slurm template (tentative, pending `module spider` confirmation)
+- [[beast2-on-betty]] — Bayesian phylogenetics MCMC on Genoa CPU / MIG GPU; checkpoint-and-chain pattern for multi-week chains, Slurm template (validated against 2 datasets 2026-05-15)
 - [[beast-phylonco]] — Single-cell phylogenetics package on top of BEAST2; install via packagemanager, replica-array workflow recipe (tentative)
+- [[beagle-tuning]] — BEAGLE flag reference (`-beagle_CPU/SSE/GPU`, `-threads`, `-beagle_double`, scaling) — empirically the `-threads N` landmine is what most "GPU is slower" reports trace back to (2 sources)
+- [[cuda-mps]] — CUDA Multi-Process Service: user-mode setup on Betty, per-client SM partitioning, full BEAST2 4-chain MPS recipe (1 source)
+- [[beast-checkpointing]] — Restart procedures: BEAST2 auto `.xml.state` + `-resume` vs BEAST1 must-opt-in `-save_every` / `-load_state` (2 sources)
 - [[monitoring-tab]] — Datadog-style live Slurm monitoring tab in the Betty AI dashboard; six cards, five Wave 2D routes, four SVG chart primitives, JSONL ringbuffer history
 
 ## Models
@@ -53,6 +56,8 @@
 ## Experiments
 <!-- Populated as experiments are run. See [[experiments/TEMPLATE]] for the page template. -->
 - [[experiments/TEMPLATE]] — Canonical template for new experiment pages (agent-owned `## Status` / `## Runtime`, user-owned `## Goal` / `## Lessons`)
+- [[2026-05-15-beast2-ha-wild-aves-bench]] — BEAST2 + BEAGLE 15-cell bench on 690-pattern DNA: CPU `-threads 1` wins single-chain, GPU MPS wins 4-chain workflows
+- [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 5535-taxa deep tree: GPU 1.73× over CPU with `-beagle_double` (FP32 underflows in 3s)
 
 ## Sources
 - [[2026-04-08-betty-initial-exploration]] — Full cluster audit via OOD shell

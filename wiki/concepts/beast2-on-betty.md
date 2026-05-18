@@ -2,10 +2,10 @@
 type: concept
 tags: [beast2, mcmc, phylogenetics, bayesian, java, beagle, hpc]
 created: 2026-04-27
-updated: 2026-04-27
-sources: []
-related: [beast-phylonco, genoa-std-mem-partition, genoa-lrg-mem-partition, b200-mig45-partition, vast-storage, slurm-on-betty, betty-software-deployment]
-status: tentative
+updated: 2026-05-18
+sources: [2026-05-15-beast2-ha-wild-aves-bench, 2026-05-15-beast1-5535-taxa-bench]
+related: [beast-phylonco, beagle-tuning, cuda-mps, beast-checkpointing, genoa-std-mem-partition, genoa-lrg-mem-partition, b200-mig45-partition, b200-mig90-partition, dgx-b200-partition, vast-storage, slurm-on-betty, betty-software-deployment]
+status: current
 ---
 
 # BEAST2 on Betty
@@ -13,10 +13,12 @@ status: tentative
 ## One-line summary
 BEAST2 is a Java/MCMC Bayesian phylogenetics engine; on Betty it lands primarily on Genoa CPU nodes (single-thread MCMC with BEAGLE-CPU likelihood), with optional MIG-45 GPU runs for very large alignments and a checkpoint-and-chain pattern for the multi-week wall times typical of phylogenetic workloads.
 
+> **Empirical validation (2026-05-15):** the recommendations on this page have now been benchmarked against two real datasets — see [[2026-05-15-beast2-ha-wild-aves-bench]] (690-pattern DNA, CPU wins) and [[2026-05-15-beast1-5535-taxa-bench]] (5535-taxa, GPU wins). The empirical findings refine some claims below — most importantly **`-threads 1` is the right default**, not "4–8 threads." See [[beagle-tuning]] for the full flag reference and [[cuda-mps]] for the multi-chain GPU pattern.
+
 ## Why BEAST2 needs a different shape than ML/MD workloads
 BEAST2 is fundamentally **single-chain MCMC**, which means:
 - The chain is **sequential** by definition — step *t+1* depends on step *t*. There is no intra-chain parallelism that scales linearly.
-- The only thing that parallelizes within a chain is the **per-step likelihood evaluation** (handled by [BEAGLE](https://github.com/beagle-dev/beagle-lib)). This caps out around 4–8 threads for typical alignments.
+- The only thing that parallelizes within a chain is the **per-step likelihood evaluation** (handled by [BEAGLE](https://github.com/beagle-dev/beagle-lib)). For typical single-partition DNA work, **`-threads 1` is actually the optimum** — `ThreadedTreeLikelihood` shards site patterns across N BEAGLE instances and each shard pays kernel-launch / coordination overhead for less work. The "4–8 threads" sweet spot applies only to larger workloads (codon, ≥5k patterns, many partitions); see [[beagle-tuning]] for the empirical breakdown.
 - The standard "use more compute" patterns are **across chains**, not within: independent replicas, Metropolis-coupled chains (MC³), or lambda-window arrays for partition analyses.
 - Convergence is measured in MCMC steps and ESS, not wall time, so users routinely need **days to weeks** of runtime per chain. This is normal for the algorithm, not a deployment failure.
 
@@ -71,8 +73,8 @@ beast -resume -threads $SLURM_CPUS_PER_TASK analysis.xml
 ```
 
 Key flags:
-- `-resume` reads the `.state` file written every `storeEvery` steps. **Essential** for multi-week runs broken into wall-time chunks.
-- `-threads N` controls BEAGLE's likelihood-evaluation parallelism. Match to `--cpus-per-task`. Diminishing returns past 4–8 for typical alignments.
+- `-resume` reads the `.state` file written every `storeEvery` steps. **Essential** for multi-week runs broken into wall-time chunks. BEAST2 auto-writes `<xml>.xml.state` every 500k samples even without explicit configuration — see [[beast-checkpointing]].
+- `-threads N` controls BEAGLE's likelihood-evaluation parallelism. **Default to `-threads 1`** for single-partition DNA at ≤1k patterns (typical work); only raise N when patterns × states² per instance > ~50k. See [[beagle-tuning]] for the empirical breakdown.
 - `-beagle_CPU -beagle_SSE` for CPU partitions; switch to `-beagle_GPU -beagle_CUDA` only on a MIG slice with a verified BEAGLE-CUDA build.
 - `-seed N` always set explicitly so independent replicas are reproducible.
 - `-statefile <path>` only if you want to relocate the checkpoint outside the run dir.

@@ -249,3 +249,21 @@
 - Added smoke script: `betty-ai-web/scripts/monitoring-smoke.mjs` — shells out to local vitest scoped to src/components/monitoring + src/components/charts + 5 cluster API endpoint dirs. Exit 0 on all green, 1 on any failure. Summary: `monitoring smoke: 6/6 cards green, 5/5 routes green, 4/4 chart primitives green`.
 - Added npm script: `monitoring:smoke` in betty-ai-web/package.json (no new deps).
 - Created concept page: [[monitoring-tab]]; updated [[index]] and [[PROJECT]] (dashboard section sub-item).
+
+## [2026-05-18] add | BEAST + BEAGLE empirical bench on wild-aves HA (BEAST2) and 5535-taxa (BEAST1) datasets
+- Driver: external research group (jcombar1/ryb) reported "BEAST2 + BEAGLE GPU is 2× slower than CPU" on the wild-aves HA dataset. Investigation revealed root cause was `-threads 6 -beagle_GPU` fragmenting 690 site patterns into 6 BEAGLE instances of ~110 patterns each — kernel-launch latency bound. Fix: `-threads 1`. This produced a 2.26× speedup (35.7 → 15.8 min/Msample on GPU); CPU `-threads 1 -beagle_CPU -beagle_SSE` then edged GPU at 14.2 min/Msample. 15-cell bench matrix and 4-chain MPS comparison built out from there.
+- Pages created:
+  - Concepts: [[beagle-tuning]] — full BEAGLE flag reference (device/threading/precision/async), including the `-threads N` landmine, the FP32 underflow diagnostic, and the `-openmpi` removal requirement for B200 nodes.
+  - Concepts: [[cuda-mps]] — user-mode CUDA MPS setup on Betty, per-client SM partitioning, full BEAST2 4-chain MPS recipe (benchmarked at 4.05 min/Msample aggregate vs 4.48 for 4× CPU multiproc).
+  - Concepts: [[beast-checkpointing]] — BEAST2 auto `.xml.state` + `-resume` vs BEAST1 must-opt-in `-save_every` / `-save_stem` / `-load_state -force_resume`. Includes chained-sbatch `--dependency=afterany` pattern.
+  - Experiments: [[2026-05-15-beast2-ha-wild-aves-bench]] — 15-cell matrix on 690-pattern DNA across [[dgx-b200-partition]], [[b200-mig45-partition]], [[b200-mig90-partition]], [[genoa-std-mem-partition]]. CPU `-threads 1` single-chain winner; GPU 4-chain MPS multi-chain winner.
+  - Experiments: [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 v1.10.4 on deep tree. GPU ~1.73× over CPU baseline with `-beagle_double -beagle_scaling dynamic`. FP32 underflows in 3s.
+- Pages updated:
+  - [[beast2-on-betty]] — `status: tentative` → `status: current`, added empirical-validation banner up top, softened "4–8 threads is the sweet spot" to "`-threads 1` for typical single-partition DNA; raise N only when patterns × states² per instance > ~50k", cross-references to all four new pages added in `related:` and inline.
+  - [[index]] — added 3 new concept entries and 2 new experiment entries; softened the `beast2-on-betty` tentative annotation.
+- Key design decisions:
+  - **Separate `beagle-tuning` concept page** (not buried in `beast2-on-betty`): the flag reference applies equally to BEAST1 and BEAST2, has its own cross-cutting structure (device/threading/precision/async), and is the page the agent should surface when users ask "what flags do I use." Mirrors the choice for [[beast-phylonco]].
+  - **Separate `cuda-mps` concept page** (not buried in either BEAST page): MPS is a general CUDA mechanism with applications beyond BEAST (ensemble inference, parameter sweeps). Pinning it to BEAST would make it harder to find for non-phylo users.
+  - **Separate `beast-checkpointing` concept page**: BEAST1 vs BEAST2 checkpointing differs enough that the comparison deserves dedicated space, and we've already had two real Betty cases where missing `-save_every` flags lost days of compute. Worth surfacing prominently.
+  - **Two dated experiment pages** rather than one combined: the two datasets give opposite recommendations (CPU vs GPU), so keeping them separate makes the "dataset shape matters more than device" lesson immediately legible at the index level.
+- Real production scripts staged at `/vast/projects/ryb/parcc-data-science/tests/beast2/` and `/vast/projects/ryb/parcc-data-science/tests/beast1/` on Betty. Full report (with all 26 slurm job IDs in appendix) at `/vast/projects/ryb/parcc-data-science/jvadala-beast-bench/REPORT.md`.
