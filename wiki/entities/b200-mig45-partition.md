@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, partition, gpu, mig, b200]
 created: 2026-04-08
-updated: 2026-04-08
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide]
-related: [betty-cluster, dgx-b200-partition, b200-mig90-partition, qlora, lora-fine-tuning, betty-billing-model]
+updated: 2026-05-13
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
+related: [betty-cluster, dgx-b200-partition, b200-mig90-partition, qlora, lora-fine-tuning, betty-billing-model, beagle-gpu-tuning]
 status: current
 ---
 
@@ -38,15 +38,25 @@ See `betty-ai/configs/betty_cluster.yaml` for full specs.
 
 ## Typical usage
 ```bash
-srun -p b200-mig45 --gpus=1 -t 01:00:00 --pty bash
+srun -p b200-mig45 --gpus=1 --qos=mig-max -t 01:00:00 --pty bash
 ```
+
+## QoS choice (gotcha, 2026-05-13)
+- `--qos=mig` — cap of 8 GPUs across the partition; **currently saturated** on Betty (observed 0/8 free on 2026-05-13). Jobs may pend indefinitely.
+- `--qos=mig-max` — cap of 40 GPUs across the partition; the productive choice for B200 MIG. Use this by default.
+- `--qos=normal` and `--qos=wharton` are also allowed; check `parcc_sqos.py` for your specific limits.
+
+## Known issues
+- **2026-05-13**: fresh BEAST1 job submissions on `dgx028` returned `RaisedSignal:53` (exit code 0:53) with no slurm `.out` written. A prior-day BEAST2 run on the same MIG-45 slice succeeded, so the failure was transient. Diagnose with `parcc_sdebug.py --job <id>` and `--node dgx028`; if recurrent, route through PARCC support. The full B200 (`dgx-b200`) and MIG-90 (`b200-mig90`) partitions remained healthy throughout the session.
 
 ## See also
 - [[dgx-b200-partition]]
 - [[b200-mig90-partition]]
 - [[betty-billing-model]]
+- [[beagle-gpu-tuning]] — for phylogenetics, mig90 is usually the right size; mig45 is too small once trees pass ~3000 taxa (FP64 doubles the VRAM working set)
 - [[qwen2.5-vl-7b-instruct]]
 
 ## Sources
 - [[2026-04-08-betty-initial-exploration]]
 - [[2026-04-08-betty-system-guide]]
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]

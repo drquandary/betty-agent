@@ -7,8 +7,8 @@ model: []
 dataset: [wild-aves-ha-690-patterns]
 method: beast2-mcmc
 job_id: (see Appendix)
-sources: []
-related: [beast2-on-betty, beagle-tuning, cuda-mps, beast-checkpointing, 2026-05-15-beast1-5535-taxa-bench]
+sources: [2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
+related: [beast2-on-betty, beast1-on-betty, beagle-tuning, beagle-gpu-tuning, cuda-mps, beast-checkpointing, 2026-05-15-beast1-5535-taxa-bench, 2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
 status: current
 ---
 
@@ -89,9 +89,12 @@ Preserved in `REPORT.md` appendix at the dataset working dir. 26 submissions:
 
 ## See also
 - [[beast2-on-betty]] — install pattern, partition selection, OOM caveats
-- [[beagle-tuning]] — flag reference (lifted from this experiment)
+- [[beast1-on-betty]] — BEAST1 sibling page
+- [[beagle-gpu-tuning]] — GPU deep-dive (theirs's source-page) — has the BEAST1 5535-taxa numbers that contrast with this dataset
+- [[beagle-tuning]] — general flag reference (lifted from this experiment)
 - [[cuda-mps]] — MPS recipe (lifted from this experiment)
 - [[beast-checkpointing]] — restart procedures
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — original session source; this experiment is the completion of the "in flight" BEAST2 ladder noted there
 - [[2026-05-15-beast1-5535-taxa-bench]] — contrasting case where GPU wins
 - [[beast-phylonco]]
 - [[dgx-b200-partition]] / [[b200-mig45-partition]] / [[b200-mig90-partition]] / [[genoa-std-mem-partition]]

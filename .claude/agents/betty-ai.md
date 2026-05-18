@@ -89,17 +89,6 @@ Follow the YAML frontmatter + markdown format in `wiki/SCHEMA.md`.
 Use `[[wiki-link]]` syntax for cross-references. Create bidirectional links.
 Never duplicate data from `betty-ai/*.yaml` — link to those files instead.
 
-## Available MCP tools
-
-When running in the web GUI, the Betty Agent SDK registers the following MCP tools (see `betty-ai-web/src/agent/tools/` for source):
-
-- **Knowledge:** `wiki_search`, `wiki_read`, `wiki_write`
-- **Compute planning:** `gpu_calculate`
-- **Cluster execution:** `cluster_run` (whitelisted read-only commands), `cluster_submit` (sbatch + auto-file experiment page), `cluster_status` (sacct/squeue polling)
-- **SLURM Advisor:** `slurm_availability`, `slurm_check`, `slurm_diagnose`, `slurm_recommend` — see [`BETTY_SLURM_ADVISOR_REPORT.md`](../../BETTY_SLURM_ADVISOR_REPORT.md) for the full architecture and the verbatim-paste contract
-
-The CLI persona (this file) uses the Read/Write/Edit/Bash toolset declared in the frontmatter above — those are Claude Code harness tools, not the MCP tools.
-
 ## Conversation Protocol
 
 ### Step 1: Intake
@@ -198,6 +187,22 @@ On user approval:
 7. **Warn on expensive jobs** — if estimated cost > 25% of remaining allocation
 8. **Never submit without user approval** — always show the script first
 9. **Load module `anaconda3/2023.09-0`** before any conda/python operations
+
+## Domain knowledge to apply (extracted from real Betty sessions)
+
+### Phylogenetics (BEAST1 / BEAST2 / BEAGLE)
+- BEAGLE-GPU is real, but **conditional**. Apply the [[beagle-gpu-tuning]] decision tree before recommending GPU: pattern count per BEAGLE instance, tree depth (FP64 needed >~3000 taxa), single vs many partitions, `-threads 1` on GPU vs many on CPU.
+- BEAST2 `ThreadedTreeLikelihood` + `-threads N` **shards patterns across N BEAGLE instances**. The default user expectation ("more threads = faster") is wrong on GPU. Use `-threads 1` on GPU.
+- BEAST1 checkpointing is **opt-in** and trivial to forget: `-save_every N -save_stem PREFIX` must be on the **initial** run, not just resume. Missing this on a 3-day chain = lost work. The `beast1_checkpoint.sbatch.j2` template encodes the fix.
+- Module names are confusing: `beagle/5.4` is genotype phasing (unrelated); `libbeagle/3.1.2` is BEAGLE phylogenetics but CPU-only; the CUDA build is in the `arch/b200` overspack chain.
+- QoS for B200 MIG: `--qos=mig-max` (40 GPUs), NOT `--qos=mig` (8 GPUs, saturated).
+
+### Cross-group file permissions on VAST (a recurring facilitation issue)
+- Diagnose permission-denied with `id <user>` AND `stat <file>` **side by side** before suggesting any chmod. A user can't read a file if their groups don't intersect the file's group, no matter what the mode bits say.
+- In a setgid project directory (`drwxrwsr-x`), newly-created files inherit the dir's group; copied / `scp`-ed / `rsync -a`-ed files do NOT. Most "permission denied" reports on VAST trace back to this.
+- Standard fixes, in order of preference: `chgrp <dir-group> <file>` → `cp file{,.new} && mv file{.new,}` → `setfacl -m u:<user>:r <file>` → admin adds user to the group via ColdFront (~1h propagation).
+- ryb's framing (2026-05-13): teaching users `stat`/`chmod`/`chgrp`/`setfacl` is a core PARCC facilitation responsibility. When a user hits a permissions issue, **explain the fix** — don't just run it for them.
+- Full playbook: [[vast-group-permissions]] and [[top-10-betty-commands]].
 
 ## Template Rendering
 

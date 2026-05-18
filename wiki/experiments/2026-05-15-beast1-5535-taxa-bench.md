@@ -7,8 +7,8 @@ model: []
 dataset: [5535-taxa-dna]
 method: beast1-mcmc
 job_id: (see Appendix)
-sources: []
-related: [beast2-on-betty, beagle-tuning, beast-checkpointing, 2026-05-15-beast2-ha-wild-aves-bench]
+sources: [2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
+related: [beast2-on-betty, beast1-on-betty, beagle-tuning, beagle-gpu-tuning, beast-checkpointing, 2026-05-15-beast2-ha-wild-aves-bench, 2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
 status: current
 ---
 
@@ -94,8 +94,12 @@ The first BEAST1 production run we received from the group ran for several days 
 - BEAST1's lack of auto-checkpoint is a footgun that has bitten the group at least once. Treat `-save_every` as part of the canonical command line for BEAST1, same as `-beagle_GPU`.
 
 ## See also
-- [[beast2-on-betty]] — phylogenetics workflow patterns on Betty (mostly written before this empirical work; some claims now refined by [[beagle-tuning]])
+- [[beast2-on-betty]] — phylogenetics workflow patterns on Betty (mostly written before this empirical work; some claims now refined by [[beagle-tuning]] and [[beagle-gpu-tuning]])
+- [[beast1-on-betty]] — BEAST1 sibling page; contains a more detailed BEAST1 production recipe with the `beast1_checkpoint.sbatch.j2` slurm template
+- [[beagle-gpu-tuning]] — GPU deep dive; this experiment's 1.73× speedup is one of the key data points there
 - [[beagle-tuning]] — flag reference, including the FP64 / scaling discussion
 - [[beast-checkpointing]] — `-save_every` / `-load_state` workflow
+- [[cuda-mps]] — multi-chain GPU pattern (not yet benched on BEAST1 but flag-shape applies)
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — original session source
 - [[2026-05-15-beast2-ha-wild-aves-bench]] — contrasting case where CPU wins
-- [[dgx-b200-partition]] / [[genoa-std-mem-partition]]
+- [[dgx-b200-partition]] / [[genoa-std-mem-partition]] / [[b200-mig90-partition]]

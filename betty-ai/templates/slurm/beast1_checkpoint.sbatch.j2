@@ -1,0 +1,191 @@
+#!/bin/bash
+###############################################################################
+# Betty HPC — BEAST1 MCMC (explicit checkpointing, array-friendly)
+#
+# BEAST1 (v1.10.x) differs from BEAST2 in one operationally critical way:
+# CHECKPOINTING IS OPT-IN. Without `-save_every` and `-save_stem` on the
+# INITIAL run, no state file is ever written, and the chain cannot be
+# resumed after a walltime kill. The 2026-05-13 session on Betty (see
+# wiki/sources/2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms.md)
+# burned 28M chain states because the production job omitted these flags.
+#
+# This template ALWAYS passes the checkpoint flags on initial and resume,
+# so a forgotten flag is not a failure mode.
+#
+# Two patterns supported by one template:
+#   1. Single chain, chained jobs (--dependency=afterok) for >7-day runs
+#   2. Independent replicas as a Slurm array (--array=1-N)
+#
+# Resume logic: each replica dir is scanned for `state.*` files; if any
+# exist, the newest is loaded via `-load_state ... -force_resume`. If
+# none exist, BEAST1 starts a fresh chain.
+#
+# Template variables (Jinja2):
+#   job_name          — Slurm job name
+#   partition         — Slurm partition. Defaults: genoa-std-mem for CPU,
+#                       b200-mig90 for GPU (see beagle_backend).
+#   qos               — QOS tier. For mig partitions, use mig-max (NOT mig,
+#                       which is currently saturated as of 2026-05-13).
+#   account           — Slurm account for billing
+#   replicas          — Number of independent chains (default: 4).
+#                       Set to 1 to disable array submission.
+#   cpus              — CPUs per task. Default: 32 on CPU, 6 on GPU.
+#   mem_gb            — Memory in GB; sets JVM -Xmx to (mem_gb - 4). default: 64
+#   walltime          — Wall-clock limit HH:MM:SS (default: 7-00:00:00)
+#   beast_source      — One of: "tarball" | "module" | "conda"
+#   beast_root        — Tarball install dir if beast_source == "tarball"
+#   beast_module      — Module name if beast_source == "module"
+#                       (e.g. "beast/1.10.4" via arch/b200 chain)
+#   conda_env         — Conda env if beast_source == "conda"
+#   project_dir       — Project root on VAST
+#   run_dir           — Working dir for this run, under project_dir
+#   xml_file          — Input BEAST1 XML (relative to run_dir or absolute)
+#   beagle_backend    — "cpu" (default) or "gpu". GPU uses -beagle_double
+#                       (mandatory for trees >~3000 taxa). See
+#                       wiki/concepts/beagle-gpu-tuning.md.
+#   beagle_multipart  — Pass "on" only for genuinely multi-partition XMLs.
+#                       Default "off". On a 1-partition XML it costs ~6%.
+#   save_every        — State-file write interval in MCMC steps.
+#                       Default 1_000_000 (≈42 min CPU / ≈25 min GPU).
+#   save_stem         — State-file filename prefix. Default "state".
+#   beast_extra_flags — Extra flags appended to `beast` (default: "")
+#
+# Generated for: PARCC Betty cluster (NVIDIA B200 + AMD Genoa, Slurm 24.11.7)
+###############################################################################
+
+#SBATCH --job-name={{ job_name }}
+{% if beagle_backend == "gpu" %}
+#SBATCH --partition={{ partition | default("b200-mig90") }}
+#SBATCH --qos={{ qos | default("mig-max") }}
+#SBATCH --gpus=1
+{% else %}
+#SBATCH --partition={{ partition | default("genoa-std-mem") }}
+#SBATCH --qos={{ qos | default("genoa-std") }}
+{% endif %}
+{% if account %}#SBATCH --account={{ account }}{% endif %}
+{% if (replicas | default(4)) > 1 %}#SBATCH --array=1-{{ replicas | default(4) }}{% endif %}
+#SBATCH --ntasks=1
+{% if beagle_backend == "gpu" %}
+#SBATCH --cpus-per-task={{ cpus | default(6) }}
+{% else %}
+#SBATCH --cpus-per-task={{ cpus | default(32) }}
+{% endif %}
+#SBATCH --mem={{ mem_gb | default(64) }}G
+#SBATCH --time={{ walltime | default("7-00:00:00") }}
+#SBATCH --output=logs/%x_%A_%a.out
+#SBATCH --error=logs/%x_%A_%a.err
+# --requeue lets the job auto-restart from the most recent state file
+# after preemption or node failure.
+#SBATCH --requeue
+
+set -euo pipefail
+
+###############################################################################
+# Environment setup
+###############################################################################
+echo "=== Job ${SLURM_JOB_ID} (array task ${SLURM_ARRAY_TASK_ID:-none}) on $(hostname) at $(date) ==="
+echo "=== CPUs per task: ${SLURM_CPUS_PER_TASK} ==="
+echo "=== Memory: {{ mem_gb | default(64) }} GB (JVM heap will be set to $(( {{ mem_gb | default(64) }} - 4 ))g) ==="
+
+mkdir -p logs
+
+# Per-replica run dir so chains don't stomp on each other's state files.
+REPLICA="${SLURM_ARRAY_TASK_ID:-1}"
+RUN_DIR="{{ project_dir }}/{{ run_dir }}/replica-${REPLICA}"
+mkdir -p "${RUN_DIR}"
+cd "${RUN_DIR}"
+
+# Stage the XML into the per-replica dir on first run; reuse it on resume.
+if [[ ! -f "$(basename {{ xml_file }})" ]]; then
+    cp "{{ project_dir }}/{{ run_dir }}/{{ xml_file }}" .
+fi
+XML_BASENAME="$(basename {{ xml_file }})"
+
+###############################################################################
+# Load BEAST1 — one of three paths
+###############################################################################
+{% if beast_source == "tarball" %}
+export PATH="{{ beast_root }}/bin:${PATH}"
+{% elif beast_source == "module" %}
+source /vast/parcc/sw/lmod/z/go.sh
+module purge
+module load arch/b200
+module load {{ beast_module }}
+{% elif beast_source == "conda" %}
+source /vast/parcc/sw/lmod/z/go.sh
+module purge
+module load anaconda3/2023.09-0
+source activate {{ conda_env }}
+{% else %}
+echo "ERROR: unknown beast_source '{{ beast_source }}'" >&2
+exit 2
+{% endif %}
+
+# JVM heap: -Xmx and -Xms equal to avoid GC churn on long chains.
+HEAP_GB=$(( {{ mem_gb | default(64) }} - 4 ))
+export _JAVA_OPTIONS="-Xmx${HEAP_GB}g -Xms${HEAP_GB}g"
+
+beast -help 2>&1 | head -1 || true
+
+###############################################################################
+# BEAGLE backend selection
+#   CPU: -beagle_SSE, many threads
+#   GPU: -beagle_double (FP64 required for deep trees), -threads 1
+#        See wiki/concepts/beagle-gpu-tuning.md for the FP32 underflow rule.
+###############################################################################
+{% if beagle_backend == "gpu" %}
+BEAGLE_FLAGS="-beagle_GPU -beagle_double"
+BEAGLE_THREADS=1
+echo "=== BEAGLE: GPU/CUDA with FP64 (mandatory for trees > ~3000 taxa) ==="
+{% else %}
+BEAGLE_FLAGS="-beagle_CPU -beagle_SSE"
+BEAGLE_THREADS=${SLURM_CPUS_PER_TASK}
+echo "=== BEAGLE: CPU/SSE with ${BEAGLE_THREADS} threads ==="
+{% endif %}
+
+{% if beagle_multipart | default("off") == "on" %}
+BEAGLE_FLAGS="${BEAGLE_FLAGS} -beagle_multipartition on"
+echo "=== beagle_multipartition: ON (only do this for genuinely multi-partition XMLs) ==="
+{% else %}
+BEAGLE_FLAGS="${BEAGLE_FLAGS} -beagle_multipartition off"
+{% endif %}
+
+###############################################################################
+# Run BEAST1 — auto-resume from latest state.* file if present
+###############################################################################
+SAVE_STEM="{{ save_stem | default('state') }}"
+SAVE_EVERY={{ save_every | default(1000000) }}
+SEED=$(( REPLICA * 1000 + 42 ))
+
+# Find the most recent state file (timestamp-suffixed by BEAST1)
+LATEST_STATE="$(ls -1t ${SAVE_STEM}.* 2>/dev/null | head -1 || true)"
+
+if [[ -n "${LATEST_STATE}" ]]; then
+    echo "=== Resuming from ${LATEST_STATE} ==="
+    RESUME_FLAGS="-load_state ${LATEST_STATE} -force_resume"
+else
+    echo "=== Starting fresh chain (no state file present) ==="
+    RESUME_FLAGS=""
+fi
+
+# CRITICAL: -save_every / -save_stem MUST be on every invocation. If you
+# omit them on the initial run, no state is written and the chain cannot
+# be resumed later. This is the #1 BEAST1 footgun on Betty.
+beast \
+    ${RESUME_FLAGS} \
+    -save_every ${SAVE_EVERY} \
+    -save_stem ${SAVE_STEM} \
+    -threads ${BEAGLE_THREADS} \
+    -seed ${SEED} \
+    ${BEAGLE_FLAGS} \
+    {{ beast_extra_flags | default('') }} \
+    "${XML_BASENAME}"
+
+echo "=== Job ${SLURM_JOB_ID} (replica ${REPLICA}) finished at $(date) ==="
+
+###############################################################################
+# Hint for chaining and combining: same as BEAST2 (see beast2_resume.sbatch.j2)
+#   logcombiner -log replica-*/<xml>.log   -o combined.log   -burnin 10
+#   logcombiner -log replica-*/<xml>.trees -o combined.trees -burnin 10
+#   treeannotator -burnin 10 combined.trees mcc.tree
+###############################################################################

@@ -2,9 +2,9 @@
 type: concept
 tags: [beast, beast2, beast1, mcmc, checkpointing, slurm, resume]
 created: 2026-05-15
-updated: 2026-05-15
-sources: [2026-05-15-beast2-ha-wild-aves-bench, 2026-05-15-beast1-5535-taxa-bench]
-related: [beast2-on-betty, beast-phylonco, beagle-tuning, slurm-on-betty]
+updated: 2026-05-18
+sources: [2026-05-15-beast2-ha-wild-aves-bench, 2026-05-15-beast1-5535-taxa-bench, 2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
+related: [beast2-on-betty, beast1-on-betty, beast-phylonco, beagle-tuning, beagle-gpu-tuning, slurm-on-betty]
 status: current
 ---
 
@@ -116,12 +116,17 @@ Pair with `--requeue` and `--signal=B:USR2@300` (see [[beast2-on-betty]] for the
 
 ## See also
 - [[beast2-on-betty]] — full production patterns including signal-trapped chained jobs
+- [[beast1-on-betty]] — BEAST1 sibling page; has its own deep dive on `-save_every` / `-save_stem` with the staged slurm template
 - [[beast-phylonco]] — phylonco install adds nothing checkpointing-specific
 - [[beagle-tuning]] — BEAGLE flag reference
+- [[beagle-gpu-tuning]] — GPU-side flag deep dive
 - [[2026-05-15-beast2-ha-wild-aves-bench]] — BEAST2 resume verified
 - [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 case
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — original session that surfaced both checkpointing footguns
 - [[slurm-on-betty]] — `--dependency`, `--requeue`, `--signal` syntax
+- `betty-ai/templates/slurm/beast1_checkpoint.sbatch.j2` — parameterized BEAST1 checkpoint template
 
 ## Sources
 - [[2026-05-15-beast2-ha-wild-aves-bench]]
 - [[2026-05-15-beast1-5535-taxa-bench]]
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]

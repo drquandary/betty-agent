@@ -2,9 +2,9 @@
 type: concept
 tags: [cuda, gpu, mps, dgx-b200, beast, mcmc, multi-process]
 created: 2026-05-15
-updated: 2026-05-15
+updated: 2026-05-18
 sources: [2026-05-15-beast2-ha-wild-aves-bench]
-related: [beast2-on-betty, beagle-tuning, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition]
+related: [beast2-on-betty, beast1-on-betty, beagle-tuning, beagle-gpu-tuning, beast-checkpointing, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition]
 status: current
 ---
 
@@ -117,7 +117,10 @@ GPU-side via MPS, 4 isolated SM partitions only slow each chain ~3% (16.2 stays 
 
 ## See also
 - [[beast2-on-betty]] — when multi-chain BEAST workflows make sense
-- [[beagle-tuning]] — BEAGLE flag reference (the BEAST-specific flags this recipe uses)
+- [[beast1-on-betty]] — BEAST1 sibling page; MPS pattern applies but not yet benched on BEAST1
+- [[beagle-tuning]] — general BEAGLE flag reference
+- [[beagle-gpu-tuning]] — GPU-specific decision tree (when GPU helps at all)
+- [[beast-checkpointing]] — restart procedures (each MPS-co-resident chain checkpoints independently)
 - [[2026-05-15-beast2-ha-wild-aves-bench]] — empirical comparison vs CPU multiproc
 - [[dgx-b200-partition]] — full-B200 partition reference
 - [[b200-mig45-partition]] / [[b200-mig90-partition]] — MIG slice partitions
