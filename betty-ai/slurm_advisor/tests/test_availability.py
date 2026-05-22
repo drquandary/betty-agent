@@ -277,3 +277,48 @@ def test_historical_branch_extends_horizon_beyond_12h():
         f"synthetic branch must not produce non-'after 6 PM' slots beyond 12h; "
         f"got {[(s.start, s.reasons) for s in synth_far]}"
     )
+
+
+def test_parse_dt_aware_coerces_naive_to_utc():
+    """scontrol emits tz-naive timestamps; the cli parser must make them
+    aware so they can be compared against tz-aware slot times."""
+    from slurm_advisor.cli import _parse_dt_aware
+
+    naive = _parse_dt_aware("2026-05-18T08:00:00")  # no offset, like scontrol
+    assert naive is not None and naive.tzinfo is not None
+
+    aware = _parse_dt_aware("2026-05-18T08:00:00Z")  # explicit UTC
+    assert aware is not None and aware.tzinfo is not None
+
+    assert _parse_dt_aware(None) is None
+    assert _parse_dt_aware("") is None
+
+
+def test_cmd_availability_handles_naive_blackouts(monkeypatch, capsys):
+    """Regression: a tz-naive blackout (as scontrol emits) must not raise
+    'can't compare offset-naive and offset-aware datetimes'."""
+    import argparse
+    import io
+    import json
+    from slurm_advisor import cli
+
+    payload = {
+        "gpus": 1, "hours": 2, "partition": "dgx-b200",
+        "snapshot": {
+            "gpus_idle_by_partition": {"dgx-b200": 8},
+            "gpus_total_by_partition": {"dgx-b200": 216},
+            "pending_jobs_by_partition": {"dgx-b200": 5},
+            "next_start_by_partition": {},
+            "sources": ["sinfo", "scontrol show res"],
+            # naive timestamps — the exact shape that used to crash
+            "blackouts": [
+                {"start": "2026-05-18T08:00:00", "end": "2026-05-18T11:00:00",
+                 "partition": "dgx-b200", "reason": "ahd (MAINT)"},
+            ],
+        },
+    }
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
+    rc = cli.cmd_availability(argparse.Namespace())
+    assert rc == 0
+    out = json.loads(capsys.readouterr().out)
+    assert "slots" in out  # produced a result rather than throwing

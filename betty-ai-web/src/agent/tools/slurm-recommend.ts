@@ -126,6 +126,96 @@ async function fetchFairshare(): Promise<{
   }
 }
 
+export interface SlurmRecommendInput {
+  gpus?: number;
+  cpus?: number;
+  mem_gb?: number;
+  hours?: number;
+  partition?: string;
+  qos?: string;
+  interactive?: boolean;
+  min_vram_gb?: number;
+}
+
+/**
+ * Provider-agnostic core: runs the recommend solver (+ fairshare snapshot)
+ * and returns the text the chat should show. Shared by the Claude-SDK tool
+ * wrapper and the OpenAI/LiteLLM dispatch path.
+ */
+export async function runSlurmRecommend(
+  raw: SlurmRecommendInput,
+): Promise<{ text: string; isError: boolean }> {
+  const input = {
+    gpus: raw.gpus ?? 0,
+    cpus: raw.cpus ?? 0,
+    mem_gb: raw.mem_gb,
+    hours: raw.hours ?? 1,
+    partition: raw.partition,
+    qos: raw.qos,
+    interactive: raw.interactive ?? false,
+    min_vram_gb: raw.min_vram_gb,
+  };
+  const startedAt = Date.now();
+    const timestamp = new Date(startedAt).toISOString();
+    const input_summary = {
+      gpus: input.gpus, cpus: input.cpus, mem_gb: input.mem_gb,
+      hours: input.hours, partition: input.partition, qos: input.qos,
+      interactive: input.interactive, min_vram_gb: input.min_vram_gb,
+    };
+    // Fetch fairshare in parallel with the solver — saves a round-trip.
+    const fairsharePromise = fetchFairshare();
+
+    const args: string[] = [];
+    if (input.gpus) args.push('--gpus', String(input.gpus));
+    if (input.cpus) args.push('--cpus', String(input.cpus));
+    if (input.mem_gb) args.push('--mem-gb', String(input.mem_gb));
+    args.push('--hours', String(input.hours));
+    if (input.partition) args.push('--partition', input.partition);
+    if (input.qos) args.push('--qos', input.qos);
+    if (input.interactive) args.push('--interactive');
+    if (input.min_vram_gb) args.push('--min-vram-gb', String(input.min_vram_gb));
+
+    const { ok, stdout, stderr, code } = await runSlurmCli('recommend', args);
+    if (!ok) {
+      logToolUsage({
+        timestamp, tool: 'slurm_recommend', input_summary,
+        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+      });
+      return { text: `slurm_recommend failed (exit ${code}).\n${stderr}`, isError: true };
+    }
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(stdout);
+    } catch {
+      return { text: `slurm_recommend returned non-JSON:\n${stdout}`, isError: true };
+    }
+    // Merge fairshare data into the payload for the recommend card to render.
+    const fs = await fairsharePromise;
+    parsed.fairshare = {
+      rows: fs.rows,
+      source: fs.source,
+      raw_stdout_excerpt: fs.raw_stdout_excerpt,
+      dropped_count: fs.dropped_count,
+      dropped_samples: fs.dropped_samples,
+    };
+    const result = parsed.result as Record<string, unknown> | undefined;
+    logToolUsage({
+      timestamp,
+      tool: 'slurm_recommend',
+      input_summary,
+      output_summary: {
+        feasible: result?.feasible,
+        partition: result?.partition,
+        backend: result?.backend,
+        billing_score: result?.billing_score,
+        fairshare_rows: fs.rows.length,
+        fairshare_source: fs.source,
+      },
+      duration_ms: Date.now() - startedAt,
+    });
+  return { text: renderRichCard('recommend', parsed), isError: false };
+}
+
 export const slurmRecommendTool = tool(
   'slurm_recommend',
   'Pick a Betty partition + (nodes, GPUs/node, CPUs, memory, walltime) for a desired workload. The constraint solver enforces partition QOS rules, per-GPU CPU/memory caps, and walltime limits. Use this when the user describes intent ("I need 2 GPUs for 8 hours") rather than handing you an sbatch.',
@@ -157,73 +247,8 @@ export const slurmRecommendTool = tool(
       ),
   },
   async (input) => {
-    const startedAt = Date.now();
-    const timestamp = new Date(startedAt).toISOString();
-    const input_summary = {
-      gpus: input.gpus, cpus: input.cpus, mem_gb: input.mem_gb,
-      hours: input.hours, partition: input.partition, qos: input.qos,
-      interactive: input.interactive, min_vram_gb: input.min_vram_gb,
-    };
-    // Fetch fairshare in parallel with the solver — saves a round-trip.
-    const fairsharePromise = fetchFairshare();
-
-    const args: string[] = [];
-    if (input.gpus) args.push('--gpus', String(input.gpus));
-    if (input.cpus) args.push('--cpus', String(input.cpus));
-    if (input.mem_gb) args.push('--mem-gb', String(input.mem_gb));
-    args.push('--hours', String(input.hours));
-    if (input.partition) args.push('--partition', input.partition);
-    if (input.qos) args.push('--qos', input.qos);
-    if (input.interactive) args.push('--interactive');
-    if (input.min_vram_gb) args.push('--min-vram-gb', String(input.min_vram_gb));
-
-    const { ok, stdout, stderr, code } = await runSlurmCli('recommend', args);
-    if (!ok) {
-      logToolUsage({
-        timestamp, tool: 'slurm_recommend', input_summary,
-        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
-      });
-      return {
-        content: [{ type: 'text', text: `slurm_recommend failed (exit ${code}).\n${stderr}` }],
-        isError: true,
-      };
-    }
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = JSON.parse(stdout);
-    } catch {
-      return {
-        content: [{ type: 'text', text: `slurm_recommend returned non-JSON:\n${stdout}` }],
-        isError: true,
-      };
-    }
-    // Merge fairshare data into the payload for the recommend card to render.
-    const fs = await fairsharePromise;
-    parsed.fairshare = {
-      rows: fs.rows,
-      source: fs.source,
-      raw_stdout_excerpt: fs.raw_stdout_excerpt,
-      dropped_count: fs.dropped_count,
-      dropped_samples: fs.dropped_samples,
-    };
-    const result = parsed.result as Record<string, unknown> | undefined;
-    logToolUsage({
-      timestamp,
-      tool: 'slurm_recommend',
-      input_summary,
-      output_summary: {
-        feasible: result?.feasible,
-        partition: result?.partition,
-        backend: result?.backend,
-        billing_score: result?.billing_score,
-        fairshare_rows: fs.rows.length,
-        fairshare_source: fs.source,
-      },
-      duration_ms: Date.now() - startedAt,
-    });
-    return {
-      content: [{ type: 'text', text: renderRichCard('recommend', parsed) }],
-    };
+    const { text, isError } = await runSlurmRecommend(input);
+    return { content: [{ type: 'text', text }], ...(isError ? { isError: true } : {}) };
   },
   { annotations: { readOnlyHint: true, idempotentHint: true } },
 );

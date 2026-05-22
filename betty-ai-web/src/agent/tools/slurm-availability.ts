@@ -172,11 +172,22 @@ export function parseScontrolReservations(text: string): Array<{
     if (!start || !end || start === '(null)' || end === '(null)') continue;
     const name = fields.ReservationName || 'reservation';
     const flags = fields.Flags || '';
-    const reason = flags.includes('MAINT')
-      ? `${name} (MAINT)`
-      : flags.includes('FLEX')
-      ? `${name} (FLEX)`
-      : name;
+    const nodeCnt = Number.parseInt(fields.NodeCnt ?? '', 10);
+    // A reservation only makes a partition UNBOOKABLE if it's a cluster/
+    // partition-wide MAINT window. Node-scoped reservations — a single node
+    // being patched (NodeCnt=1), or a group holding a couple of nodes — just
+    // reduce capacity; the partition still schedules on its other nodes, and
+    // sinfo's idle count already reflects them. Treating those as blackouts
+    // made the calendar return zero slots whenever any 1-node patch existed.
+    //
+    // Heuristic: blackout iff MAINT AND (the ALL_NODES flag is set OR the
+    // reservation covers a meaningful node count, ≥4). This catches true
+    // cluster/partition maintenance while ignoring node patches.
+    const isWideMaint =
+      flags.includes('MAINT') &&
+      (flags.includes('ALL_NODES') || (Number.isFinite(nodeCnt) && nodeCnt >= 4));
+    if (!isWideMaint) continue;
+    const reason = `${name} (MAINT)`;
     // PartitionName="" or "(null)" means global; `undefined` partition in
     // BlackoutWindow signals "applies to all partitions".
     const partRaw = fields.PartitionName;
@@ -252,6 +263,66 @@ export function parseSinfoForAvailability(
   };
 }
 
+export interface SlurmAvailabilityInput {
+  gpus: number;
+  hours: number;
+  partition?: string;
+  earliest?: string;
+  latest?: string;
+}
+
+/**
+ * Provider-agnostic core: runs the availability ranker and returns the text
+ * the chat should show (a rich-card fenced block, or an error message).
+ * Shared by the Claude-SDK tool wrapper and the OpenAI/LiteLLM dispatch path
+ * so both backends behave identically.
+ */
+export async function runSlurmAvailability(
+  input: SlurmAvailabilityInput,
+): Promise<{ text: string; isError: boolean }> {
+  const { gpus, hours, earliest, latest } = input;
+  const partition = input.partition ?? 'dgx-b200';
+  const startedAt = Date.now();
+  const timestamp = new Date(startedAt).toISOString();
+  const input_summary = { gpus, hours, partition, earliest, latest };
+  const snapshot = await fetchSnapshot();
+  const payload = { gpus, hours, partition, earliest, latest, snapshot };
+  const { ok, stdout, stderr, code } = await runSlurmCli(
+    'availability',
+    [],
+    JSON.stringify(payload),
+  );
+  if (!ok) {
+    logToolUsage({
+      timestamp, tool: 'slurm_availability', input_summary,
+      duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+    });
+    return { text: `slurm_availability failed (exit ${code}).\n${stderr}`, isError: true };
+  }
+  let parsed: { sources?: string[]; load_curve_kind?: string; slots?: unknown[] };
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    logToolUsage({
+      timestamp, tool: 'slurm_availability', input_summary,
+      duration_ms: Date.now() - startedAt, error: 'non-json output',
+    });
+    return { text: `slurm_availability returned non-JSON:\n${stdout}`, isError: true };
+  }
+  logToolUsage({
+    timestamp,
+    tool: 'slurm_availability',
+    input_summary,
+    output_summary: {
+      sources: parsed.sources,
+      load_curve_kind: parsed.load_curve_kind,
+      slot_count: parsed.slots?.length ?? 0,
+    },
+    duration_ms: Date.now() - startedAt,
+  });
+  return { text: renderRichCard('calendar', parsed), isError: false };
+}
+
 export const slurmAvailabilityTool = tool(
   'slurm_availability',
   'Propose ranked candidate time-slots for a GPU+walltime request and return them as a calendar card. Combines current cluster idle state (sinfo) with hour-of-day load profile and any blackout windows. Use when the user is choosing WHEN to submit, not just what to submit.',
@@ -272,66 +343,8 @@ export const slurmAvailabilityTool = tool(
       .describe('ISO-8601 latest acceptable start. Defaults to now+7d.'),
   },
   async ({ gpus, hours, partition, earliest, latest }) => {
-    const startedAt = Date.now();
-    const timestamp = new Date(startedAt).toISOString();
-    const input_summary = { gpus, hours, partition, earliest, latest };
-    const snapshot = await fetchSnapshot();
-    const payload = {
-      gpus,
-      hours,
-      partition,
-      earliest,
-      latest,
-      snapshot,
-    };
-    const { ok, stdout, stderr, code } = await runSlurmCli(
-      'availability',
-      [],
-      JSON.stringify(payload),
-    );
-    if (!ok) {
-      logToolUsage({
-        timestamp, tool: 'slurm_availability', input_summary,
-        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
-      });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_availability failed (exit ${code}).\n${stderr}`,
-        }],
-        isError: true,
-      };
-    }
-    let parsed: { sources?: string[]; load_curve_kind?: string; slots?: unknown[] };
-    try {
-      parsed = JSON.parse(stdout);
-    } catch {
-      logToolUsage({
-        timestamp, tool: 'slurm_availability', input_summary,
-        duration_ms: Date.now() - startedAt, error: 'non-json output',
-      });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_availability returned non-JSON:\n${stdout}`,
-        }],
-        isError: true,
-      };
-    }
-    logToolUsage({
-      timestamp,
-      tool: 'slurm_availability',
-      input_summary,
-      output_summary: {
-        sources: parsed.sources,
-        load_curve_kind: parsed.load_curve_kind,
-        slot_count: parsed.slots?.length ?? 0,
-      },
-      duration_ms: Date.now() - startedAt,
-    });
-    return {
-      content: [{ type: 'text', text: renderRichCard('calendar', parsed) }],
-    };
+    const { text, isError } = await runSlurmAvailability({ gpus, hours, partition, earliest, latest });
+    return { content: [{ type: 'text', text }], ...(isError ? { isError: true } : {}) };
   },
   { annotations: { readOnlyHint: true, idempotentHint: false } },
 );

@@ -147,10 +147,10 @@ describe('parseSshareDefensive', () => {
 });
 
 describe('parseScontrolReservations', () => {
-  it('parses a maintenance window with partition scope', () => {
+  it('parses a partition-wide maintenance window (large NodeCnt)', () => {
     const text = [
       'ReservationName=weekly-maint StartTime=2026-04-30T05:00:00',
-      'EndTime=2026-04-30T11:00:00 Duration=06:00:00',
+      'EndTime=2026-04-30T11:00:00 Duration=06:00:00 NodeCnt=27',
       'Nodes=dgx[001-027] PartitionName=dgx-b200 Flags=MAINT',
     ].join(' ');
     const out = parseScontrolReservations(text);
@@ -161,27 +161,49 @@ describe('parseScontrolReservations', () => {
     expect(out[0].reason).toContain('MAINT');
   });
 
-  it('handles global reservations without PartitionName', () => {
+  it('handles global ALL_NODES maintenance without PartitionName', () => {
     const text = [
       'ReservationName=cluster-wide-reboot StartTime=2026-05-15T22:00:00',
-      'EndTime=2026-05-16T02:00:00 PartitionName=(null) Flags=MAINT',
+      'EndTime=2026-05-16T02:00:00 NodeCnt=105 PartitionName=(null) Flags=MAINT,ALL_NODES',
     ].join(' ');
     const out = parseScontrolReservations(text);
     expect(out).toHaveLength(1);
     expect(out[0].partition).toBeUndefined();
   });
 
-  it('separates multiple reservation stanzas', () => {
+  it('skips single-node MAINT patches (capacity, not partition-down)', () => {
+    // A 1-node patch with global scope must NOT blackout every partition —
+    // the real-world failure that returned zero slots cluster-wide.
     const text = [
-      'ReservationName=res-a StartTime=2026-04-30T05:00:00 EndTime=2026-04-30T11:00:00 PartitionName=dgx-b200',
+      'ReservationName=ahd-patching StartTime=2026-05-18T08:00:00',
+      'EndTime=2026-05-22T23:59:59 NodeCnt=1 Nodes=dgx007 PartitionName=(null) Flags=MAINT,IGNORE_JOBS,SPEC_NODES',
+    ].join(' ');
+    const out = parseScontrolReservations(text);
+    expect(out).toHaveLength(0);
+  });
+
+  it('separates multiple MAINT reservation stanzas', () => {
+    const text = [
+      'ReservationName=res-a StartTime=2026-04-30T05:00:00 EndTime=2026-04-30T11:00:00 NodeCnt=27 PartitionName=dgx-b200 Flags=MAINT',
       '',
       '',
-      'ReservationName=res-b StartTime=2026-05-01T05:00:00 EndTime=2026-05-01T11:00:00 PartitionName=b200-mig45',
+      'ReservationName=res-b StartTime=2026-05-01T05:00:00 EndTime=2026-05-01T11:00:00 NodeCnt=10 PartitionName=b200-mig45 Flags=MAINT',
     ].join('\n');
     const out = parseScontrolReservations(text);
     expect(out).toHaveLength(2);
     expect(out[0].partition).toBe('dgx-b200');
     expect(out[1].partition).toBe('b200-mig45');
+  });
+
+  it('skips non-MAINT reservations (node-level, not partition-down)', () => {
+    // A group reserving specific nodes via SPEC_NODES must NOT blackout the
+    // whole partition — that made the calendar return zero slots for a month.
+    const text = [
+      'ReservationName=KAIQC StartTime=2026-05-19T19:56:24 EndTime=2026-06-23T13:16:24',
+      'Nodes=dgx013 NodeCnt=1 PartitionName=dgx-b200 Flags=SPEC_NODES',
+    ].join(' ');
+    const out = parseScontrolReservations(text);
+    expect(out).toHaveLength(0);
   });
 
   it('skips reservations with null timestamps', () => {
