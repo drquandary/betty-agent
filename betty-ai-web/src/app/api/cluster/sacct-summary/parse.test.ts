@@ -79,6 +79,21 @@ describe('parseSacctSummary', () => {
     expect(out.totals.cancelled).toBe(1);
   });
 
+  it('handles "+"-suffixed states (sacct truncation marker)', () => {
+    // sacct appends "+" when the state string is truncated; those must still
+    // bucket correctly instead of falling into `other`.
+    const stdout = [
+      '70001|CANCELLED+|2026-04-27T09:30:00|00:15:00|dgx-b200|cpu=8',
+      '70002|TIMEOUT+|2026-04-27T09:30:00|00:15:00|dgx-b200|cpu=8',
+      '70003|COMPLETED+|2026-04-27T09:30:00|00:15:00|dgx-b200|cpu=8',
+    ].join('\n');
+    const out = parseSacctSummary(stdout);
+    expect(out.totals.cancelled).toBe(1);
+    expect(out.totals.timeout).toBe(1);
+    expect(out.totals.completed).toBe(1);
+    expect(out.totals.other).toBe(0);
+  });
+
   it('skips a header row if one sneaks in', () => {
     const withHeader = 'JobID|State|End|Elapsed|Partition|ReqTRES\n' + HAPPY;
     const out = parseSacctSummary(withHeader);

@@ -42,8 +42,10 @@ export interface SacctSummary {
 
 function classify(state: string): SacctOutcome {
   // sacct's State field can include free text like "CANCELLED by 12345" — we
-  // normalize by taking the leading uppercase token.
-  const head = state.trim().toUpperCase().split(/\s+/)[0] ?? '';
+  // normalize by taking the leading uppercase token. It can also be suffixed
+  // with '+' when detail is truncated (e.g. "CANCELLED+", "TIMEOUT+"); strip
+  // any trailing non-letter/underscore chars so those still bucket correctly.
+  const head = (state.trim().toUpperCase().split(/\s+/)[0] ?? '').replace(/[^A-Z_].*$/, '');
   if (head === 'COMPLETED') return 'completed';
   if (head === 'FAILED' || head === 'NODE_FAIL' || head === 'BOOT_FAIL') return 'failed';
   if (head === 'TIMEOUT') return 'timeout';

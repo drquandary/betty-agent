@@ -25,13 +25,19 @@ describe('parseSinfoForAvailability', () => {
     expect(snap!.gpus_idle_by_partition['dgx-b200']).toBe(10 * 8);
     expect(snap!.gpus_total_by_partition['b200-mig45']).toBe(32);
     expect(snap!.gpus_idle_by_partition['b200-mig45']).toBe(32);
+    // Node counts are tracked for every partition (used by the reservation
+    // parser to detect whole-partition maintenance).
+    expect(snap!.nodes_total_by_partition['dgx-b200']).toBe(27);
+    expect(snap!.nodes_total_by_partition['b200-mig45']).toBe(1);
   });
 
-  it('strips default-partition asterisk', () => {
+  it('strips default-partition asterisk and still counts nodes for CPU partitions', () => {
     const text = 'genoa-std-mem*|64|idle|(null)';
     const snap = parseSinfoForAvailability(text);
-    // No GPU gres -> partition not added at all (CPU-only is fine for advisor)
+    // No GPU gres -> not in the GPU maps (CPU-only is fine for advisor)
     expect(snap!.gpus_total_by_partition['genoa-std-mem']).toBeUndefined();
+    // ...but node count IS tracked (a CPU partition can still be under maint).
+    expect(snap!.nodes_total_by_partition['genoa-std-mem']).toBe(64);
   });
 
   it('treats idle* as idle', () => {
@@ -147,49 +153,70 @@ describe('parseSshareDefensive', () => {
 });
 
 describe('parseScontrolReservations', () => {
-  it('parses a partition-wide maintenance window (large NodeCnt)', () => {
+  it('blacks out maintenance that covers a full partition (NodeCnt ≥ partition size)', () => {
     const text = [
       'ReservationName=weekly-maint StartTime=2026-04-30T05:00:00',
       'EndTime=2026-04-30T11:00:00 Duration=06:00:00 NodeCnt=27',
       'Nodes=dgx[001-027] PartitionName=dgx-b200 Flags=MAINT',
     ].join(' ');
-    const out = parseScontrolReservations(text);
+    const out = parseScontrolReservations(text, { 'dgx-b200': 27 });
     expect(out).toHaveLength(1);
     expect(out[0].start).toBe('2026-04-30T05:00:00');
-    expect(out[0].end).toBe('2026-04-30T11:00:00');
     expect(out[0].partition).toBe('dgx-b200');
     expect(out[0].reason).toContain('MAINT');
   });
 
-  it('handles global ALL_NODES maintenance without PartitionName', () => {
+  it('blacks out a 1-node maintenance on a 1-node (MIG) partition', () => {
+    // P2 regression: small partitions must not be excluded by an arbitrary
+    // node-count threshold. A 1-node maintenance fully covers a 1-node MIG
+    // partition, so it IS a real blackout.
+    const text = [
+      'ReservationName=mig-maint StartTime=2026-05-20T08:00:00',
+      'EndTime=2026-05-20T12:00:00 NodeCnt=1 Nodes=dgx028 PartitionName=b200-mig45 Flags=MAINT,SPEC_NODES',
+    ].join(' ');
+    const out = parseScontrolReservations(text, { 'b200-mig45': 1 });
+    expect(out).toHaveLength(1);
+    expect(out[0].partition).toBe('b200-mig45');
+  });
+
+  it('handles global ALL_NODES maintenance without PartitionName or node counts', () => {
     const text = [
       'ReservationName=cluster-wide-reboot StartTime=2026-05-15T22:00:00',
       'EndTime=2026-05-16T02:00:00 NodeCnt=105 PartitionName=(null) Flags=MAINT,ALL_NODES',
     ].join(' ');
-    const out = parseScontrolReservations(text);
+    const out = parseScontrolReservations(text); // no node counts needed
     expect(out).toHaveLength(1);
     expect(out[0].partition).toBeUndefined();
   });
 
-  it('skips single-node MAINT patches (capacity, not partition-down)', () => {
-    // A 1-node patch with global scope must NOT blackout every partition —
-    // the real-world failure that returned zero slots cluster-wide.
+  it('skips a partial-coverage MAINT patch (1 of 27 nodes)', () => {
+    // The real-world failure: a single-node global patch blacked out every
+    // partition. 1 < 27 → not full-partition → not a blackout.
+    const text = [
+      'ReservationName=ahd-patching StartTime=2026-05-18T08:00:00',
+      'EndTime=2026-05-22T23:59:59 NodeCnt=1 Nodes=dgx007 PartitionName=dgx-b200 Flags=MAINT,IGNORE_JOBS,SPEC_NODES',
+    ].join(' ');
+    const out = parseScontrolReservations(text, { 'dgx-b200': 27 });
+    expect(out).toHaveLength(0);
+  });
+
+  it('skips a global single-node patch with unknown partition', () => {
     const text = [
       'ReservationName=ahd-patching StartTime=2026-05-18T08:00:00',
       'EndTime=2026-05-22T23:59:59 NodeCnt=1 Nodes=dgx007 PartitionName=(null) Flags=MAINT,IGNORE_JOBS,SPEC_NODES',
     ].join(' ');
-    const out = parseScontrolReservations(text);
+    const out = parseScontrolReservations(text, { 'dgx-b200': 27 });
     expect(out).toHaveLength(0);
   });
 
-  it('separates multiple MAINT reservation stanzas', () => {
+  it('separates multiple full-partition MAINT stanzas', () => {
     const text = [
       'ReservationName=res-a StartTime=2026-04-30T05:00:00 EndTime=2026-04-30T11:00:00 NodeCnt=27 PartitionName=dgx-b200 Flags=MAINT',
       '',
       '',
       'ReservationName=res-b StartTime=2026-05-01T05:00:00 EndTime=2026-05-01T11:00:00 NodeCnt=10 PartitionName=b200-mig45 Flags=MAINT',
     ].join('\n');
-    const out = parseScontrolReservations(text);
+    const out = parseScontrolReservations(text, { 'dgx-b200': 27, 'b200-mig45': 10 });
     expect(out).toHaveLength(2);
     expect(out[0].partition).toBe('dgx-b200');
     expect(out[1].partition).toBe('b200-mig45');
@@ -202,7 +229,7 @@ describe('parseScontrolReservations', () => {
       'ReservationName=KAIQC StartTime=2026-05-19T19:56:24 EndTime=2026-06-23T13:16:24',
       'Nodes=dgx013 NodeCnt=1 PartitionName=dgx-b200 Flags=SPEC_NODES',
     ].join(' ');
-    const out = parseScontrolReservations(text);
+    const out = parseScontrolReservations(text, { 'dgx-b200': 27 });
     expect(out).toHaveLength(0);
   });
 
