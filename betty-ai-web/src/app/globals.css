@@ -146,7 +146,9 @@ html[data-theme="light"] .text-zinc-500  { color: #71717a; }
 html[data-theme="light"] .text-zinc-600  { color: #a1a1aa; }
 html[data-theme="light"] .text-zinc-700  { color: #d4d4d8; }
 html[data-theme="light"] .text-slate-100 { color: #18181b; }
+html[data-theme="light"] .text-slate-200 { color: #27272a; }
 html[data-theme="light"] .text-slate-300 { color: #3f3f46; }
+html[data-theme="light"] .text-slate-400 { color: #52525b; }
 html[data-theme="light"] .text-slate-500 { color: #71717a; }
 html[data-theme="light"] .text-slate-600 { color: #a1a1aa; }
 
@@ -178,9 +180,11 @@ html[data-theme="light"] .border-slate-800 { border-color: rgba(15, 16, 18, 0.12
 html[data-theme="light"] .hover\:bg-slate-900:hover  { background-color: #fafafa; }
 html[data-theme="light"] .hover\:border-slate-700:hover { border-color: rgba(15, 16, 18, 0.18); }
 
-/* Header brand text uses a white→zinc-400 gradient via bg-clip-text; on a
- * light header the gradient stops are invisible. Force a solid ink color. */
-html[data-theme="light"] header h1.bg-gradient-to-b {
+/* Brand/greeting text uses a white→zinc-400 gradient via bg-clip-text +
+ * text-transparent; on a light surface the gradient stops are invisible.
+ * Covers both the header brand and the chat-pane "Hi Jeff, I'm Betty AI."
+ * greeting. Force a solid ink color. */
+html[data-theme="light"] h1.bg-clip-text.text-transparent {
   background: none;
   -webkit-background-clip: initial;
   background-clip: initial;
