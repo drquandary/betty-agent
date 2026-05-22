@@ -26,16 +26,14 @@ export interface Rollup {
   partitions: number;
   gpusFree: number;
   gpusTotal: number;
-  nodesIdle: number;
+  gpusDown: number;
   nodesTotal: number;
   cpusFree: number;
   cpusTotal: number;
   /** Partitions where GPU saturation is ≥ 90% (and they actually have GPUs). */
   saturatedGpuPartitions: string[];
-  /** Partitions where every node is occupied (no idle nodes). */
-  fullPartitions: string[];
-  /** Partitions where cpusOther > 0 — proxy for drained/down nodes. */
-  drainedPartitions: string[];
+  /** Partitions reporting DOWN/unavailable GPUs. */
+  downPartitions: string[];
 }
 
 export function rollup(parts: PartitionSummary[]): Rollup {
@@ -43,24 +41,22 @@ export function rollup(parts: PartitionSummary[]): Rollup {
     partitions: parts.length,
     gpusFree: 0,
     gpusTotal: 0,
-    nodesIdle: 0,
+    gpusDown: 0,
     nodesTotal: 0,
     cpusFree: 0,
     cpusTotal: 0,
     saturatedGpuPartitions: [],
-    fullPartitions: [],
-    drainedPartitions: [],
+    downPartitions: [],
   };
   for (const p of parts) {
     r.gpusFree += p.gpusIdle;
     r.gpusTotal += p.gpusTotal;
-    r.nodesIdle += p.nodesIdle;
+    r.gpusDown += p.downGpu;
     r.nodesTotal += p.nodesTotal;
     r.cpusFree += p.cpusIdle;
     r.cpusTotal += p.cpusTotal;
     if (p.gpusTotal > 0 && p.gpusIdle === 0) r.saturatedGpuPartitions.push(p.partition);
-    if (p.nodesTotal > 0 && p.nodesIdle === 0) r.fullPartitions.push(p.partition);
-    if (p.cpusOther > 0) r.drainedPartitions.push(p.partition);
+    if (p.downGpu > 0) r.downPartitions.push(p.partition);
   }
   return r;
 }
@@ -137,7 +133,7 @@ export function ClusterTotalsStrip({ fetcher }: Props = {}) {
   const r = rollup(data.partitions);
   const gpuUsedPct = r.gpusTotal > 0 ? Math.round(((r.gpusTotal - r.gpusFree) / r.gpusTotal) * 100) : 0;
   const cpuUsedPct = r.cpusTotal > 0 ? Math.round(((r.cpusTotal - r.cpusFree) / r.cpusTotal) * 100) : 0;
-  const nodeIdlePct = r.nodesTotal > 0 ? Math.round((r.nodesIdle / r.nodesTotal) * 100) : 0;
+  const downPct = r.gpusTotal > 0 ? Math.round((r.gpusDown / r.gpusTotal) * 100) : 0;
 
   return (
     <section
@@ -160,11 +156,11 @@ export function ClusterTotalsStrip({ fetcher }: Props = {}) {
           subline={`${gpuUsedPct}% allocated`}
         />
         <Metric
-          label="Nodes idle"
-          big={`${r.nodesIdle}`}
-          unit={`/ ${r.nodesTotal}`}
-          usedPct={100 - nodeIdlePct}
-          subline={`${nodeIdlePct}% idle`}
+          label="GPUs down"
+          big={`${r.gpusDown}`}
+          unit={`/ ${r.gpusTotal}`}
+          usedPct={downPct === 0 ? 0 : Math.max(60, downPct)}
+          subline={r.gpusDown === 0 ? 'none down' : `${downPct}% unavailable`}
         />
         <Metric
           label="CPUs free"
@@ -217,11 +213,8 @@ function AlertsTile({ rollup: r }: { rollup: Rollup }) {
   if (r.saturatedGpuPartitions.length > 0) {
     items.push({ tone: 'red', label: 'GPU-saturated', parts: r.saturatedGpuPartitions });
   }
-  if (r.fullPartitions.length > 0) {
-    items.push({ tone: 'amber', label: 'No idle nodes', parts: r.fullPartitions });
-  }
-  if (r.drainedPartitions.length > 0) {
-    items.push({ tone: 'orange', label: 'Has drained/down', parts: r.drainedPartitions });
+  if (r.downPartitions.length > 0) {
+    items.push({ tone: 'orange', label: 'GPUs down', parts: r.downPartitions });
   }
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">

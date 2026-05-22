@@ -18,7 +18,6 @@ describe('ClusterOverviewCard', () => {
       partitions: [
         {
           partition: 'dgx-b200',
-          nodesIdle: 2,
           nodesTotal: 5,
           gpusIdle: 16,
           gpusTotal: 40,
@@ -26,6 +25,9 @@ describe('ClusterOverviewCard', () => {
           cpusIdle: 192,
           cpusOther: 0,
           cpusTotal: 480,
+          memFreeGb: 1200,
+          memTotalGb: 4000,
+          downGpu: 0,
         },
       ],
     });

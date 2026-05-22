@@ -1,16 +1,12 @@
 /**
- * Parser for the per-node sinfo query:
- *   sinfo -h -N -O "Partition:25,StateLong:15,CPUsState:20,Gres:35,GresUsed:35"
+ * Parser for `parcc_sfree.py --json` — PARCC's authoritative free-resource
+ * tool. Using it (rather than hand-rolled sinfo parsing) keeps the dashboard's
+ * notion of "available" identical to what users see from the CLI, and it
+ * already separates DOWN resources from merely-allocated ones.
  *
- * One line per node, whitespace-separated (none of the five fields contains an
- * internal space). Example line:
- *   b200-mig45  mixed  56/168/0/224  gpu:45gb:32(S:0-1)  gpu:45gb:9(IDX:0-1,...)
- *
- * Crucial fix over the old `%G`-only query: GresUsed lets us count *free GPU
- * slices* as (total − used) per node, instead of the old heuristic that only
- * counted GPUs on fully-`idle` nodes. MIG nodes are essentially always `mixed`
- * (one physical card sliced many ways), so the old logic reported 0 free even
- * when most slices were open. CPUsState (A/I/O/T) preserves the CPU breakdown.
+ * JSON is an array of per-partition objects:
+ *   { partition, nodes, cpu_free, cpu_total, mem_free_gb, mem_total_gb,
+ *     gpu_free, gpu_total, down_cpu, down_mem_gb, down_gpu }
  *
  * Kept in a sibling module (not route.ts) because Next.js 15 rejects any
  * non-route export from a `route.ts` file during build.
@@ -18,88 +14,86 @@
 
 export interface PartitionSummary {
   partition: string;
-  nodesIdle: number;
   nodesTotal: number;
-  /** Free GPUs/slices = sum of (total − used) over *available* nodes. */
+  /** Free GPUs/slices (parcc_sfree gpu_free). Excludes DOWN GPUs. */
   gpusIdle: number;
   gpusTotal: number;
   cpusAlloc: number;
+  /** Free CPUs (parcc_sfree cpu_free). */
   cpusIdle: number;
+  /** DOWN/unavailable CPUs. */
   cpusOther: number;
   cpusTotal: number;
+  /** Free memory in GB. */
+  memFreeGb: number;
+  memTotalGb: number;
+  /** GPUs in a DOWN/drained/maint state — present but not allocatable. */
+  downGpu: number;
 }
 
-/**
- * Whether a node in this base state can actually accept work. Nodes that are
- * draining, down, under maintenance, or reserved may report 0 GPUs used, but
- * those GPUs are NOT available — so we must not count them as free.
- */
-export function isAvailableState(baseState: string): boolean {
-  return (
-    baseState.startsWith('idle') ||
-    baseState.startsWith('mix') ||
-    baseState.startsWith('alloc')
-  );
+interface SfreeRow {
+  partition?: unknown;
+  nodes?: unknown;
+  cpu_free?: unknown;
+  cpu_total?: unknown;
+  mem_free_gb?: unknown;
+  mem_total_gb?: unknown;
+  gpu_free?: unknown;
+  gpu_total?: unknown;
+  down_cpu?: unknown;
+  down_gpu?: unknown;
 }
 
-/** Pull the integer count out of a GRES token like `gpu:B200:8(S:0-1)` or
- *  `gpu:45gb:9(IDX:...)`. Returns 0 for `(null)` / no GPUs. */
-export function parseGpuCount(gres: string): number {
-  if (!gres || gres === '(null)') return 0;
-  const m = gres.match(/gpu(?::[a-z0-9_-]+)?:(\d+)/i);
-  if (!m) return 0;
-  const n = Number(m[1]);
+function num(v: unknown): number {
+  const n = Number(v);
   return Number.isFinite(n) ? n : 0;
 }
 
-export function parseSinfoOverview(stdout: string): PartitionSummary[] {
-  const by: Record<string, PartitionSummary> = {};
-  for (const raw of stdout.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line) continue;
-    // Split on any run of whitespace into the 5 fixed columns.
-    const cols = line.split(/\s+/);
-    if (cols.length < 5) continue;
+/**
+ * Extract the JSON array from raw stdout, tolerant of any leading shell/MOTD
+ * noise: slice from the first `[` to the last `]`.
+ */
+export function extractJsonArray(stdout: string): string | null {
+  const start = stdout.indexOf('[');
+  const end = stdout.lastIndexOf(']');
+  if (start === -1 || end === -1 || end < start) return null;
+  return stdout.slice(start, end + 1);
+}
 
-    const partition = cols[0].replace(/\*$/, '');
-    // StateLong may carry a trailing flag char (mixed-, drained*, idle~ …).
-    const baseState = cols[1].toLowerCase().replace(/[^a-z].*$/, '');
-    const cstate = cols[2] ?? '';
-    const gres = cols[3] ?? '';
-    const gresUsed = cols[4] ?? '';
-    if (!partition) continue;
-
-    const row =
-      by[partition] ??
-      (by[partition] = {
-        partition,
-        nodesIdle: 0,
-        nodesTotal: 0,
-        gpusIdle: 0,
-        gpusTotal: 0,
-        cpusAlloc: 0,
-        cpusIdle: 0,
-        cpusOther: 0,
-        cpusTotal: 0,
-      });
-
-    row.nodesTotal += 1;
-    if (baseState.startsWith('idle')) row.nodesIdle += 1;
-
-    const gpuTotal = parseGpuCount(gres);
-    const gpuUsed = parseGpuCount(gresUsed);
-    row.gpusTotal += gpuTotal;
-    if (isAvailableState(baseState)) {
-      row.gpusIdle += Math.max(0, gpuTotal - gpuUsed);
-    }
-
-    const m = cstate.match(/^(\d+)\/(\d+)\/(\d+)\/(\d+)/);
-    if (m) {
-      row.cpusAlloc += Number(m[1]);
-      row.cpusIdle += Number(m[2]);
-      row.cpusOther += Number(m[3]);
-      row.cpusTotal += Number(m[4]);
-    }
+export function parseSfree(stdout: string): PartitionSummary[] {
+  const json = extractJsonArray(stdout);
+  if (!json) return [];
+  let rows: SfreeRow[];
+  try {
+    const parsed = JSON.parse(json);
+    if (!Array.isArray(parsed)) return [];
+    rows = parsed as SfreeRow[];
+  } catch {
+    return [];
   }
-  return Object.values(by).sort((a, b) => a.partition.localeCompare(b.partition));
+
+  const out: PartitionSummary[] = [];
+  for (const r of rows) {
+    const partition = String(r.partition ?? '').trim();
+    // Skip the "(no-partition)" bucket — orphan nodes not in any partition.
+    if (!partition || partition === '(no-partition)') continue;
+
+    const cpuFree = num(r.cpu_free);
+    const cpuTotal = num(r.cpu_total);
+    const downCpu = num(r.down_cpu);
+    out.push({
+      partition,
+      nodesTotal: num(r.nodes),
+      gpusIdle: num(r.gpu_free),
+      gpusTotal: num(r.gpu_total),
+      cpusIdle: cpuFree,
+      cpusTotal: cpuTotal,
+      cpusOther: downCpu,
+      cpusAlloc: Math.max(0, cpuTotal - cpuFree - downCpu),
+      memFreeGb: num(r.mem_free_gb),
+      memTotalGb: num(r.mem_total_gb),
+      downGpu: num(r.down_gpu),
+    });
+  }
+  return out.sort((a, b) => a.partition.localeCompare(b.partition));
 }

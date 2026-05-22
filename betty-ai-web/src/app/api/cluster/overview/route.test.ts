@@ -1,101 +1,81 @@
 import { describe, expect, it } from 'vitest';
-import { parseSinfoOverview, isAvailableState, parseGpuCount } from './parse';
+import { parseSfree, extractJsonArray } from './parse';
 
-// New format: one line per node, whitespace-separated columns:
-//   Partition  StateLong  CPUsState(A/I/O/T)  Gres  GresUsed
-describe('parseSinfoOverview', () => {
-  it('returns [] on empty input', () => {
-    expect(parseSinfoOverview('')).toEqual([]);
+function sfreeJson(rows: Array<Record<string, unknown>>): string {
+  // Simulate real stdout: shell/MOTD noise before the JSON array.
+  return `Lmod reloaded modules\nsome motd line\n${JSON.stringify(rows)}\n`;
+}
+
+describe('extractJsonArray', () => {
+  it('slices the JSON array out of noisy stdout', () => {
+    expect(extractJsonArray('garbage\n[1,2,3]\ntrailer')).toBe('[1,2,3]');
+  });
+  it('returns null when no array present', () => {
+    expect(extractJsonArray('no json here')).toBeNull();
+  });
+});
+
+describe('parseSfree', () => {
+  it('returns [] on empty / non-JSON input', () => {
+    expect(parseSfree('')).toEqual([]);
+    expect(parseSfree('not json')).toEqual([]);
   });
 
-  it('computes free GPUs as total - used over available nodes', () => {
-    const stdout = [
-      'dgx-b200 idle      0/224/0/224   gpu:B200:8(S:0-1) gpu:B200:0(IDX:N/A)',
-      'dgx-b200 allocated 224/0/0/224   gpu:B200:8(S:0-1) gpu:B200:8(IDX:0-7)',
-      'dgx-b200 mixed     142/82/0/224  gpu:B200:8(S:0-1) gpu:B200:5(IDX:0,2,4-5,7)',
-    ].join('\n');
-    const [p] = parseSinfoOverview(stdout);
+  it('maps parcc_sfree fields to PartitionSummary', () => {
+    const stdout = sfreeJson([
+      {
+        partition: 'dgx-b200',
+        nodes: 27,
+        cpu_free: 2302,
+        cpu_total: 6048,
+        mem_free_gb: 19576,
+        mem_total_gb: 55725,
+        gpu_free: 32,
+        gpu_total: 216,
+        down_cpu: 1120,
+        down_mem_gb: 10319,
+        down_gpu: 40,
+      },
+    ]);
+    const [p] = parseSfree(stdout);
     expect(p.partition).toBe('dgx-b200');
-    expect(p.nodesIdle).toBe(1);
-    expect(p.nodesTotal).toBe(3);
-    // free = (8-0) + (8-8) + (8-5) = 11
-    expect(p.gpusIdle).toBe(11);
-    expect(p.gpusTotal).toBe(24);
-    expect(p.cpusTotal).toBe(672);
-    expect(p.cpusIdle).toBe(306);
+    expect(p.nodesTotal).toBe(27);
+    expect(p.gpusIdle).toBe(32);
+    expect(p.gpusTotal).toBe(216);
+    expect(p.downGpu).toBe(40);
+    expect(p.cpusIdle).toBe(2302);
+    expect(p.cpusTotal).toBe(6048);
+    expect(p.cpusOther).toBe(1120); // down cpus
+    expect(p.cpusAlloc).toBe(6048 - 2302 - 1120);
+    expect(p.memFreeGb).toBe(19576);
+    expect(p.memTotalGb).toBe(55725);
   });
 
-  it('counts free MIG slices on a mixed node (the bug fix)', () => {
-    // One physical card sliced 32 ways, 13 in use → 19 free, even though the
-    // node is "mixed" (the old parser would have reported 0).
-    const stdout =
-      'b200-mig45 mixed 56/168/0/224 gpu:45gb:32(S:0-1) gpu:45gb:13(IDX:0-1,3-5,16-23)';
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.gpusTotal).toBe(32);
-    expect(row.gpusIdle).toBe(19);
+  it('counts free MIG slices directly from gpu_free (the bug fix)', () => {
+    const stdout = sfreeJson([
+      { partition: 'b200-mig90', nodes: 1, gpu_free: 15, gpu_total: 16, cpu_free: 210, cpu_total: 224 },
+    ]);
+    const [row] = parseSfree(stdout);
+    expect(row.gpusIdle).toBe(15);
+    expect(row.gpusTotal).toBe(16);
   });
 
-  it('does NOT count GPUs on drained/maint/reserved nodes as free', () => {
-    const stdout = [
-      'dgx-b200 drained* 0/0/224/224 gpu:B200:8(S:0-1) gpu:B200:0(IDX:N/A)',
-      'dgx-b200 maint    0/224/0/224 gpu:B200:8(S:0-1) gpu:B200:0(IDX:N/A)',
-      'dgx-b200 reserved 0/224/0/224 gpu:B200:8(S:0-1) gpu:B200:0(IDX:N/A)',
-    ].join('\n');
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.gpusTotal).toBe(24); // still counted in total
-    expect(row.gpusIdle).toBe(0); // but none are available
+  it('drops the (no-partition) bucket', () => {
+    const stdout = sfreeJson([
+      { partition: '(no-partition)', nodes: 2, gpu_free: 0, gpu_total: 0 },
+      { partition: 'dgx-b200', nodes: 27, gpu_free: 32, gpu_total: 216 },
+    ]);
+    expect(parseSfree(stdout).map((r) => r.partition)).toEqual(['dgx-b200']);
   });
 
-  it('handles (null) GRES for CPU-only partitions', () => {
-    const stdout = 'genoa-std-mem* mixed 51/13/0/64 (null) (null)';
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.partition).toBe('genoa-std-mem');
-    expect(row.gpusTotal).toBe(0);
-    expect(row.gpusIdle).toBe(0);
-    expect(row.cpusIdle).toBe(13);
-  });
-
-  it('skips malformed rows but keeps good ones', () => {
-    const stdout = [
-      'garbage',
-      'dgx-b200 idle 0/224/0/224 gpu:B200:8(S:0-1) gpu:B200:0(IDX:N/A)',
-    ].join('\n');
-    const rows = parseSinfoOverview(stdout);
-    expect(rows).toHaveLength(1);
-    expect(rows[0].partition).toBe('dgx-b200');
-  });
-
-  it('sorts partitions alphabetically', () => {
-    const stdout = [
-      'zzz idle 0/1/0/1 gpu:a:1(S:0) gpu:a:0(IDX:N/A)',
-      'aaa idle 0/1/0/1 gpu:a:1(S:0) gpu:a:0(IDX:N/A)',
-    ].join('\n');
-    expect(parseSinfoOverview(stdout).map((r) => r.partition)).toEqual(['aaa', 'zzz']);
-  });
-});
-
-describe('isAvailableState', () => {
-  it('treats idle/mix/alloc as available', () => {
-    expect(isAvailableState('idle')).toBe(true);
-    expect(isAvailableState('mixed')).toBe(true);
-    expect(isAvailableState('allocated')).toBe(true);
-  });
-  it('treats drain/down/maint/resv as unavailable', () => {
-    expect(isAvailableState('drained')).toBe(false);
-    expect(isAvailableState('down')).toBe(false);
-    expect(isAvailableState('maint')).toBe(false);
-    expect(isAvailableState('reserved')).toBe(false);
-  });
-});
-
-describe('parseGpuCount', () => {
-  it('extracts counts from typed GRES tokens', () => {
-    expect(parseGpuCount('gpu:B200:8(S:0-1)')).toBe(8);
-    expect(parseGpuCount('gpu:45gb:32(S:0-1)')).toBe(32);
-    expect(parseGpuCount('gpu:B200:0(IDX:N/A)')).toBe(0);
-  });
-  it('returns 0 for null / non-GPU GRES', () => {
-    expect(parseGpuCount('(null)')).toBe(0);
-    expect(parseGpuCount('')).toBe(0);
+  it('sorts partitions alphabetically and defaults missing fields to 0', () => {
+    const stdout = sfreeJson([
+      { partition: 'zzz' },
+      { partition: 'aaa' },
+    ]);
+    const rows = parseSfree(stdout);
+    expect(rows.map((r) => r.partition)).toEqual(['aaa', 'zzz']);
+    expect(rows[0].gpusTotal).toBe(0);
+    expect(rows[0].memFreeGb).toBe(0);
   });
 });

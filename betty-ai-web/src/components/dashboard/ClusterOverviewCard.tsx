@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 
 export interface PartitionSummary {
   partition: string;
-  nodesIdle: number;
   nodesTotal: number;
   gpusIdle: number;
   gpusTotal: number;
@@ -13,6 +12,9 @@ export interface PartitionSummary {
   cpusIdle: number;
   cpusOther: number;
   cpusTotal: number;
+  memFreeGb: number;
+  memTotalGb: number;
+  downGpu: number;
 }
 
 interface OverviewPayload {
@@ -116,8 +118,8 @@ export function ClusterOverviewCard({ fetcher }: Props = {}) {
             <thead>
               <tr className="text-[10px] uppercase tracking-wider text-zinc-500">
                 <th className="px-1 pb-2 text-left font-medium">Partition</th>
-                <th className="px-1 pb-2 text-right font-medium">GPUs idle</th>
-                <th className="px-1 pb-2 text-right font-medium">Nodes idle</th>
+                <th className="px-1 pb-2 text-right font-medium">GPUs free</th>
+                <th className="px-1 pb-2 text-right font-medium">Mem free (GB)</th>
                 <th className="px-1 pb-2 text-right font-medium">CPUs free</th>
                 <th className="px-1 pb-2 text-left font-medium">Saturation</th>
               </tr>
@@ -133,10 +135,18 @@ export function ClusterOverviewCard({ fetcher }: Props = {}) {
                     <td className={cn('px-1 py-1.5 text-right font-semibold', pctColor(gpuUsedPct))}>
                       {p.gpusIdle}
                       <span className="ml-0.5 text-zinc-600">/{p.gpusTotal}</span>
+                      {p.downGpu > 0 && (
+                        <span
+                          className="ml-1 text-orange-300"
+                          title={`${p.downGpu} GPU${p.downGpu === 1 ? '' : 's'} down/unavailable`}
+                        >
+                          ↓{p.downGpu}
+                        </span>
+                      )}
                     </td>
                     <td className="px-1 py-1.5 text-right text-zinc-300">
-                      {p.nodesIdle}
-                      <span className="ml-0.5 text-zinc-600">/{p.nodesTotal}</span>
+                      {p.memFreeGb.toLocaleString()}
+                      <span className="ml-0.5 text-zinc-600">/{p.memTotalGb.toLocaleString()}</span>
                     </td>
                     <td className="px-1 py-1.5 text-right text-zinc-300">
                       {p.cpusIdle}

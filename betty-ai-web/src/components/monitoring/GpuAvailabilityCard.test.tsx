@@ -5,7 +5,6 @@ import type { PartitionSummary } from '@/components/dashboard/ClusterOverviewCar
 function mk(over: Partial<PartitionSummary>): PartitionSummary {
   return {
     partition: 'dgx-b200',
-    nodesIdle: 0,
     nodesTotal: 0,
     gpusIdle: 0,
     gpusTotal: 0,
@@ -13,6 +12,9 @@ function mk(over: Partial<PartitionSummary>): PartitionSummary {
     cpusIdle: 0,
     cpusOther: 0,
     cpusTotal: 0,
+    memFreeGb: 0,
+    memTotalGb: 0,
+    downGpu: 0,
     ...over,
   };
 }
