@@ -150,6 +150,27 @@ html[data-theme="light"] .text-slate-300 { color: #3f3f46; }
 html[data-theme="light"] .text-slate-500 { color: #71717a; }
 html[data-theme="light"] .text-slate-600 { color: #a1a1aa; }
 
+/* Semantic accent text: the 100–400 shades are tuned for dark surfaces and
+ * wash out on white (e.g. the amber stat numbers, faint green "0%"). Remap to
+ * darker -600/-700 shades so they keep their hue but stay legible on light. */
+html[data-theme="light"] .text-emerald-200 { color: #047857; }
+html[data-theme="light"] .text-emerald-300 { color: #059669; }
+html[data-theme="light"] .text-amber-100   { color: #b45309; }
+html[data-theme="light"] .text-amber-200   { color: #b45309; }
+html[data-theme="light"] .text-amber-300   { color: #b45309; }
+html[data-theme="light"] .text-red-300     { color: #dc2626; }
+html[data-theme="light"] .text-red-400     { color: #dc2626; }
+html[data-theme="light"] .text-rose-200    { color: #be123c; }
+html[data-theme="light"] .text-rose-300    { color: #e11d48; }
+html[data-theme="light"] .text-orange-300  { color: #ea580c; }
+html[data-theme="light"] .text-indigo-100  { color: #4338ca; }
+html[data-theme="light"] .text-indigo-200  { color: #4f46e5; }
+html[data-theme="light"] .text-indigo-300  { color: #4f46e5; }
+html[data-theme="light"] .text-violet-200  { color: #7c3aed; }
+html[data-theme="light"] .text-sky-100     { color: #0369a1; }
+html[data-theme="light"] .text-sky-200     { color: #0369a1; }
+html[data-theme="light"] .text-sky-300     { color: #0284c7; }
+
 /* Slate inputs (HeaderMenu select, dev-tools button) → light card surface */
 html[data-theme="light"] .bg-slate-900    { background-color: #ffffff; }
 html[data-theme="light"] .bg-slate-900\/50 { background-color: #f4f4f5; }
