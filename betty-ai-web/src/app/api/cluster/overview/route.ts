@@ -1,9 +1,10 @@
 /**
  * GET /api/cluster/overview — partition-level snapshot of Betty.
  *
- * Runs `sinfo -h -o "%P|%D|%T|%G|%C"` over the shared ControlMaster socket and
- * aggregates per partition: idle/total nodes, idle/total GPUs, allocated/idle
- * CPUs. The dashboard's cluster card polls this every 30s.
+ * Runs a per-node `sinfo -h -N -O "..."` over the shared ControlMaster socket
+ * and aggregates per partition: idle/total nodes, free/total GPUs (computed
+ * from GresUsed so MIG slices count correctly), allocated/idle CPUs. The
+ * dashboard's cluster card polls this every 30s.
  *
  * Cheap (<200ms typical) and read-only. Returns ok:false with an error string
  * (and empty partitions array) when SSH is unavailable so the UI can render a
@@ -19,7 +20,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const res = await runRemoteParseable('sinfo -h -o "%P|%D|%T|%G|%C"');
+    const res = await runRemoteParseable(
+      'sinfo -h -N -O "Partition:25,StateLong:15,CPUsState:20,Gres:35,GresUsed:35"',
+    );
     if (res.exit !== 0) {
       return NextResponse.json(
         {
