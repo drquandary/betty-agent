@@ -2,13 +2,15 @@
 type: concept
 tags: [beast2, mcmc, phylogenetics, bayesian, java, beagle, hpc]
 created: 2026-04-27
-updated: 2026-04-27
-sources: []
-related: [beast-phylonco, genoa-std-mem-partition, genoa-lrg-mem-partition, b200-mig45-partition, vast-storage, slurm-on-betty, betty-software-deployment]
-status: tentative
+updated: 2026-05-18
+sources: [2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms, 2026-05-15-beast2-ha-wild-aves-bench, 2026-05-15-beast1-5535-taxa-bench]
+related: [beast1-on-betty, beagle-gpu-tuning, beagle-tuning, cuda-mps, beast-checkpointing, beast-phylonco, genoa-std-mem-partition, genoa-lrg-mem-partition, b200-mig45-partition, b200-mig90-partition, dgx-b200-partition, vast-storage, slurm-on-betty, betty-software-deployment]
+status: current
 ---
 
 # BEAST2 on Betty
+
+> **Empirical validation (completed 2026-05-15):** the recommendations on this page are validated against two real datasets — see [[2026-05-15-beast2-ha-wild-aves-bench]] (690-pattern DNA, **CPU `-threads 1` wins** single-chain; GPU MPS wins 4-chain workflows) and [[2026-05-15-beast1-5535-taxa-bench]] (5535-taxa, GPU 1.73× over CPU with FP64). The BEAST2 ladder noted "in flight" in [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] is now complete; results captured in the experiment page above. See [[beagle-gpu-tuning]] for the GPU-side decision tree, [[beagle-tuning]] for the general flag reference, [[cuda-mps]] for the multi-chain GPU recipe, and [[beast-checkpointing]] for the BEAST1-vs-BEAST2 restart comparison.
 
 ## One-line summary
 BEAST2 is a Java/MCMC Bayesian phylogenetics engine; on Betty it lands primarily on Genoa CPU nodes (single-thread MCMC with BEAGLE-CPU likelihood), with optional MIG-45 GPU runs for very large alignments and a checkpoint-and-chain pattern for the multi-week wall times typical of phylogenetic workloads.
@@ -16,20 +18,21 @@ BEAST2 is a Java/MCMC Bayesian phylogenetics engine; on Betty it lands primarily
 ## Why BEAST2 needs a different shape than ML/MD workloads
 BEAST2 is fundamentally **single-chain MCMC**, which means:
 - The chain is **sequential** by definition — step *t+1* depends on step *t*. There is no intra-chain parallelism that scales linearly.
-- The only thing that parallelizes within a chain is the **per-step likelihood evaluation** (handled by [BEAGLE](https://github.com/beagle-dev/beagle-lib)). This caps out around 4–8 threads for typical alignments.
+- The only thing that parallelizes within a chain is the **per-step likelihood evaluation** (handled by [BEAGLE](https://github.com/beagle-dev/beagle-lib)). The right `-threads N` depends on the dataset: on the 690-pattern wild-aves HA BEAST2 XML, `-threads 1` is fastest on both CPU and GPU; on the 5535-taxa/1028-patterns BEAST1 XML, CPU `-threads 32` is the right call. **Default to `-threads 1` on single-partition DNA below ~1k patterns**; raise N only when patterns × states² per BEAGLE instance > ~10k (see [[beagle-gpu-tuning]] and [[beagle-tuning]]).
 - The standard "use more compute" patterns are **across chains**, not within: independent replicas, Metropolis-coupled chains (MC³), or lambda-window arrays for partition analyses.
 - Convergence is measured in MCMC steps and ESS, not wall time, so users routinely need **days to weeks** of runtime per chain. This is normal for the algorithm, not a deployment failure.
 
 This shapes every Betty decision: prefer Genoa CPU partitions, prefer many small jobs over one big one, plan for checkpoint-and-resume.
 
-## Availability on Betty (verify before relying on)
+## Availability on Betty (confirmed 2026-05-13)
 
-> **Status: tentative.** This page was written before a confirmed `module spider beast2` run. Before a production run, check:
-> ```bash
-> module spider beast2
-> module avail beast2
-> ```
-> If no module exists, the fallbacks (in preference order) are:
+Verified during the 2026-05-13 bench session ([[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]):
+- `beast2/2.7.7` is available via the `arch/b200` overspack chain on compute nodes (`ml arch/b200 && ml beast2`).
+- BEAGLE-CUDA 4.0.1 (pre-release) ships with that chain — the BEAST2 banner confirms it picks up `NVIDIA B200 …` automatically when invoked with `-beagle_GPU`.
+- **Do NOT load the `beagle/5.4` module** — that's an unrelated Browning genotype-phasing tool. The `libbeagle/3.1.2` module is CPU-only (no `libhmsbeagle-cuda.so`); use `arch/b200`'s BEAGLE for GPU.
+- See [[beagle-gpu-tuning]] for the QoS/precision/threads gotchas.
+
+If `arch/b200` isn't available on the partition you need, fallbacks (in preference order):
 > 1. **Official tarball** from [beast2.org](https://www.beast2.org/) into a project dir on VAST. Bundles a JRE; the `packagemanager` CLI assumes this layout. **This is the canonical install for BEAST2** — unlike GROMACS, the upstream distribution is "download and unpack," not a build.
 > 2. **Spack via overspack** (ask [[ryan-bradley]] — see `2026-04-10-ryb-overspack-deployment-docs`). Reasonable if multiple groups will share an install.
 > 3. **bioconda**: `mamba install -c bioconda beast2 beagle`. Works, but BEAST2 packages installed via `packagemanager` may end up in `~/.beast/2.7/` regardless of conda env, which can surprise users.
@@ -66,16 +69,30 @@ beast -threads $SLURM_CPUS_PER_TASK \
       -seed 42 \
       analysis.xml
 
+# Production run with BEAGLE-GPU (B200 MIG or full DGX)
+# NOTE: -threads 1 on GPU is intentional — see "ThreadedTreeLikelihood gotcha" below.
+# NOTE: -beagle_double is mandatory for trees with >~3000 taxa to avoid FP32 underflow.
+beast -threads 1 \
+      -beagle_GPU -beagle_double \
+      -seed 42 \
+      analysis.xml
+
 # Resume a chain from its last checkpoint
 beast -resume -threads $SLURM_CPUS_PER_TASK analysis.xml
 ```
 
 Key flags:
 - `-resume` reads the `.state` file written every `storeEvery` steps. **Essential** for multi-week runs broken into wall-time chunks.
-- `-threads N` controls BEAGLE's likelihood-evaluation parallelism. Match to `--cpus-per-task`. Diminishing returns past 4–8 for typical alignments.
-- `-beagle_CPU -beagle_SSE` for CPU partitions; switch to `-beagle_GPU -beagle_CUDA` only on a MIG slice with a verified BEAGLE-CUDA build.
+- `-threads N` controls BEAGLE's likelihood-evaluation parallelism. **For `<distribution spec="ThreadedTreeLikelihood">` XMLs, `-threads N` shards patterns across N BEAGLE instances** — always use `-threads 1` on GPU. On CPU, use many threads when patterns × states² per shard > ~10k (e.g. 5535-taxa/1028-patterns BEAST1); use `-threads 1` when patterns are sparse (e.g. 690-pattern BEAST2 wild-aves HA — `-threads 6` was 1.58× *slower* than `-threads 1` on CPU there). See *ThreadedTreeLikelihood gotcha* below.
+- `-beagle_CPU -beagle_SSE` for CPU partitions; `-beagle_GPU -beagle_double` for GPU with deep trees.
 - `-seed N` always set explicitly so independent replicas are reproducible.
 - `-statefile <path>` only if you want to relocate the checkpoint outside the run dir.
+
+## ThreadedTreeLikelihood gotcha (the BEAST2 "GPU 2× slower" trap)
+
+If your XML has `<distribution ... spec="ThreadedTreeLikelihood">` (common in TargetedBeast and many template-generated XMLs), BEAST2's `-threads N` flag **shards the alignment's site patterns across N independent BEAGLE instances**, not "uses N threads to drive one instance." Each instance pays its own kernel-launch overhead per MCMC step.
+
+Concrete example from the 2026-05-13 bench session ([[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]) with the completed numbers from [[2026-05-15-beast2-ha-wild-aves-bench]]: an XML with 690 unique patterns invoked with `-threads 6` produced 6 BEAGLE GPU instances of ~115 patterns each. For 4-state DNA, GPU only beats CPU+SSE once an instance has ≳10k patterns — below that, kernel overhead dominates. Measured: `-threads 6 -beagle_GPU` 35.7 min/Msample → `-threads 1 -beagle_GPU` 15.8 min/Msample (2.26× speedup), and `-threads 1 -beagle_CPU -beagle_SSE` 14.2 min/Msample (best). On this dataset CPU `-threads 6` *also* suffered (22.4 min/Msample, 1.58× slower than CPU `-threads 1`) — the fragmentation overhead hits CPU too at low pattern counts. The general rule is `-threads 1` always on GPU and on CPU below ~1k patterns; raise N on CPU when there's enough work per shard to amortize the coordination. Full reasoning in [[beagle-gpu-tuning]] and [[beagle-tuning]].
 
 ## Heap sizing (the BEAST2-specific gotcha)
 BEAST2 launches a JVM. The default heap is small. Long chains with many parameters or partitions OOM silently with cryptic errors. Always set:
@@ -91,12 +108,14 @@ Rule of thumb: heap = (Slurm `--mem`) − 4 GB for OS/BEAGLE buffers. If users r
 
 | Workload                                   | Suggested partition              | Why                                              |
 |--------------------------------------------|----------------------------------|--------------------------------------------------|
-| Most BEAST2 chains (small/medium alignment) | [[genoa-std-mem-partition]]      | CPU-bound MCMC; 4–8 threads is the sweet spot   |
+| Small alignment (<1000 patterns), 1 partition | [[genoa-std-mem-partition]]   | GPU overhead-bound; CPU+SSE wins                 |
+| Medium-large alignment, deep tree (>1000 taxa, ≥1k patterns in one BEAGLE instance) | [[b200-mig90-partition]]  | Measured 1.73× over 32-core CPU; mig90 ≈ full B200 |
+| Very deep tree (>3000 taxa) on GPU         | [[b200-mig90-partition]] + `-beagle_double` | FP64 required to avoid underflow            |
 | Large heap (>100GB), many partitions       | [[genoa-lrg-mem-partition]]      | ~1TB nodes accommodate big JVM heaps             |
-| Very large alignments where BEAGLE-GPU pays off | [[b200-mig45-partition]]    | Cheap MIG slice; verify CUDA-BEAGLE build first  |
+| Many-partition XML (e.g. ~100 patterns/partition) | [[genoa-std-mem-partition]]  | GPU is overhead-bound; consider XML consolidation first |
 | `LogCombiner` / `TreeAnnotator` / Tracer   | [[genoa-std-mem-partition]]      | Post-processing is single-threaded               |
 
-**GPU caveat**: BEAGLE-GPU helps when likelihood evaluation dominates the per-step cost — large nucleotide alignments, codon models, or many partitions. For small alignments or skyline-style coalescent analyses, GPU is often *slower* than `-beagle_CPU -beagle_SSE` due to host↔device transfer overhead. **Always benchmark a 10k-step run on both before committing**.
+**GPU when-it-helps rule of thumb (verified 2026-05-13)**: ≥1k patterns per BEAGLE instance for 4-state DNA, ≥1000-taxon tree, and a single-partition XML (or `-threads 1` to consolidate). Half-GPU (`b200-mig90`) is indistinguishable from a full B200 for this workload — pick the MIG slice. For QoS use `--qos=mig-max`, NOT `--qos=mig` (the latter is currently saturated). See [[beagle-gpu-tuning]] for the full decision tree and the FP32 underflow trap for deep trees.
 
 ## The checkpoint-and-chain pattern (for runs >7 days)
 
@@ -130,6 +149,7 @@ A ready-to-use Slurm template lives at `betty-ai/templates/slurm/beast2_resume.s
   This is also the cheapest convergence diagnostic — if independent chains give different posteriors, the model isn't converged.
 - **Metropolis-coupled MCMC (MC³)** via the [CoupledMCMC](https://github.com/nicfel/CoupledMCMC) BEAST2 package. Multiple chains at different temperatures swap states; can accelerate *convergence* (not just throughput) on multimodal posteriors. Install with `packagemanager -add CoupledMCMC`.
 - **Path-sampling / stepping-stone** (model comparison) → lambda windows as array tasks; each task a short independent chain.
+- **Multi-chain on one GPU via CUDA MPS** → for the standard 4-chain convergence diagnostics workflow, packing 4 chains on one B200 with `CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=25` is ~10% faster aggregate than 4× single-core CPU multiproc (4.05 vs 4.48 min/Msample on the wild-aves HA dataset; CPU multiproc loses to L3+DRAM contention while MPS chains stay isolated on separate SM partitions). Full recipe and gotchas in [[cuda-mps]]; measured in [[2026-05-15-beast2-ha-wild-aves-bench]].
 
 ## Storage discipline (same rules as any Betty workload)
 - Trajectories of `.trees` and `.log` files can grow to **tens of GB** for long chains — write to `/vast/projects/<project>/runs/<exp>/`, never `$HOME` ([[vast-storage]]).
@@ -154,15 +174,25 @@ When a new BEAST2 module/tarball appears, run a short sanity benchmark before pr
 - Archive the benchmark output and `beast.log` under `wiki/experiments/` so future users can compare BEAST2 versions and BEAGLE backends.
 
 ## See also
+- [[beast1-on-betty]] — sibling page; checkpointing requires `-save_every` on initial run
+- [[beagle-gpu-tuning]] — GPU when-it-helps decision tree, FP64 / threads-1 / QoS gotchas
+- [[beagle-tuning]] — general BEAGLE flag reference (CPU + GPU), including the `-openmpi` module gotcha
+- [[cuda-mps]] — multi-chain GPU sharing recipe (4-chain BEAST2 MPS pattern)
+- [[beast-checkpointing]] — BEAST1 vs BEAST2 restart procedures side-by-side
 - [[beast-phylonco]] — single-cell phylogenetics package; how to install and run on top of BEAST2
+- [[vast-group-permissions]] — diagnosing cross-group input-file access (the BEAST2 XML access blocker from 2026-05-13)
+- [[2026-05-15-beast2-ha-wild-aves-bench]] — full 15-cell bench matrix; CPU `-threads 1` single-chain winner, GPU MPS multi-chain winner
+- [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 case, GPU 1.73× with `-beagle_double`
 - [[genoa-std-mem-partition]]
 - [[genoa-lrg-mem-partition]]
 - [[b200-mig45-partition]]
+- [[b200-mig90-partition]]
+- [[dgx-b200-partition]]
 - [[vast-storage]]
 - [[slurm-on-betty]]
 - [[betty-software-deployment]]
 
 ## Sources
-<!-- No cited sources yet — page seeded from general BEAST2 + Betty cluster knowledge.
-     Next ingest should attach a real `module spider beast2` capture, a tarball install log,
-     or a benchmark run from the phylonco group. -->
+- [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — measured 1.73× GPU speedup, ThreadedTreeLikelihood fragmentation trap, FP64 / QoS / module gotchas confirmed
+- [[2026-05-15-beast2-ha-wild-aves-bench]] — completed BEAST2 ladder results (jobs 5743516-5743519 in the original source) plus 4-chain MPS comparison
+- [[2026-05-15-beast1-5535-taxa-bench]] — BEAST1 deep-tree bench
