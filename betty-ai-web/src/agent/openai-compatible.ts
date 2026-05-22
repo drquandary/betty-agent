@@ -48,7 +48,7 @@ type ChatMessage =
     }
   | { role: 'tool'; tool_call_id: string; content: string };
 
-const MAX_TOOL_ITERATIONS = 6;
+const MAX_TOOL_ITERATIONS = 8;
 
 function resolveApiKey(preferences: ChatPreferences): string | undefined {
   if (preferences.provider === 'openai') return process.env.OPENAI_API_KEY;
@@ -94,12 +94,20 @@ export async function* runOpenAICompatibleQuery(
     // we can dispatch cleanly. For the last iteration's text we stream.
     // Strategy: first try non-streaming to see if tool_calls appear; if not,
     // we have a complete text body already — just emit it as one delta.
+    // On the final permitted iteration, force tool_choice:'none' so the model
+    // MUST answer in prose using the tool results it has already gathered,
+    // rather than requesting yet another tool and dead-ending on the budget.
+    // This makes the "budget exhausted" error effectively unreachable.
+    const isFinalIteration = iter === MAX_TOOL_ITERATIONS - 1;
     const body = {
       model: preferences.model,
       messages,
       temperature: 0.2,
       ...(toolsEnabled
-        ? { tools: OPENAI_TOOLS, tool_choice: 'auto' as const }
+        ? {
+            tools: OPENAI_TOOLS,
+            tool_choice: (isFinalIteration ? 'none' : 'auto') as 'none' | 'auto',
+          }
         : { stream: true }),
     };
 

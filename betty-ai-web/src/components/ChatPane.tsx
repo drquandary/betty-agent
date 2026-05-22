@@ -214,6 +214,23 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
         ]);
       } else if (event.type === 'error') {
         setError(event.message);
+        // Don't leave an empty, perpetually-"streaming" assistant bubble. Stop
+        // its streaming state and, if it has no content yet, surface the error
+        // inline so the user sees what happened instead of an endless "…".
+        setMessages((ms) => {
+          const copy = [...ms];
+          for (let i = copy.length - 1; i >= 0; i--) {
+            if (copy[i].role === 'assistant' && copy[i].streaming) {
+              copy[i] = {
+                ...copy[i],
+                streaming: false,
+                content: copy[i].content || `⚠️ ${event.message}`,
+              };
+              break;
+            }
+          }
+          return copy;
+        });
       }
       // 'done', 'system', 'tool' events are acknowledged but not rendered in Phase 1
     }
