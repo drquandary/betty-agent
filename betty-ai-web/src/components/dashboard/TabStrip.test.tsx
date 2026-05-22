@@ -3,11 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { TabStrip } from './TabStrip';
 
 describe('TabStrip', () => {
-  it('renders four tabs: Dashboard, Commands, Monitoring, Workspace', () => {
+  it('renders five tabs: Dashboard, Commands, Monitoring, Legend, Workspace', () => {
     render(<TabStrip current="dashboard" onChange={() => {}} />);
     expect(screen.getByRole('tab', { name: /Dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Commands/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Monitoring/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /Legend/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Workspace/i })).toBeInTheDocument();
   });
 
@@ -34,5 +35,7 @@ describe('TabStrip', () => {
     expect(onChange).toHaveBeenCalledWith('monitoring');
     fireEvent.click(screen.getByRole('tab', { name: /Workspace/i }));
     expect(onChange).toHaveBeenCalledWith('workspace');
+    fireEvent.click(screen.getByRole('tab', { name: /Legend/i }));
+    expect(onChange).toHaveBeenCalledWith('legend');
   });
 });

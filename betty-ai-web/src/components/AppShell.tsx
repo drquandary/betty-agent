@@ -10,11 +10,13 @@ import { TerminalPane } from './TerminalPane';
 import { ChatPane } from './ChatPane';
 import { WikiLintButton } from './WikiLintButton';
 import { ClusterOverviewCard } from './dashboard/ClusterOverviewCard';
+import { ClusterTotalsStrip } from './dashboard/ClusterTotalsStrip';
 import { UserStatsCard } from './dashboard/UserStatsCard';
 import { SchedulingCard } from './dashboard/SchedulingCard';
 import { DocsLinksCard } from './dashboard/DocsLinksCard';
 import { DashboardChatPanel } from './dashboard/DashboardChatPanel';
 import { CommandsView } from './dashboard/CommandsView';
+import { LegendCard } from './dashboard/LegendCard';
 import { MonitoringView } from './monitoring/MonitoringView';
 import { TabStrip, isDashboardView, type DashboardView } from './dashboard/TabStrip';
 
@@ -100,6 +102,7 @@ export function AppShell({ deployTarget, initialView }: Props) {
           className="scroll-custom flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/10 via-transparent to-transparent px-4 py-4 md:px-6 md:py-6"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-4">
+            <ClusterTotalsStrip />
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <ClusterOverviewCard />
               <UserStatsCard />
@@ -120,6 +123,17 @@ export function AppShell({ deployTarget, initialView }: Props) {
       {view === 'commands' && <CommandsView />}
 
       {view === 'monitoring' && <MonitoringView />}
+
+      {view === 'legend' && (
+        <main
+          data-testid="legend-view"
+          className="scroll-custom flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-6"
+        >
+          <div className="mx-auto max-w-6xl">
+            <LegendCard />
+          </div>
+        </main>
+      )}
 
       {view === 'workspace' && (
         <main

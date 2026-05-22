@@ -139,6 +139,13 @@ export function FairshareCard({ fetcher }: Props = {}) {
         </div>
       </header>
 
+      {/*
+        Factor legend rendered above the chart so it's visible even when
+        there are no pending jobs to show. Users learn what the colors mean
+        before they ever see the stacked bar.
+      */}
+      <FactorKey />
+
       {loading ? (
         <div className="py-6 text-center text-[11.5px] text-zinc-600">checking sprio...</div>
       ) : payload && !payload.ok ? (
@@ -154,23 +161,41 @@ export function FairshareCard({ fetcher }: Props = {}) {
         <div className="flex flex-col gap-2">
           <StackedBar
             groups={groups}
-            legend
+            legend={false}
             height={Math.max(120, 22 * groups.length + 26)}
             ariaLabel="Priority decomposition per pending job"
           />
-          <div className="flex flex-wrap gap-2 border-t border-white/5 pt-2 text-[10px]">
-            {FACTOR_ORDER.map((k) => (
-              <span key={k} className="flex items-center gap-1.5 text-zinc-400">
-                <span
-                  className="inline-block h-2 w-2 rounded-sm"
-                  style={{ backgroundColor: FACTOR_COLORS[k] }}
-                />
-                <span className="uppercase tracking-wider">{k}</span>
-              </span>
-            ))}
-          </div>
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Always-visible factor legend. Shown above the chart so users see what each
+ * color means even when there are no pending jobs.
+ */
+function FactorKey() {
+  const meanings: Record<typeof FACTOR_ORDER[number], string> = {
+    age: 'time waited',
+    fairshare: 'account usage',
+    jobSize: 'requested size',
+    qos: 'QOS priority',
+    other: 'leftover',
+  };
+  return (
+    <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[10.5px]">
+      <span className="text-[9.5px] uppercase tracking-wider text-zinc-500">Legend</span>
+      {FACTOR_ORDER.map((k) => (
+        <span key={k} className="flex items-center gap-1.5 text-zinc-300">
+          <span
+            className="inline-block h-2 w-2 rounded-sm ring-1 ring-white/10"
+            style={{ backgroundColor: FACTOR_COLORS[k] }}
+          />
+          <span className="font-medium">{k}</span>
+          <span className="text-zinc-500">· {meanings[k]}</span>
+        </span>
+      ))}
+    </div>
   );
 }

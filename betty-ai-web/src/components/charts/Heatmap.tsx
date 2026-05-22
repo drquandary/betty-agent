@@ -20,6 +20,10 @@ export interface HeatmapProps {
   columnLabels?: string[];
   /** Override the default value→color mapping. */
   colorScale?: (v: number) => string;
+  /** Pixel width/height of each cell. Defaults to 18. Use smaller values when
+   * rendering wide rows (e.g. 64+ nodes) inside a fixed-width container so
+   * the SVG fits without horizontal scroll. */
+  cellSize?: number;
   ariaLabel?: string;
 }
 
@@ -33,10 +37,11 @@ export function Heatmap({
   rows,
   columnLabels,
   colorScale,
+  cellSize: cellSizeOverride,
   ariaLabel,
 }: HeatmapProps) {
   const labelGutter = 70;
-  const cellSize = 18;
+  const cellSize = cellSizeOverride ?? 18;
   const cellGap = 2;
   const padTop = columnLabels && columnLabels.length > 0 ? 18 : 6;
   const padBottom = 4;

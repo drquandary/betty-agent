@@ -59,7 +59,8 @@ describe('GET /api/cluster/sprio', () => {
     await GET();
     expect(runRemoteParseable).toHaveBeenCalledTimes(1);
     const cmd = runRemoteParseable.mock.calls[0][0] as string;
-    expect(cmd.startsWith('sprio -hl -u service_user ')).toBe(true);
+    // -l was dropped (sprio rejects it alongside -o); -h still suppresses the header.
+    expect(cmd.startsWith('sprio -h -u service_user ')).toBe(true);
     expect(cmd).toContain('%i|%a|%Y|%A|%F|%J|%P|%Q|%T|%c|%r');
   });
 

@@ -160,8 +160,20 @@ export function NodeHeatmapCard({ fetcher }: Props = {}) {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {/*
+            Always-visible state-color key. The StackedBar below also renders
+            a legend, but at narrow column widths it truncates ("mix idle alloc
+            drain m..."). Hoisting the full key up here means users always see
+            what every color means before scanning the heatmap.
+          */}
+          <StateKey />
+          {/*
+            cellSize=12 so the widest partition (genoa-std-mem, 64 nodes)
+            fits inside the full-width card without horizontal scroll:
+            70 (label gutter) + 64 * (12+2) + 6 = 972 px, well under max-w-6xl.
+          */}
           <div className="-mx-1 overflow-x-auto">
-            <Heatmap rows={heatmapRows} ariaLabel="Nodes by partition" />
+            <Heatmap rows={heatmapRows} cellSize={12} ariaLabel="Nodes by partition" />
           </div>
           <div className="border-t border-white/5 pt-2">
             <div className="mb-1 text-[10px] uppercase tracking-wider text-zinc-500">
@@ -178,4 +190,48 @@ export function NodeHeatmapCard({ fetcher }: Props = {}) {
       )}
     </section>
   );
+}
+
+/**
+ * Compact, wrap-friendly state-color key shown above the heatmap.
+ * Order matches STATE_ORDER so users see colors in the same sequence the
+ * heatmap will use.
+ */
+function StateKey() {
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[10.5px]">
+      <span className="text-[9.5px] uppercase tracking-wider text-zinc-500">Legend</span>
+      {STATE_ORDER.map((s) => (
+        <span key={s} className="flex items-center gap-1.5 text-zinc-300">
+          <span
+            className="inline-block h-2 w-2 rounded-sm ring-1 ring-white/10"
+            style={{ backgroundColor: stateColor(s) }}
+          />
+          <span className="font-medium">{s}</span>
+          <span className="text-zinc-500">{stateMeaning(s)}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function stateMeaning(state: NodeBaseState): string {
+  switch (state) {
+    case 'idle':
+      return '· free';
+    case 'mix':
+      return '· partial';
+    case 'alloc':
+      return '· full';
+    case 'drain':
+      return '· draining';
+    case 'down':
+      return '· offline';
+    case 'maint':
+      return '· maint';
+    case 'resv':
+      return '· reserved';
+    case 'other':
+      return '';
+  }
 }
