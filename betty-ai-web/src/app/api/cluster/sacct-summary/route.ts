@@ -74,7 +74,11 @@ export async function GET(req: NextRequest) {
   const { hours } = resolved;
   const { user } = validated;
   try {
-    const cmd = `sacct -P -X -S now-${hours}hours -E now -u ${user} -o "JobID|State|End|Elapsed|Partition|ReqTRES"`;
+    // sacct's --format takes comma-separated field names; the `-P` flag is
+    // what makes the *output* pipe-delimited. Passing pipes inside -o was
+    // interpreted as a single bogus field name and rejected with "Invalid
+    // field requested".
+    const cmd = `sacct -P -X -S now-${hours}hours -E now -u ${user} -o "JobID,State,End,Elapsed,Partition,ReqTRES"`;
     const res = await runRemoteParseable(cmd);
     if (res.exit !== 0) {
       return NextResponse.json(

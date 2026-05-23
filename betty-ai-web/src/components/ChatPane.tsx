@@ -46,17 +46,34 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const dispatchedPromptRef = useRef<string | null>(null);
+  // Latest messages/busy mirrored into refs so `send` can stay a *stable*
+  // callback (empty deps). Without this, send's identity changed on every
+  // message update, which re-ran the initialPrompt effect mid-stream and
+  // raced with the rehydrate effect — clobbering the transcript back to empty.
+  const messagesRef = useRef<DisplayMessage[]>([]);
+  const busyRef = useRef(false);
+  const rehydratedRef = useRef(false);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   // Rehydrate messages from localStorage on mount. We deliberately skip any
   // "streaming" messages from a prior session — those are partial and would
   // confuse the UI; losing a torn-off streaming message is acceptable.
+  // Guarded by a ref so React StrictMode's double-invoke (dev) can't run it a
+  // second time and overwrite an in-flight conversation with stale storage.
   useEffect(() => {
+    if (rehydratedRef.current) return;
+    rehydratedRef.current = true;
     try {
       const raw = window.localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as DisplayMessage[];
       if (Array.isArray(parsed)) {
-        setMessages(parsed.filter((m) => !m.streaming));
+        const cleaned = parsed.filter((m) => !m.streaming);
+        messagesRef.current = cleaned;
+        setMessages(cleaned);
       }
     } catch {
       /* corrupt storage — ignore */
@@ -81,6 +98,7 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
   }, [messages]);
 
   const clearHistory = useCallback(() => {
+    messagesRef.current = [];
     setMessages([]);
     setError(null);
     try {
@@ -92,14 +110,18 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
 
   const send = useCallback(async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || busy) return;
+    if (!trimmed || busyRef.current) return;
 
     setError(null);
     const userMsg: DisplayMessage = { role: 'user', content: trimmed };
     const assistantMsg: DisplayMessage = { role: 'assistant', content: '', streaming: true };
-    const nextHistory: DisplayMessage[] = [...messages, userMsg, assistantMsg];
+    // Base off the ref (always current) rather than a captured `messages`,
+    // so the callback can stay stable and never appends to a stale array.
+    const nextHistory: DisplayMessage[] = [...messagesRef.current, userMsg, assistantMsg];
+    messagesRef.current = nextHistory;
     setMessages(nextHistory);
     setInput('');
+    busyRef.current = true;
     setBusy(true);
 
     try {
@@ -162,6 +184,7 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
       setError(msg);
       setMessages((ms) => ms.filter((m) => !(m.role === 'assistant' && m.streaming)));
     } finally {
+      busyRef.current = false;
       setBusy(false);
       inputRef.current?.focus();
     }
@@ -191,10 +214,27 @@ export function ChatPane({ initialPrompt, onInitialPromptConsumed }: ChatPanePro
         ]);
       } else if (event.type === 'error') {
         setError(event.message);
+        // Don't leave an empty, perpetually-"streaming" assistant bubble. Stop
+        // its streaming state and, if it has no content yet, surface the error
+        // inline so the user sees what happened instead of an endless "…".
+        setMessages((ms) => {
+          const copy = [...ms];
+          for (let i = copy.length - 1; i >= 0; i--) {
+            if (copy[i].role === 'assistant' && copy[i].streaming) {
+              copy[i] = {
+                ...copy[i],
+                streaming: false,
+                content: copy[i].content || `⚠️ ${event.message}`,
+              };
+              break;
+            }
+          }
+          return copy;
+        });
       }
       // 'done', 'system', 'tool' events are acknowledged but not rendered in Phase 1
     }
-  }, [messages, busy]);
+  }, []);
 
   // Drain initialPrompt exactly once. Re-renders that pass the same string
   // value through don't re-trigger; the parent must mutate the prop value

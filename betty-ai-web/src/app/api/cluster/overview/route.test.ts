@@ -1,68 +1,81 @@
 import { describe, expect, it } from 'vitest';
-import { parseSinfoOverview } from './parse';
+import { parseSfree, extractJsonArray } from './parse';
 
-describe('parseSinfoOverview', () => {
-  it('returns [] on empty input', () => {
-    expect(parseSinfoOverview('')).toEqual([]);
+function sfreeJson(rows: Array<Record<string, unknown>>): string {
+  // Simulate real stdout: shell/MOTD noise before the JSON array.
+  return `Lmod reloaded modules\nsome motd line\n${JSON.stringify(rows)}\n`;
+}
+
+describe('extractJsonArray', () => {
+  it('slices the JSON array out of noisy stdout', () => {
+    expect(extractJsonArray('garbage\n[1,2,3]\ntrailer')).toBe('[1,2,3]');
+  });
+  it('returns null when no array present', () => {
+    expect(extractJsonArray('no json here')).toBeNull();
+  });
+});
+
+describe('parseSfree', () => {
+  it('returns [] on empty / non-JSON input', () => {
+    expect(parseSfree('')).toEqual([]);
+    expect(parseSfree('not json')).toEqual([]);
   });
 
-  it('aggregates idle / total GPUs across nodes', () => {
-    const stdout = [
-      'dgx-b200|2|idle|gpu:b200:8|0/192/0/192',
-      'dgx-b200|3|allocated|gpu:b200:8|288/0/0/288',
-    ].join('\n');
-    const rows = parseSinfoOverview(stdout);
-    expect(rows).toHaveLength(1);
-    const p = rows[0];
+  it('maps parcc_sfree fields to PartitionSummary', () => {
+    const stdout = sfreeJson([
+      {
+        partition: 'dgx-b200',
+        nodes: 27,
+        cpu_free: 2302,
+        cpu_total: 6048,
+        mem_free_gb: 19576,
+        mem_total_gb: 55725,
+        gpu_free: 32,
+        gpu_total: 216,
+        down_cpu: 1120,
+        down_mem_gb: 10319,
+        down_gpu: 40,
+      },
+    ]);
+    const [p] = parseSfree(stdout);
     expect(p.partition).toBe('dgx-b200');
-    expect(p.nodesIdle).toBe(2);
-    expect(p.nodesTotal).toBe(5);
-    expect(p.gpusIdle).toBe(16); // 2 idle nodes * 8 GPUs
-    expect(p.gpusTotal).toBe(40); // 5 nodes * 8 GPUs
-    expect(p.cpusAlloc).toBe(288);
-    expect(p.cpusIdle).toBe(192);
-    expect(p.cpusTotal).toBe(480);
+    expect(p.nodesTotal).toBe(27);
+    expect(p.gpusIdle).toBe(32);
+    expect(p.gpusTotal).toBe(216);
+    expect(p.downGpu).toBe(40);
+    expect(p.cpusIdle).toBe(2302);
+    expect(p.cpusTotal).toBe(6048);
+    expect(p.cpusOther).toBe(1120); // down cpus
+    expect(p.cpusAlloc).toBe(6048 - 2302 - 1120);
+    expect(p.memFreeGb).toBe(19576);
+    expect(p.memTotalGb).toBe(55725);
   });
 
-  it('parses MIG GRES strings', () => {
-    const stdout = 'dgx-b200-mig|1|idle|gpu:b200_mig45_g:32|0/256/0/256';
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.gpusIdle).toBe(32);
-    expect(row.gpusTotal).toBe(32);
+  it('counts free MIG slices directly from gpu_free (the bug fix)', () => {
+    const stdout = sfreeJson([
+      { partition: 'b200-mig90', nodes: 1, gpu_free: 15, gpu_total: 16, cpu_free: 210, cpu_total: 224 },
+    ]);
+    const [row] = parseSfree(stdout);
+    expect(row.gpusIdle).toBe(15);
+    expect(row.gpusTotal).toBe(16);
   });
 
-  it('strips trailing * from default partition marker', () => {
-    const stdout = 'compute*|4|idle|(null)|0/96/0/96';
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.partition).toBe('compute');
-    expect(row.gpusTotal).toBe(0);
+  it('drops the (no-partition) bucket', () => {
+    const stdout = sfreeJson([
+      { partition: '(no-partition)', nodes: 2, gpu_free: 0, gpu_total: 0 },
+      { partition: 'dgx-b200', nodes: 27, gpu_free: 32, gpu_total: 216 },
+    ]);
+    expect(parseSfree(stdout).map((r) => r.partition)).toEqual(['dgx-b200']);
   });
 
-  it('skips malformed rows but keeps good ones', () => {
-    const stdout = [
-      'garbage line',
-      'dgx-b200|1|idle|gpu:b200:8|0/192/0/192',
-      '|||',
-    ].join('\n');
-    const rows = parseSinfoOverview(stdout);
-    expect(rows).toHaveLength(1);
-    expect(rows[0].partition).toBe('dgx-b200');
-  });
-
-  it('sorts partitions alphabetically', () => {
-    const stdout = [
-      'zzz|1|idle|gpu:a:1|0/1/0/1',
-      'aaa|1|idle|gpu:a:1|0/1/0/1',
-    ].join('\n');
-    expect(parseSinfoOverview(stdout).map((r) => r.partition)).toEqual(['aaa', 'zzz']);
-  });
-
-  it('counts a "mix" node toward total but not idle GPUs', () => {
-    const stdout = 'compute|1|mix|gpu:a:4|2/2/0/4';
-    const [row] = parseSinfoOverview(stdout);
-    expect(row.nodesTotal).toBe(1);
-    expect(row.nodesIdle).toBe(0);
-    expect(row.gpusTotal).toBe(4);
-    expect(row.gpusIdle).toBe(0);
+  it('sorts partitions alphabetically and defaults missing fields to 0', () => {
+    const stdout = sfreeJson([
+      { partition: 'zzz' },
+      { partition: 'aaa' },
+    ]);
+    const rows = parseSfree(stdout);
+    expect(rows.map((r) => r.partition)).toEqual(['aaa', 'zzz']);
+    expect(rows[0].gpusTotal).toBe(0);
+    expect(rows[0].memFreeGb).toBe(0);
   });
 });

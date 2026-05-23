@@ -19,8 +19,11 @@ export async function GET() {
   }
   const { user } = validated;
   try {
+    // sprio refuses `-l` and `-o` together ("mutually exclusive"). The `-o`
+    // format already returns every column we need, so drop `-l` and keep
+    // `-h` to suppress the header row.
     const res = await runRemoteParseable(
-      `sprio -hl -u ${user} -o "${SPRIO_FORMAT}"`,
+      `sprio -h -u ${user} -o "${SPRIO_FORMAT}"`,
     );
     if (res.exit !== 0) {
       return NextResponse.json(

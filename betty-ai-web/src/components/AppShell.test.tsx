@@ -24,6 +24,12 @@ vi.mock('./dashboard/ClusterOverviewCard', () => ({
 vi.mock('./dashboard/UserStatsCard', () => ({
   UserStatsCard: () => <div data-testid="user-stats-card" />,
 }));
+vi.mock('./dashboard/ClusterTotalsStrip', () => ({
+  ClusterTotalsStrip: () => <div data-testid="cluster-totals-strip" />,
+}));
+vi.mock('./dashboard/LegendCard', () => ({
+  LegendCard: () => <div data-testid="legend-card" />,
+}));
 vi.mock('./dashboard/DocsLinksCard', () => ({
   DocsLinksCard: () => <div data-testid="docs-links-card" />,
 }));

@@ -89,6 +89,17 @@ Follow the YAML frontmatter + markdown format in `wiki/SCHEMA.md`.
 Use `[[wiki-link]]` syntax for cross-references. Create bidirectional links.
 Never duplicate data from `betty-ai/*.yaml` — link to those files instead.
 
+## Available MCP tools
+
+When running in the web GUI, the Betty Agent SDK registers the following MCP tools (see `betty-ai-web/src/agent/tools/` for source):
+
+- **Knowledge:** `wiki_search`, `wiki_read`, `wiki_write`
+- **Compute planning:** `gpu_calculate`
+- **Cluster execution:** `cluster_run` (whitelisted read-only commands), `cluster_submit` (sbatch + auto-file experiment page), `cluster_status` (sacct/squeue polling)
+- **SLURM Advisor:** `slurm_availability`, `slurm_check`, `slurm_diagnose`, `slurm_recommend` — see [`BETTY_SLURM_ADVISOR_REPORT.md`](../../BETTY_SLURM_ADVISOR_REPORT.md) for the full architecture and the verbatim-paste contract
+
+The CLI persona (this file) uses the Read/Write/Edit/Bash toolset declared in the frontmatter above — those are Claude Code harness tools, not the MCP tools.
+
 ## Conversation Protocol
 
 ### Step 1: Intake

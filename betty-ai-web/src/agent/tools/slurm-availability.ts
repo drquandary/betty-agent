@@ -53,7 +53,10 @@ async function fetchSnapshot(): Promise<SnapshotInput> {
     privacy_posture: 'squeue-aggregated-no-per-job-data',
   };
 
-  // sinfo — partition-level GPU availability
+  // sinfo — partition-level GPU availability + node counts (the latter feeds
+  // the reservation parser so it can tell whole-partition maintenance apart
+  // from a single-node patch).
+  let nodesByPartition: Record<string, number> = {};
   try {
     const { stdout, exit } = await runRemote('sinfo -h -o "%P|%D|%T|%G"');
     if (exit === 0) {
@@ -61,6 +64,7 @@ async function fetchSnapshot(): Promise<SnapshotInput> {
       if (sinfo) {
         snap.gpus_idle_by_partition = sinfo.gpus_idle_by_partition;
         snap.gpus_total_by_partition = sinfo.gpus_total_by_partition;
+        nodesByPartition = sinfo.nodes_total_by_partition;
         snap.sources.push('sinfo');
       }
     }
@@ -81,7 +85,7 @@ async function fetchSnapshot(): Promise<SnapshotInput> {
   try {
     const { stdout, exit } = await runRemote('scontrol show res');
     if (exit === 0) {
-      const reservations = parseScontrolReservations(stdout);
+      const reservations = parseScontrolReservations(stdout, nodesByPartition);
       snap.blackouts = reservations;
       if (reservations.length > 0) {
         snap.sources.push('scontrol show res');
@@ -151,7 +155,10 @@ interface SqueueStartParse {
  * field apply globally (partition: undefined). MAINT-flagged reservations
  * are explicitly labeled in the reason. Exposed for unit tests.
  */
-export function parseScontrolReservations(text: string): Array<{
+export function parseScontrolReservations(
+  text: string,
+  nodesByPartition: Record<string, number> = {},
+): Array<{
   start: string;
   end: string;
   partition?: string;
@@ -172,15 +179,37 @@ export function parseScontrolReservations(text: string): Array<{
     if (!start || !end || start === '(null)' || end === '(null)') continue;
     const name = fields.ReservationName || 'reservation';
     const flags = fields.Flags || '';
-    const reason = flags.includes('MAINT')
-      ? `${name} (MAINT)`
-      : flags.includes('FLEX')
-      ? `${name} (FLEX)`
-      : name;
+    const nodeCnt = Number.parseInt(fields.NodeCnt ?? '', 10);
     // PartitionName="" or "(null)" means global; `undefined` partition in
     // BlackoutWindow signals "applies to all partitions".
     const partRaw = fields.PartitionName;
     const partition = partRaw && partRaw !== '(null)' && partRaw !== '' ? partRaw : undefined;
+
+    // A reservation only makes a partition UNBOOKABLE when maintenance covers
+    // the WHOLE partition (or whole cluster). A node-scoped reservation — one
+    // node being patched, or a group holding a few nodes — just reduces
+    // capacity; the partition still schedules on its other nodes, and sinfo's
+    // idle count already reflects them. Treating those as blackouts made the
+    // calendar return zero slots whenever any 1-node patch existed.
+    //
+    // We avoid an arbitrary node-count threshold: a reservation is a blackout
+    // iff it's MAINT-flagged AND either
+    //   - ALL_NODES is set (Slurm's flag for "covers every node"), or
+    //   - it names a partition AND reserves at least that partition's full
+    //     node count (so a 1-node MIG-partition maintenance still counts,
+    //     while a 1-of-27 patch on dgx-b200 does not).
+    // When the partition's size is unknown (sinfo unavailable), only the
+    // unambiguous ALL_NODES case blacks out.
+    if (!flags.includes('MAINT')) continue;
+    const partitionTotal = partition ? nodesByPartition[partition] : undefined;
+    const coversPartition =
+      partition != null &&
+      partitionTotal != null &&
+      partitionTotal > 0 &&
+      Number.isFinite(nodeCnt) &&
+      nodeCnt >= partitionTotal;
+    if (!flags.includes('ALL_NODES') && !coversPartition) continue;
+    const reason = `${name} (MAINT)`;
     blackouts.push({ start, end, partition, reason });
   }
   return blackouts;
@@ -224,9 +253,12 @@ export function parseSqueueStart(text: string): SqueueStartParse {
  */
 export function parseSinfoForAvailability(
   text: string,
-): Pick<SnapshotInput, 'gpus_idle_by_partition' | 'gpus_total_by_partition'> | null {
+): (Pick<SnapshotInput, 'gpus_idle_by_partition' | 'gpus_total_by_partition'> & {
+  nodes_total_by_partition: Record<string, number>;
+}) | null {
   const idle: Record<string, number> = {};
   const total: Record<string, number> = {};
+  const nodesByPartition: Record<string, number> = {};
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
@@ -236,10 +268,14 @@ export function parseSinfoForAvailability(
     const nodes = parseInt(cols[1], 10);
     const state = cols[2].toLowerCase();
     const gres = cols[3];
+    if (!partition || !Number.isFinite(nodes)) continue;
+    // Count nodes for EVERY partition (GPU or not) — used to decide whether a
+    // maintenance reservation covers a whole partition.
+    nodesByPartition[partition] = (nodesByPartition[partition] ?? 0) + nodes;
     const gpuMatch = gres.match(/gpu(?::[a-z0-9_-]+)?:(\d+)/i);
     if (!gpuMatch) continue;
     const perNode = parseInt(gpuMatch[1], 10);
-    if (!Number.isFinite(nodes) || !Number.isFinite(perNode)) continue;
+    if (!Number.isFinite(perNode)) continue;
     const gpus = nodes * perNode;
     total[partition] = (total[partition] ?? 0) + gpus;
     if (state.startsWith('idle')) {
@@ -249,7 +285,68 @@ export function parseSinfoForAvailability(
   return {
     gpus_idle_by_partition: idle,
     gpus_total_by_partition: total,
+    nodes_total_by_partition: nodesByPartition,
   };
+}
+
+export interface SlurmAvailabilityInput {
+  gpus: number;
+  hours: number;
+  partition?: string;
+  earliest?: string;
+  latest?: string;
+}
+
+/**
+ * Provider-agnostic core: runs the availability ranker and returns the text
+ * the chat should show (a rich-card fenced block, or an error message).
+ * Shared by the Claude-SDK tool wrapper and the OpenAI/LiteLLM dispatch path
+ * so both backends behave identically.
+ */
+export async function runSlurmAvailability(
+  input: SlurmAvailabilityInput,
+): Promise<{ text: string; isError: boolean }> {
+  const { gpus, hours, earliest, latest } = input;
+  const partition = input.partition ?? 'dgx-b200';
+  const startedAt = Date.now();
+  const timestamp = new Date(startedAt).toISOString();
+  const input_summary = { gpus, hours, partition, earliest, latest };
+  const snapshot = await fetchSnapshot();
+  const payload = { gpus, hours, partition, earliest, latest, snapshot };
+  const { ok, stdout, stderr, code } = await runSlurmCli(
+    'availability',
+    [],
+    JSON.stringify(payload),
+  );
+  if (!ok) {
+    logToolUsage({
+      timestamp, tool: 'slurm_availability', input_summary,
+      duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
+    });
+    return { text: `slurm_availability failed (exit ${code}).\n${stderr}`, isError: true };
+  }
+  let parsed: { sources?: string[]; load_curve_kind?: string; slots?: unknown[] };
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    logToolUsage({
+      timestamp, tool: 'slurm_availability', input_summary,
+      duration_ms: Date.now() - startedAt, error: 'non-json output',
+    });
+    return { text: `slurm_availability returned non-JSON:\n${stdout}`, isError: true };
+  }
+  logToolUsage({
+    timestamp,
+    tool: 'slurm_availability',
+    input_summary,
+    output_summary: {
+      sources: parsed.sources,
+      load_curve_kind: parsed.load_curve_kind,
+      slot_count: parsed.slots?.length ?? 0,
+    },
+    duration_ms: Date.now() - startedAt,
+  });
+  return { text: renderRichCard('calendar', parsed), isError: false };
 }
 
 export const slurmAvailabilityTool = tool(
@@ -272,66 +369,8 @@ export const slurmAvailabilityTool = tool(
       .describe('ISO-8601 latest acceptable start. Defaults to now+7d.'),
   },
   async ({ gpus, hours, partition, earliest, latest }) => {
-    const startedAt = Date.now();
-    const timestamp = new Date(startedAt).toISOString();
-    const input_summary = { gpus, hours, partition, earliest, latest };
-    const snapshot = await fetchSnapshot();
-    const payload = {
-      gpus,
-      hours,
-      partition,
-      earliest,
-      latest,
-      snapshot,
-    };
-    const { ok, stdout, stderr, code } = await runSlurmCli(
-      'availability',
-      [],
-      JSON.stringify(payload),
-    );
-    if (!ok) {
-      logToolUsage({
-        timestamp, tool: 'slurm_availability', input_summary,
-        duration_ms: Date.now() - startedAt, error: `exit ${code}: ${stderr}`,
-      });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_availability failed (exit ${code}).\n${stderr}`,
-        }],
-        isError: true,
-      };
-    }
-    let parsed: { sources?: string[]; load_curve_kind?: string; slots?: unknown[] };
-    try {
-      parsed = JSON.parse(stdout);
-    } catch {
-      logToolUsage({
-        timestamp, tool: 'slurm_availability', input_summary,
-        duration_ms: Date.now() - startedAt, error: 'non-json output',
-      });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_availability returned non-JSON:\n${stdout}`,
-        }],
-        isError: true,
-      };
-    }
-    logToolUsage({
-      timestamp,
-      tool: 'slurm_availability',
-      input_summary,
-      output_summary: {
-        sources: parsed.sources,
-        load_curve_kind: parsed.load_curve_kind,
-        slot_count: parsed.slots?.length ?? 0,
-      },
-      duration_ms: Date.now() - startedAt,
-    });
-    return {
-      content: [{ type: 'text', text: renderRichCard('calendar', parsed) }],
-    };
+    const { text, isError } = await runSlurmAvailability({ gpus, hours, partition, earliest, latest });
+    return { content: [{ type: 'text', text }], ...(isError ? { isError: true } : {}) };
   },
   { annotations: { readOnlyHint: true, idempotentHint: false } },
 );

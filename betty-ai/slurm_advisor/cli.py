@@ -108,6 +108,26 @@ def cmd_diagnose(args: argparse.Namespace) -> int:
     return _emit(diag.to_dict())
 
 
+def _parse_dt_aware(s):
+    """Parse an ISO-8601 timestamp into a timezone-AWARE datetime.
+
+    scontrol emits cluster-local timestamps with no offset (e.g.
+    "2026-05-18T08:00:00"); fromisoformat would return a naive datetime,
+    which then can't be compared against the tz-aware slot times in
+    availability._slot_blocked (TypeError: can't compare offset-naive and
+    offset-aware datetimes). We coerce any naive result to UTC so all
+    comparisons share one frame. (The availability ranker is explicitly
+    heuristic, so assuming UTC for an unlabeled maintenance window is an
+    acceptable approximation — it never silently crashes the tool.)
+    """
+    if not s:
+        return None
+    dt = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def cmd_availability(args: argparse.Namespace) -> int:
     """Read a JSON payload on stdin like:
 
@@ -131,8 +151,8 @@ def cmd_availability(args: argparse.Namespace) -> int:
     blackouts = []
     for b in snap_in.get("blackouts", []) or []:
         blackouts.append(BlackoutWindow(
-            start=datetime.fromisoformat(b["start"].replace("Z", "+00:00")),
-            end=datetime.fromisoformat(b["end"].replace("Z", "+00:00")),
+            start=_parse_dt_aware(b["start"]),
+            end=_parse_dt_aware(b["end"]),
             partition=b.get("partition"),
             reason=b.get("reason", ""),
         ))
@@ -152,8 +172,8 @@ def cmd_availability(args: argparse.Namespace) -> int:
         hours=float(payload.get("hours", 1.0)),
         partition=str(payload.get("partition", "dgx-b200")),
         snapshot=snap,
-        earliest=datetime.fromisoformat(earliest.replace("Z", "+00:00")) if earliest else None,
-        latest=datetime.fromisoformat(latest.replace("Z", "+00:00")) if latest else None,
+        earliest=_parse_dt_aware(earliest),
+        latest=_parse_dt_aware(latest),
         now=datetime.now(timezone.utc),
     )
     return _emit({

@@ -2,12 +2,13 @@
 
 import { cn } from '@/lib/utils';
 
-export type DashboardView = 'dashboard' | 'commands' | 'monitoring' | 'workspace';
+export type DashboardView = 'dashboard' | 'commands' | 'monitoring' | 'legend' | 'workspace';
 
 export const DASHBOARD_VIEWS: readonly DashboardView[] = [
   'dashboard',
   'commands',
   'monitoring',
+  'legend',
   'workspace',
 ];
 
@@ -24,6 +25,7 @@ const TABS: Array<{ id: DashboardView; label: string; hint: string }> = [
   { id: 'dashboard', label: 'Dashboard', hint: 'Cluster + your stats at a glance' },
   { id: 'commands', label: 'Commands', hint: 'Cheat sheet — the ~15 commands you actually use' },
   { id: 'monitoring', label: 'Monitoring', hint: 'Live Slurm health + history' },
+  { id: 'legend', label: 'Legend', hint: 'Color key for every chart, card, and badge' },
   { id: 'workspace', label: 'Workspace', hint: 'Chat with Betty AI + terminal' },
 ];
 

@@ -4,9 +4,10 @@ import { useState } from 'react';
 
 const PARTITIONS = [
   'dgx-b200',
-  'dgx-b200-mig',
-  'compute',
-  'compute-bigmem',
+  'b200-mig45',
+  'b200-mig90',
+  'genoa-lrg-mem',
+  'genoa-std-mem',
 ];
 
 interface SchedulingForm {

@@ -24,17 +24,18 @@ import { logToolUsage, renderRichCard, runSlurmCli } from './slurm-shared';
 
 const JOB_ID_RE = /^\d+(_\d+)?$/;
 
-export const slurmDiagnoseTool = tool(
-  'slurm_diagnose',
-  'Diagnose why a SLURM job is still pending. Runs `scontrol show job <id>` on Betty, then maps the Reason code to a human-readable explanation and concrete suggested actions (e.g. "shorten --time so backfill picks it up", "your QOS GPU minutes are exhausted").',
-  {
-    job_id: z
-      .string()
-      .min(1)
-      .regex(JOB_ID_RE, 'job_id must be digits or digits_digits')
-      .describe('SLURM job id to diagnose, e.g. "123456" or "123456_0".'),
-  },
-  async ({ job_id }) => {
+/**
+ * Provider-agnostic core: diagnose a pending job and return the text the chat
+ * should show. Shared by the Claude-SDK tool wrapper and the OpenAI/LiteLLM
+ * path. Returns an error string (not a throw) for any failure so both
+ * backends surface it the same way.
+ */
+export async function runSlurmDiagnose(
+  job_id: string,
+): Promise<{ text: string; isError: boolean }> {
+    if (!JOB_ID_RE.test(job_id)) {
+      return { text: `slurm_diagnose: invalid job_id "${job_id}" (must be digits or digits_digits).`, isError: true };
+    }
     const startedAt = Date.now();
     const timestamp = new Date(startedAt).toISOString();
     // We deliberately don't log the job_id directly — it's a foreign
@@ -63,13 +64,7 @@ export const slurmDiagnoseTool = tool(
         duration_ms: Date.now() - startedAt,
         error: `scontrol exit ${scontrolRes.exit}`,
       });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_diagnose: scontrol exited ${scontrolRes.exit}.\n${scontrolRes.stderr || scontrolRes.stdout || '(no output)'}`,
-        }],
-        isError: true,
-      };
+      return { text: `slurm_diagnose: scontrol exited ${scontrolRes.exit}.\n${scontrolRes.stderr || scontrolRes.stdout || '(no output)'}`, isError: true };
     }
     const scontrolOut = scontrolRes.stdout;
     const sprioOut = sprioRes.exit === 0 ? sprioRes.stdout : '';
@@ -100,13 +95,7 @@ export const slurmDiagnoseTool = tool(
         timestamp, tool: 'slurm_diagnose', input_summary,
         duration_ms: Date.now() - startedAt, error: `advisor exit ${code}: ${stderr}`,
       });
-      return {
-        content: [{
-          type: 'text',
-          text: `slurm_diagnose: advisor exited ${code}.\n${stderr}`,
-        }],
-        isError: true,
-      };
+      return { text: `slurm_diagnose: advisor exited ${code}.\n${stderr}`, isError: true };
     }
     let parsed: { state?: string; reason?: string; priority_dominant_negative?: string };
     try {
@@ -116,10 +105,7 @@ export const slurmDiagnoseTool = tool(
         timestamp, tool: 'slurm_diagnose', input_summary,
         duration_ms: Date.now() - startedAt, error: 'non-json output',
       });
-      return {
-        content: [{ type: 'text', text: `slurm_diagnose returned non-JSON:\n${stdout}` }],
-        isError: true,
-      };
+      return { text: `slurm_diagnose returned non-JSON:\n${stdout}`, isError: true };
     }
     logToolUsage({
       timestamp,
@@ -133,9 +119,22 @@ export const slurmDiagnoseTool = tool(
       },
       duration_ms: Date.now() - startedAt,
     });
-    return {
-      content: [{ type: 'text', text: renderRichCard('diagnose', parsed) }],
-    };
+  return { text: renderRichCard('diagnose', parsed), isError: false };
+}
+
+export const slurmDiagnoseTool = tool(
+  'slurm_diagnose',
+  'Diagnose why a SLURM job is still pending. Runs `scontrol show job <id>` on Betty, then maps the Reason code to a human-readable explanation and concrete suggested actions (e.g. "shorten --time so backfill picks it up", "your QOS GPU minutes are exhausted").',
+  {
+    job_id: z
+      .string()
+      .min(1)
+      .regex(JOB_ID_RE, 'job_id must be digits or digits_digits')
+      .describe('SLURM job id to diagnose, e.g. "123456" or "123456_0".'),
+  },
+  async ({ job_id }) => {
+    const { text, isError } = await runSlurmDiagnose(job_id);
+    return { content: [{ type: 'text', text }], ...(isError ? { isError: true } : {}) };
   },
   { annotations: { readOnlyHint: true, idempotentHint: false } },
 );
