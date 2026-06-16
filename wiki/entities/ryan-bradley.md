@@ -2,9 +2,9 @@
 type: entity
 tags: [people, parcc, director, ryb, gromacs, molecular-dynamics]
 created: 2026-04-21
-updated: 2026-04-21
-sources: [2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-10-ryb-overspack-deployment-docs]
-related: [betty-cluster, gromacs-on-betty, betty-software-deployment, open-ondemand-betty, vast-storage]
+updated: 2026-06-16
+sources: [2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-10-ryb-overspack-deployment-docs, 2026-06-16-teams-chats-digest]
+related: [betty-cluster, gromacs-on-betty, betty-software-deployment, open-ondemand-betty, vast-storage, slurm-cli-filter, kerberos-ssh-macos-fix, erf-user-facilitation, jeffrey-vadala]
 status: current
 ---
 
@@ -33,6 +33,14 @@ Open items for ryb specifically:
 3. Identify which project account(s) the MD group should bill against — see [[betty-billing-model]].
 4. Decide retention policy for trajectory files on VAST vs Ceph.
 
+## Facilitation work with jvadala (Teams, June 2026)
+ryb mentors [[jeffrey-vadala]] on user facilitation and owns several threads from the [[2026-06-16-teams-chats-digest]]:
+- **[[slurm-cli-filter]]** — ryb owns the Lua `cli_filter`; jvadala found a `--mem`-propagation bug, ryb is patching it (prevent `--mem` propagating unless it disagrees with `--mem-per-cpu`, add a test, then jvadala retests). ryb wants it solid before [[jaime-combariza]] tests heavily; recommends putting the invocation in `~/.bashrc`.
+- **GROMACS onboarding** — ryb completed a 1.5M-water-molecule compile-and-run exercise himself and wants jvadala to do the same *without AI assistance* because it covers cluster basics and generalizes. Benchmark data at `https://ftp.gromacs.org/pub/benchmarks/`. See [[gromacs-on-betty]].
+- **Repo/branch workflow** — prefers separate directories + a shared GitHub repo testable in complete isolation, with a branch-and-merge loop; tinkering:producing ratio ~10:1. See [[erf-user-facilitation]].
+- **macOS Kerberos SSH** — co-diagnosed the Heimdal-vs-MIT failures and maintains the diagnostic checklist; see [[kerberos-ssh-macos-fix]].
+- **Schedule note:** conference Tue–Wed (week of 6/15), then **PTO 19–25 June 2026**; was busy on the "Zahn" project.
+
 ## Storage notes (from audits)
 - `/vast/home/r/ryb` — inode usage was at **88%** on 2026-04-07; watch this, especially if GROMACS trajectories ever land in `$HOME`.
 - `/ceph/projects/ryb/parcc-data-science` exists but was empty as of 2026-04-07 — candidate location for large trajectory archives.
@@ -46,7 +54,12 @@ Open items for ryb specifically:
 - [[gromacs-on-betty]]
 - [[betty-software-deployment]]
 - [[open-ondemand-betty]]
+- [[slurm-cli-filter]]
+- [[kerberos-ssh-macos-fix]]
+- [[erf-user-facilitation]]
+- [[jeffrey-vadala]]
 
 ## Sources
 - [[2026-04-07-ryb-ood-bc-desktop-investigation]]
 - [[2026-04-10-ryb-overspack-deployment-docs]]
+- [[2026-06-16-teams-chats-digest]] — CLI-filter bug, GROMACS onboarding, branch/PR workflow, Kerberos diagnostics

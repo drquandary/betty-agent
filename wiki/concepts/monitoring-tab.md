@@ -4,7 +4,7 @@ tags: [betty, monitoring, dashboard, slurm, observability, betty-agent]
 created: 2026-05-13
 updated: 2026-05-13
 status: current
-related: [slurm-state-dimensionality, slurm-advisor]
+related: [slurm-state-dimensionality, slurm-advisor, betty-ai-agent]
 ---
 
 # Monitoring tab

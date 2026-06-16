@@ -4,7 +4,7 @@ tags: [betty, slurm, advisor, betty-agent, constraint-solver, minizinc]
 created: 2026-05-13
 updated: 2026-05-13
 sources: [2026-04-27-slurm-advisor-report-ryb, 2026-04-27-slurm-advisor-evidence-report-ryb, 2026-04-27-slurm-advisor-architecture-and-reply-ryb]
-related: [slurm-state-dimensionality, slurm-gres-conf, slurm-node-state-modifiers, slurm-on-betty, betty-billing-model]
+related: [slurm-state-dimensionality, slurm-gres-conf, slurm-node-state-modifiers, slurm-on-betty, betty-billing-model, slurm-cli-filter, betty-ai-agent]
 status: current
 ---
 
@@ -66,6 +66,8 @@ Ranked from the [[2026-04-27-slurm-advisor-report-ryb]] status report:
 Multi-user deployment is planned via Open OnDemand Batch Connect.
 
 ## See also
+- [[slurm-cli-filter]] — the in-band Lua client-side flag enforcer (companion to the advisor's chat-side pre-validation)
+- [[betty-ai-agent]] — the broader agent the advisor is a subsystem of
 - [[slurm-state-dimensionality]] — what slice of SLURM's TRES vector the advisor currently sees
 - [[slurm-on-betty]] — the Slurm 24.11.7 install on Betty
 - [[slurm-gres-conf]] — GRES configuration anomalies the advisor must tolerate

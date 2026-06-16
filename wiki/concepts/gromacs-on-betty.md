@@ -2,9 +2,9 @@
 type: concept
 tags: [gromacs, md, molecular-dynamics, gpu, biomolecular, hpc]
 created: 2026-04-21
-updated: 2026-04-21
-sources: []
-related: [ryan-bradley, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, vast-storage, slurm-on-betty, gpu-topology-betty, betty-software-deployment]
+updated: 2026-06-16
+sources: [2026-06-16-teams-chats-digest]
+related: [ryan-bradley, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, vast-storage, slurm-on-betty, gpu-topology-betty, betty-software-deployment, erf-user-facilitation, jeffrey-vadala]
 status: tentative
 ---
 
@@ -88,6 +88,11 @@ When a new GROMACS module/container appears, run the standard PME benchmark set 
 - `benchRIB` (2M atoms) — stresses multi-GPU / PME split
 Archive `md.log` under `wiki/experiments/` so future users can compare.
 
+**Benchmark data source ([[ryan-bradley]], 2026-06-15):** the GROMACS benchmark inputs live at `https://ftp.gromacs.org/pub/benchmarks/`, and ryb recommends the official install guide `https://manual.gromacs.org/current/install-guide/index.html`. See [[2026-06-16-teams-chats-digest]].
+
+## Onboarding exercise: 1.5M-water test (facilitation)
+ryb completed a **compile-and-run of a 1.5M water-molecule GROMACS test** himself (early June 2026) and assigned the same exercise to [[jeffrey-vadala]] as a high-priority HPC-fundamentals onboarding task — to be done **without AI assistance** because it covers a lot of cluster basics (compiling, module/Spack, Slurm submission, GPU offload) and generalizes to many other problems. This sits alongside the ERF code task in [[erf-user-facilitation]]. A related performance topic in flight is CPU binding (raised by [[jaime-combariza]]), suggested as a lower-priority test case for jvadala's hands-off agent approach.
+
 ## See also
 - [[ryan-bradley]] — directing the GROMACS workflow push on Betty
 - [[dgx-b200-partition]]
@@ -97,7 +102,9 @@ Archive `md.log` under `wiki/experiments/` so future users can compare.
 - [[vast-storage]]
 - [[gpu-topology-betty]]
 - [[betty-software-deployment]]
+- [[erf-user-facilitation]] — companion onboarding task
+- [[jeffrey-vadala]] — owner of the onboarding exercise
 
 ## Sources
-<!-- No cited sources yet — page seeded from general GROMACS + Betty cluster knowledge.
-     Next ingest should attach a real `module spider gromacs` capture or an NGC container run log. -->
+- [[2026-06-16-teams-chats-digest]] — ryb's 1.5M-water onboarding exercise + ftp.gromacs.org benchmark data
+<!-- Page still tentative on module availability — next ingest should attach a real `module spider gromacs` capture or an NGC container run log. -->

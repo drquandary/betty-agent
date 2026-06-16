@@ -2,9 +2,9 @@
 type: concept
 tags: [betty, security, authentication, kerberos, pam, ssh]
 created: 2026-04-10
-updated: 2026-04-10
-sources: []
-related: [betty-cluster, open-ondemand-betty, ood-troubleshooting]
+updated: 2026-06-16
+sources: [2026-06-16-teams-chats-digest]
+related: [betty-cluster, open-ondemand-betty, ood-troubleshooting, kerberos-ssh-macos-fix]
 status: current
 ---
 
@@ -48,6 +48,10 @@ pam_slurm_adopt.so action_no_jobs=deny                       # blocks SSH if no 
 - OOD host: `ood01.betty.parcc.upenn.edu` (see [[open-ondemand-betty]])
 - No Kerberos ticket needed for OOD -- it uses web-based SSO
 
+## macOS client-side failure mode (Heimdal vs MIT)
+
+A common **client-side** SSH failure on macOS is `Permission denied (publickey,gssapi-with-mic)`, caused not by the server but by the Mac presenting a credential from the wrong Kerberos provider. macOS ships **Heimdal**; package managers (conda, brew, …) can install **MIT** Kerberos + their own `ssh`, polluting the environment. The fix is `export KRB5CCNAME="API:"` before `kinit`. Full diagnosis, the diagnostic checklist, and the fix are on the dedicated page [[kerberos-ssh-macos-fix]] (from the [[2026-06-16-teams-chats-digest]], diagnosed by [[jamie-schnaitter]] and [[ryan-bradley]]).
+
 ## Practical notes
 
 - Kerberos tickets expire -- if SSH starts failing after hours of work, run `kinit` again
@@ -60,6 +64,8 @@ pam_slurm_adopt.so action_no_jobs=deny                       # blocks SSH if no 
 - [[open-ondemand-betty]]
 - [[ood-troubleshooting]] -- the pam_slurm_adopt interaction with OOD shell links
 - [[slurm-on-betty]]
+- [[kerberos-ssh-macos-fix]] -- the macOS Heimdal-vs-MIT client fix (`KRB5CCNAME="API:"`)
 
 ## Sources
 - Live inspection of `/etc/pam.d/sshd` on dgx028 (OOD session 5207320, 2026-04-10)
+- [[2026-06-16-teams-chats-digest]] -- macOS Kerberos SSH failure + fix thread

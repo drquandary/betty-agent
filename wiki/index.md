@@ -15,7 +15,11 @@
 - [[parcc-helper-tools]] — `parcc_*.py` scripts for quota, queue, debug (1 source)
 - [[open-ondemand-betty]] — Web portal at ood.betty.parcc.upenn.edu (1 source)
 - [[slurm-on-betty]] — Slurm 24.11.7 with backfill scheduler (1 source)
-- [[ryan-bradley]] — PARCC director (ryb); owns overspack and sponsors the GROMACS workflow on Betty (2 sources)
+- [[ryan-bradley]] — PARCC director (ryb); owns overspack/cli_filter, sponsors GROMACS + facilitation onboarding (3 sources)
+- [[jeffrey-vadala]] — PARCC user-facilitation hire (jvadala); builds the Betty AI agent, owns ERF/GROMACS onboarding (1 source)
+- [[jaime-combariza]] — senior PARCC staff (jcombar1); drives ops, accounts, hardware, licensing; heavy cli_filter tester (2 sources)
+- [[kenneth-chaney]] — PARCC systems engineer; built `parcc_sandbox`, owns `parcc_sfree.py`, deploys quantized LLMs (1 source)
+- [[jamie-schnaitter]] — PARCC systems engineer; Kerberos/SSH authority, authored the macOS `KRB5CCNAME` fix (1 source)
 
 ## Concepts
 - [[lora-fine-tuning]] — Low-Rank Adaptation, parameter-efficient fine-tuning
@@ -49,6 +53,11 @@
 - [[vast-group-permissions]] — Cross-group file access on VAST: chgrp/chmod/setgid/ACLs diagnostic playbook (1 source)
 - [[top-10-betty-commands]] — Facilitation cheat-sheet of the ~10 commands that handle most Betty user friction (1 source)
 - [[monitoring-tab]] — Datadog-style live Slurm monitoring tab in the Betty AI dashboard; six cards, five Wave 2D routes, four SVG chart primitives, JSONL ringbuffer history
+- [[slurm-cli-filter]] — ryb's Lua `cli_filter` (defaults `--qos=dgx`); the `--mem`-propagation bug + bashrc rollout (1 source)
+- [[kerberos-ssh-macos-fix]] — macOS Heimdal-vs-MIT SSH failures; the `KRB5CCNAME="API:"` fix (1 source)
+- [[surgical-tool-id-vlm]] — jvadala's surgical-implement-ID VLM; hosting-on-Betty idea (tentative, 1 source)
+- [[erf-user-facilitation]] — ERF code task + CI-facilitation onboarding; ryb's repo/branch workflow + HPC-culture resources (1 source)
+- [[betty-ai-agent]] — jvadala's Betty assistant (dashboard + pi/Claude agent), proxy/API-key design (1 source)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**
@@ -77,3 +86,4 @@
 - [[2026-04-27-slurm-advisor-evidence-report-ryb]] — End-to-end validation of the advisor tools against live cluster data
 - [[2026-04-27-slurm-advisor-architecture-and-reply-ryb]] — Architecture deep-dive (data flow, verbatim-paste contract) + reply to Ryan's review asks
 - [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — measured BEAST + BEAGLE-CUDA on Betty (1.73× GPU speedup); cross-group permissions facilitation lesson from ryb
+- [[2026-06-16-teams-chats-digest]] — 8 Teams chats (Apr–Jun 2026): cli_filter `--mem` bug, GROMACS onboarding, macOS Kerberos fix, libhwloc outage, VLM hosting, betty-ai proxy design

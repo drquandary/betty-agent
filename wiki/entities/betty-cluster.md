@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, hpc, cluster, parcc, upenn]
 created: 2026-04-08
-updated: 2026-04-08
-sources: [2026-04-08-betty-initial-exploration]
-related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools]
+updated: 2026-06-16
+sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest]
+related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager]
 status: current
 ---
 
@@ -53,6 +53,15 @@ See [[vast-storage]].
 - **dgx022** has a GRES/GPU count mismatch (invalid state)
 - Shared `pytorch` conda env has outdated transformers (4.32) — don't use directly
 - No pre-built NGC containers or shared model cache
+
+## Incidents / open issues (June 2026, from [[2026-06-16-teams-chats-digest]])
+- **`libhwloc.so.15` outage (6/16):** the library went missing → `dlopen(.../mpi_pmix.so): libhwloc.so.15: cannot open shared object file` → cluster-wide `srun` failures (`Invalid MPI type 'pmix'`) and nodes going down. Restored by [[kenneth-chaney]] (library put back); AHEAD doing an RCA on how it was deleted.
+- **BCM → VAST new-user home-dir creation fails** after the NFSv4 + idmap switch: BCM (`user; add ...; commit`) cannot create the home dir, leaving it **owned by root** with `/etc/skel` not copied (`Unable to copy to /vast/home/...`, `Failed to create home directory ... from /etc/skel/`). Blocks OOD login for new users (e.g. abbyleib, tamachad, rhoadese). Do **not** manually fix yet — skel deployment is also broken. See [[bcm-bright-cluster-manager]].
+- **`parcc_quota` home-folder logic broken** since the NFSv4 upgrade (for all users) — see [[parcc-helper-tools]].
+- **ColdFront ↔ Grouper PI miscommunication:** faculty accounts not flagged `is_pi` (e.g. tamachad); under debugging.
+- **VAST VMS portal flaky** (data plane unaffected, no user impact) — see [[vast-storage]].
+- **macOS SSH login failures** — client-side Kerberos issue, see [[kerberos-ssh-macos-fix]].
+- The Slurm `cli_filter` (defaults `--qos=dgx` for `dgx-b200`) has a `--mem` bug under repair — see [[slurm-cli-filter]].
 
 ## Workflows we use
 - LLM fine-tuning: see [[lora-fine-tuning]], [[qlora]], [[deepspeed-zero]]
