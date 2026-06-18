@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, hpc, cluster, parcc, upenn]
 created: 2026-04-08
-updated: 2026-06-16
-sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest]
-related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager]
+updated: 2026-06-18
+sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest]
+related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager, kenneth-chaney]
 status: current
 ---
 
@@ -29,6 +29,9 @@ PARCC's first university-wide HPC/AI supercomputer at UPenn, centered on 27 NVID
 | b200-mig90 | 1 | 16x 90GB MIG slices | [[b200-mig90-partition]] |
 | genoa-std-mem | 64 | AMD EPYC CPU | [[genoa-std-mem-partition]] |
 | genoa-lrg-mem | 10 | AMD EPYC, ~1TB RAM | [[genoa-lrg-mem-partition]] |
+
+## Facility
+- **Server-room noise:** the Betty machine room runs at ~**110 dB** — hearing protection (ear muffs) is required inside the racks (per a Penn Today article photo of [[kenneth-chaney]]). Audio recording on-site is impractical; practical note for visitors/interviews. (2026-06-18)
 
 ## Storage
 See [[vast-storage]].

@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-18] ingest | Teams digest — Ken GLM-DSA deployment + 110 dB server-room note
+- Source: [[2026-06-18-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-18T21:52–22:17Z, digest `digest_20260618T181730.json`)
+- Updated: [[kenneth-chaney]] (GLM-DSA deployment: Q4 quant, ~2% hit, no sglang day-zero support), [[betty-cluster]] (new Facility section, ~110 dB server-room noise), [[2026-06-18-teams-chats-digest]] (two new bullets + source)
+- Key facts: Ken deploying `glm-dsa` (architecture issues, sglang skipped day-zero support, serving Q4 @ ~2% perf hit); Betty machine room ≈ 110 dB (ear protection required) → on-site audio recording impractical (relevant to an anthropology study of PARCC).
+
 ## [2026-06-18] ingest | Teams digest — ryb sandbox cuda-in-hierarchy follow-up
 - Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Ryan Bradley, 2026-06-18T18:54Z, digest `digest_20260618T151039.json`)
 - Updated: [[betty-lmod-architecture]] (sandbox-tree / RPATH-vs-hierarchy follow-up in design section), [[2026-06-18-teams-chats-digest]] (new bullet + source)
