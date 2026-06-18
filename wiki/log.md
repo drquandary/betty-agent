@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-18] ingest | Teams digest — module hierarchy vs flat naming design discussion
+- Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Jamie Schnaitter quoting ryb, 2026-06-18T18:15–18:16Z, digest `digest_20260618T143742.json`)
+- Updated: [[betty-lmod-architecture]] (new "Module hierarchy vs flat naming" section, status: tentative), [[2026-06-18-teams-chats-digest]] (new bullet + source)
+- Key fact: open debate — hierarchical MODULEPATH (clean names, but `ml beast1` forces unload of cuda/13.1 deps) vs flat toolchain-encoded names (Jamie's UCF `beast/beast-1.2.3-mvapich2-2.3.6-gcc-9.4.2`). No decision.
+
 ## [2026-06-18] ingest | Teams digest — pam_slurm_adopt now live + multi-job cgroup caveat
 - Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Jamie Schnaitter, 2026-06-18)
 - Created: [[2026-06-18-teams-chats-digest]]

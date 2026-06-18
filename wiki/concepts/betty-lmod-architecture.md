@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, lmod, modules, bcm, architecture]
 created: 2026-04-10
-updated: 2026-04-10
-sources: [2026-04-10-jaime-modules-sh-fix, 2026-04-10-ryb-overspack-deployment-docs]
+updated: 2026-06-18
+sources: [2026-04-10-jaime-modules-sh-fix, 2026-04-10-ryb-overspack-deployment-docs, 2026-06-18-teams-chats-digest]
 related: [ood-troubleshooting, open-ondemand-betty, betty-cluster, slurm-on-betty]
 status: current
 ---
@@ -71,6 +71,17 @@ When ryb deployed `26.1.zen4`, they ran `update.sh` to regenerate the site spide
 7. Jaime fixed `/etc/profile.d/modules.sh` to source PARCC's lmod instead (2026-04-10)
 8. The broken file still exists but nobody hits it anymore
 
+## Module hierarchy vs flat naming (design discussion, 2026-06-18)
+
+status: tentative — an open design debate between ryb and Jamie, not a decided policy.
+
+The team is weighing Lmod's **hierarchical MODULEPATH** model against a **flat naming scheme**:
+
+- **Hierarchical** — loading a base module (compiler/MPI/CUDA) swaps MODULEPATH so dependent modules appear with clean short names. ryb's note: the tree already has a `cuda/13.0` example, and running `ml beast1` unloads everything built against `cuda/13.1` because `beast1` is pinned to a specific version (like Gurobi). That forced dependent unload/reload is the cost of hierarchy. The remaining upside ryb sees is being able to keep the **same package version built against different CUDA/MPI/compiler** while still presenting a clean naming scheme — "not a huge thing, but potentially nice."
+- **Flat** — one level of directories; the toolchain is encoded directly in the module file name. Jamie's prior experience at UCF: names came out "gross" like `beast/beast-1.2.3-mvapich2-2.3.6-gcc-9.4.2`. Unambiguous, but ugly and verbose.
+
+No decision reached this cycle; captured as background for whichever scheme PARCC standardizes on. Relates to ryb's `overspack`/`arch/26.1` tree layout (see above) and the CUDA pinning in [[cuda-forward-compatibility-betty]].
+
 ## Key lesson
 
 **Always check which lmod binary is actually running before debugging cache issues.** On BCM clusters, `/etc/profile.d/modules.sh` may point at the system-bundled lmod instead of the site-custom one. If so, you get the wrong init chain and the wrong cache resolution. Jaime's fix was at the architecture level; the file-level investigation was correct but one layer too deep.
@@ -87,7 +98,9 @@ echo $LMOD_CMD    # shows the lmod command path
 - [[open-ondemand-betty]]
 - [[betty-cluster]]
 - [[slurm-on-betty]]
+- [[cuda-forward-compatibility-betty]]
 
 ## Sources
 - [[2026-04-10-jaime-modules-sh-fix]]
 - [[2026-04-10-ryb-overspack-deployment-docs]]
+- [[2026-06-18-teams-chats-digest]] — module hierarchy vs flat naming discussion
