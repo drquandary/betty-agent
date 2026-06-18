@@ -80,7 +80,11 @@ The team is weighing Lmod's **hierarchical MODULEPATH** model against a **flat n
 - **Hierarchical** — loading a base module (compiler/MPI/CUDA) swaps MODULEPATH so dependent modules appear with clean short names. ryb's note: the tree already has a `cuda/13.0` example, and running `ml beast1` unloads everything built against `cuda/13.1` because `beast1` is pinned to a specific version (like Gurobi). That forced dependent unload/reload is the cost of hierarchy. The remaining upside ryb sees is being able to keep the **same package version built against different CUDA/MPI/compiler** while still presenting a clean naming scheme — "not a huge thing, but potentially nice."
 - **Flat** — one level of directories; the toolchain is encoded directly in the module file name. Jamie's prior experience at UCF: names came out "gross" like `beast/beast-1.2.3-mvapich2-2.3.6-gcc-9.4.2`. Unambiguous, but ugly and verbose.
 
-No decision reached this cycle; captured as background for whichever scheme PARCC standardizes on. Relates to ryb's `overspack`/`arch/26.1` tree layout (see above) and the CUDA pinning in [[cuda-forward-compatibility-betty]].
+**Update (ryb, 2026-06-18T18:54Z):** ryb is considering a **sandbox lmod tree that adds `cuda` to the Lmod hierarchy** to prototype the idea. The sharpest tradeoff he names is CUDA-version multiplicity:
+- If **CUDA is in the hierarchy**, you cannot have two CUDA versions active at once (loading one swaps the MODULEPATH).
+- If **CUDA is omitted from the hierarchy**, two CUDA versions *can* coexist, because everything is **RPATH'd together** at build time — each binary finds its CUDA libs via the embedded RPATH rather than the modulepath.
+
+ryb wants some real-world usage examples to make this decision point concrete before committing. No decision reached this cycle; captured as background for whichever scheme PARCC standardizes on. Relates to ryb's `overspack`/`arch/26.1` tree layout (see above) and the CUDA pinning in [[cuda-forward-compatibility-betty]].
 
 ## Key lesson
 

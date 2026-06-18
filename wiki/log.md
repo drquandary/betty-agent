@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-18] ingest | Teams digest — ryb sandbox cuda-in-hierarchy follow-up
+- Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Ryan Bradley, 2026-06-18T18:54Z, digest `digest_20260618T151039.json`)
+- Updated: [[betty-lmod-architecture]] (sandbox-tree / RPATH-vs-hierarchy follow-up in design section), [[2026-06-18-teams-chats-digest]] (new bullet + source)
+- Key fact: CUDA-in-hierarchy blocks two simultaneous CUDA versions; CUDA-omitted allows them (binaries RPATH'd at build time). ryb wants real-world examples before deciding. No decision.
+
 ## [2026-06-18] ingest | Teams digest — module hierarchy vs flat naming design discussion
 - Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Jamie Schnaitter quoting ryb, 2026-06-18T18:15–18:16Z, digest `digest_20260618T143742.json`)
 - Updated: [[betty-lmod-architecture]] (new "Module hierarchy vs flat naming" section, status: tentative), [[2026-06-18-teams-chats-digest]] (new bullet + source)
