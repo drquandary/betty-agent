@@ -59,6 +59,7 @@
 - [[erf-user-facilitation]] — ERF code task + CI-facilitation onboarding; ryb's repo/branch workflow + HPC-culture resources (1 source)
 - [[betty-ai-agent]] — jvadala's Betty assistant (dashboard + pi/Claude agent), proxy/API-key design (1 source)
 - [[cuda-forward-compatibility-betty]] — CUDA/driver ceiling model, `cuda-compat` OS-image plan, default `arch/26.1`+`cuda/13.1.1`, driver-upgrade outlook (1 source)
+- [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative, 1 source)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**

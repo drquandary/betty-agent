@@ -329,3 +329,9 @@
 - Created: [[cuda-forward-compatibility-betty]] — hardware-min/driver-max CUDA ceiling model; `cuda-compat-13-1..13-3` OS-image plan (July) for non-spack; spack compiles ahead-of-driver with no compat layer; default pinned stack `arch/26.1`+`cuda/13.1.1`; 1–2yr refresh cadence; Gurobi 13 driver-locked to NVIDIA 570; RELION→gcc15; CUDA 13.2 fp64 emulation; driver upgrade gated on DOCA-OFED (Betty on mlnx-ofed) + SuperPOD still 580.126.16.
 - Updated: [[betty-software-deployment]] (default CUDA stack + link), [[2026-06-18-teams-chats-digest]] (added CUDA section + pages-touched), [[index]].
 - Other chats reviewed (Combariza, Catch Up-RHOS, PARCC<>NVIDIA): old (Apr–May) chit-chat / meeting join-leave noise — nothing task- or knowledge-worthy. Action items (gurobi 13, cuda-compat, gostelm, home-perms, pam_slurm_adopt) already in `knowledge/tasks.md` from prior pass; no new tasks added.
+
+## [2026-06-18] ingest | Teams chats digest — Ken Chaney 1:1, Templeton project (digest_20260618T185004.json)
+- Source: Kenneth Chaney 1:1 Teams chat, 2026-06-18T22:18–22:24Z (10 new msgs; continuation of the same chat already ingested through 22:17Z). Other 7 chats had no new messages this cycle.
+- Created: [[templeton-religious-trust-project]] — jvadala's Templeton-funded research using a 120B open LLM (per Ken's suggestion) to classify ~2000 free-text religious-experience responses (4 classifications × bootstrapped 10×, speed-bound) into knowledge graphs for SNA; early "q2" ~86%. Status: tentative (model identity inferred).
+- Updated: [[jeffrey-vadala]] (added project + 6/18 source), [[kenneth-chaney]] (120B model recommendation to jvadala), [[2026-06-18-teams-chats-digest]] (new Templeton section + pages-touched), [[index]].
+- Tasks: none added — status/chit-chat, no action item (Jeffrey already offered GLM-DSA help in prior pass).

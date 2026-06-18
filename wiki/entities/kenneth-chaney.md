@@ -25,6 +25,7 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - **VAST / BCM / NFSv4 ops** — leads triage on the 6/16 `libhwloc.so.15` outage (restored the library) and the BCM→VAST new-user home-dir creation failure after the NFSv4+idmap switch (see [[betty-cluster]], [[bcm-bright-cluster-manager]]).
 - **Identity / EULA** — built first-pass EULA functionality in Grouper.
 - Floated hosting jvadala's [[surgical-tool-id-vlm]] on the cluster for higher throughput.
+- **Model recommendation to jvadala** — suggested the 120B open model jvadala now uses for the [[templeton-religious-trust-project]]; both wish for a published update to that model family.
 
 ## API-key / agent guidance (to jvadala)
 - Use `parcc_sfree.py` as the dashboard data source; add a "booting AI in progress" label.
@@ -40,4 +41,4 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 
 ## Sources
 - [[2026-06-16-teams-chats-digest]] — sandbox, dashboard, model-serving, and ops threads
-- [[2026-06-18-teams-chats-digest]] — GLM-DSA deployment (Q4, no sglang day-zero support); 110 dB server-room note
+- [[2026-06-18-teams-chats-digest]] — GLM-DSA deployment (Q4, no sglang day-zero support); 110 dB server-room note; 120B model recommendation to jvadala

@@ -21,9 +21,12 @@ PARCC Group threads: Jamie Schnaitter confirms `pam_slurm_adopt` is live on Bett
 - **Lmod hierarchy follow-up** (Ryan Bradley, PARCC Group, 2026-06-18T18:54Z): considering a sandbox lmod tree that adds `cuda` to the hierarchy. Tradeoff: CUDA-in-hierarchy blocks two simultaneous CUDA versions, whereas CUDA-omitted allows them because binaries are RPATH'd to their libs at build time. Wants real-world examples to clarify the decision. Detail → [[betty-lmod-architecture]].
 - **GLM-DSA model deployment** (Kenneth Chaney, 1:1 chat, 2026-06-18T21:52–22:12Z): Ken is bringing up the `glm-dsa` architecture and working out issues. sglang did **not** ship day-zero support this release (unlike past releases). Serving at **Q4 quantization** with a measured **~2% performance hit**. Jeffrey offered help and asked about quantization choice. Status: tentative/ongoing → [[kenneth-chaney]].
 - **Betty server-room noise ≈ 110 dB** (Kenneth Chaney, 1:1 chat, 2026-06-18T22:17Z): the machine room runs at ~110 dB; hearing protection required (Penn Today article shows Ken in ear muffs). Context: a student in an anthropology study of Betty/PARCC (run via Jeffrey's wife; Jaime Combariza already interviewed) wanted to record on-site, but audio capture there is impractical → [[betty-cluster]].
+- **Templeton religious-trust project** (Kenneth Chaney 1:1 chat, 2026-06-18T22:18–22:24Z): Jeffrey is using a **120B open model** (per Ken's earlier suggestion; same model Ken recommended) to classify ~2000 free-text religious-experience responses and convert them into knowledge graphs for SNA. Workload is **4 classifications × bootstrapped 10×**, so inference speed matters — hence the fast 120B. Early signal: one classification ("q2") scored ~86%. Ken: wishes "they" would publish an update to those models soon. Status: tentative → [[templeton-religious-trust-project]].
 
 ## Pages touched
-- Updated [[kenneth-chaney]] — GLM-DSA deployment (Q4, ~2% hit, no sglang day-zero support)
+- Created [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative)
+- Updated [[jeffrey-vadala]] — added the Templeton religious-trust project to his work
+- Updated [[kenneth-chaney]] — GLM-DSA deployment (Q4, ~2% hit, no sglang day-zero support); recommended the 120B model jvadala now uses
 - Updated [[betty-cluster]] — added Facility section with ~110 dB server-room noise note
 - Created [[cuda-forward-compatibility-betty]] — the CUDA/driver ceiling model, OS-image compat plan, default modules, driver-upgrade outlook
 - Updated [[betty-software-deployment]] — recorded default `arch/26.1`/`cuda/13.1.1` stack and linked the new compat page
