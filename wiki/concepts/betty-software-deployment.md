@@ -70,6 +70,8 @@ Two container runtimes are available on Betty:
 - Must load via modules: `module load cuda/...`
 - This is intentional -- different jobs may need different CUDA versions
 - Always `module load cuda` before compiling or running GPU code
+- **Default stack (as of 2026-06): `arch/26.1` + `cuda/13.1.1`** -- deliberately pinned for env consistency across groups
+- The spack tree is compiled "ahead of the driver" and does **not** ship the `cuda-compat` layer; see [[cuda-forward-compatibility-betty]] for the driver/CUDA ceiling model, OS-image compat plan, and driver-upgrade outlook
 
 ## See also
 - [[betty-lmod-architecture]] -- the lmod init chain and cache corruption incident
