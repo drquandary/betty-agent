@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-18] ingest | Teams digest — pam_slurm_adopt now live + multi-job cgroup caveat
+- Source: [[2026-06-18-teams-chats-digest]] (PARCC Group, Jamie Schnaitter, 2026-06-18)
+- Created: [[2026-06-18-teams-chats-digest]]
+- Updated: [[betty-auth-architecture]] (deployment status + multi-job cgroup caveat), [[jamie-schnaitter]] (compute-node SSH note), [[index]]
+- Key fact: `pam_slurm_adopt` is deployed — SSH to a node with a running job works; with multiple jobs on one node the session adopts only one job's cgroup.
+
 ## [2026-04-21] add | GROMACS workflow + Ryan Bradley entity
 - Sponsor: Ryan Bradley (ryb), PARCC director — wants GROMACS first-class on Betty
 - Created concept page: [[gromacs-on-betty]] — partition cheat-sheet (MIG45 for <50k atoms, MIG90 to 300k, full B200 beyond, Genoa for grompp/analysis), `-nb/-pme/-bonded/-update gpu` flag guidance, replica/REMD/FEP patterns, validation benchmark set (benchMEM/benchPEP/benchRIB). **Status: tentative** — no confirmed `module spider gromacs` output yet; page lists three fallback install paths (overspack module, NGC container, conda).

@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, security, authentication, kerberos, pam, ssh]
 created: 2026-04-10
-updated: 2026-06-16
-sources: [2026-06-16-teams-chats-digest]
+updated: 2026-06-18
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest]
 related: [betty-cluster, open-ondemand-betty, ood-troubleshooting, kerberos-ssh-macos-fix]
 status: current
 ---
@@ -39,6 +39,8 @@ pam_slurm_adopt.so action_no_jobs=deny                       # blocks SSH if no 
 - If the user has NO active job on that node, SSH is **denied**
 - `/etc/security/pam_slurm_allow.conf` contains a whitelist for admin accounts that can bypass this check
 
+**Deployment status & multi-job caveat** (confirmed by [[jamie-schnaitter]], 2026-06-18): `pam_slurm_adopt` is now in place on Betty, so a user can SSH directly to a node where they have a running job. Caveat: if the user has **multiple jobs on the same node**, the adopted SSH session is only attached to the cgroup of **one** of them (which job is non-deterministic from the user's side). This matters for interactive debugging — the SSH session's CPU/GPU/memory visibility reflects just that one job's cgroup, not the union of the user's allocations on the node.
+
 **Why this matters**: This is the root cause of OOD's "shell-to-compute-node" link failing. When OOD tries to open an SSH session to a compute node, `pam_slurm_adopt` blocks it unless the user already has a Slurm job running there. See [[ood-troubleshooting]] for the full diagnostic chain.
 
 ## Open OnDemand authentication
@@ -69,3 +71,4 @@ A common **client-side** SSH failure on macOS is `Permission denied (publickey,g
 ## Sources
 - Live inspection of `/etc/pam.d/sshd` on dgx028 (OOD session 5207320, 2026-04-10)
 - [[2026-06-16-teams-chats-digest]] -- macOS Kerberos SSH failure + fix thread
+- [[2026-06-18-teams-chats-digest]] -- Jamie confirms pam_slurm_adopt is live + multi-job cgroup caveat

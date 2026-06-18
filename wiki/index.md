@@ -87,3 +87,4 @@
 - [[2026-04-27-slurm-advisor-architecture-and-reply-ryb]] — Architecture deep-dive (data flow, verbatim-paste contract) + reply to Ryan's review asks
 - [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]] — measured BEAST + BEAGLE-CUDA on Betty (1.73× GPU speedup); cross-group permissions facilitation lesson from ryb
 - [[2026-06-16-teams-chats-digest]] — 8 Teams chats (Apr–Jun 2026): cli_filter `--mem` bug, GROMACS onboarding, macOS Kerberos fix, libhwloc outage, VLM hosting, betty-ai proxy design
+- [[2026-06-18-teams-chats-digest]] — Jamie confirms `pam_slurm_adopt` live on Betty + multi-job-per-node cgroup caveat
