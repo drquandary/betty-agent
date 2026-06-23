@@ -342,6 +342,12 @@
 - Updated: [[jeffrey-vadala]] (added project + 6/18 source), [[kenneth-chaney]] (120B model recommendation to jvadala), [[2026-06-18-teams-chats-digest]] (new Templeton section + pages-touched), [[index]].
 - Tasks: none added — status/chit-chat, no action item (Jeffrey already offered GLM-DSA help in prior pass).
 
+## [2026-06-23] ingest | Teams chats digest — provisioning workaround verified (digest_20260623T125933.json)
+- Source: PARCC Group chat, Kenneth Chaney, 2026-06-23T16:33–16:40Z (3 new msgs; afternoon continuation of the paused-sync thread). Other 7 chats had no new messages.
+- Updated: [[2026-06-23-teams-chats-digest]] (new "Workaround verified" section + 3rd source), [[betty-cluster]] (workaround-verified bullet on the home-dir issue), [[kenneth-chaney]] (verified-workaround outcome).
+- Key fact: Ken's manual fix is verified good for users; remaining syncs (groups, VAST, Ceph, Slurm) verified. Workaround should stay safe even after the root cause is fixed — new-user provisioning unblocked via the manual path; paused-sync root cause still open.
+- Tasks: folded a verified-status UPDATE sub-bullet under the existing hold item in `knowledge/tasks.md`; no new standalone task.
+
 ## [2026-06-23] ingest | Teams chats digest — provisioning hold escalation (digest_20260623T122658.json)
 - Source: PARCC Group chat, Combariza & Chaney, 2026-06-23T16:13–16:22Z (10 new msgs; same-day continuation of the 14:36Z paused-sync thread). Other 7 chats had no new messages.
 - Updated: [[2026-06-23-teams-chats-digest]] (added midday-update section + 2nd source), [[betty-cluster]] (midday escalation on home-dir issue), [[kenneth-chaney]] (manual workaround, downstream-automation insight, wharton_lliu1 4TB).

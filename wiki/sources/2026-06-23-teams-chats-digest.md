@@ -25,10 +25,17 @@ Ken Chaney explains the broken new-user home directories: account provisioning (
 - **Durable insight — paused user creation cascades** (Ken, 16:21–16:22Z): "Not having the user creation blocks all of our automations… the downstream automations assume that the users are in place properly." Account provisioning is the upstream dependency for the rest of the PARCC automation pipeline.
 - **Emergency storage request** (Jaime relaying Gavin, 16:20Z): emergency to increase `wharton_lliu1` storage to **4TB**; Ken saw it on Slack.
 
+## Workaround verified (16:33–16:40Z)
+
+- **Manual fix good for users** (Kenneth Chaney, 16:33Z): the manual workaround for the broken new-user home dirs is confirmed working.
+- **Remaining syncs verified** (Ken, 16:34Z): verifying the rest of the syncs "in order: groups, VAST, Ceph, Slurm."
+- **All syncs verified, workaround durable** (Ken, 16:40Z): syncs verified. Ken dislikes needing the workaround but states it **should always be safe even after the root cause is fixed** — so it can stay in place as a permanent safety net rather than being unwound once the upstream pause is resolved. New-user provisioning is unblocked; the paused-sync root cause remains open.
+
 ## Pages touched
-- Updated [[betty-cluster]] — added 2026-06-23 update to the BCM→VAST home-dir open-issue entry (sync paused; post-TAC manual fix plan); midday: hold now top priority, manual workaround ~1pm, approvals won't propagate until sync resumes
-- Updated [[kenneth-chaney]] — recorded the paused account sync, post-Palo-Alto-TAC resync + manual home-folder fix plan, and the durable insight that paused user creation blocks all downstream automations
+- Updated [[betty-cluster]] — added 2026-06-23 update to the BCM→VAST home-dir open-issue entry (sync paused; post-TAC manual fix plan); midday: hold now top priority, manual workaround ~1pm, approvals won't propagate until sync resumes; afternoon: workaround verified good, syncs (groups/VAST/Ceph/Slurm) verified, safe even post-root-cause
+- Updated [[kenneth-chaney]] — recorded the paused account sync, post-Palo-Alto-TAC resync + manual home-folder fix plan, the durable insight that paused user creation blocks all downstream automations, and the verified-workaround outcome
 
 ## Sources
 - PARCC Group Teams chat, Kenneth Chaney, 2026-06-23T14:36Z (digest `digest_20260623T105335.json`)
 - PARCC Group Teams chat, Combariza & Chaney, 2026-06-23T16:13–16:22Z (digest `digest_20260623T122658.json`)
+- PARCC Group Teams chat, Kenneth Chaney, 2026-06-23T16:33–16:40Z (digest `digest_20260623T125933.json`)
