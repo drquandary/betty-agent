@@ -341,3 +341,8 @@
 - Created: [[templeton-religious-trust-project]] — jvadala's Templeton-funded research using a 120B open LLM (per Ken's suggestion) to classify ~2000 free-text religious-experience responses (4 classifications × bootstrapped 10×, speed-bound) into knowledge graphs for SNA; early "q2" ~86%. Status: tentative (model identity inferred).
 - Updated: [[jeffrey-vadala]] (added project + 6/18 source), [[kenneth-chaney]] (120B model recommendation to jvadala), [[2026-06-18-teams-chats-digest]] (new Templeton section + pages-touched), [[index]].
 - Tasks: none added — status/chit-chat, no action item (Jeffrey already offered GLM-DSA help in prior pass).
+
+## [2026-06-23] ingest | Teams chats digest — provisioning hold escalation (digest_20260623T122658.json)
+- Source: PARCC Group chat, Combariza & Chaney, 2026-06-23T16:13–16:22Z (10 new msgs; same-day continuation of the 14:36Z paused-sync thread). Other 7 chats had no new messages.
+- Updated: [[2026-06-23-teams-chats-digest]] (added midday-update section + 2nd source), [[betty-cluster]] (midday escalation on home-dir issue), [[kenneth-chaney]] (manual workaround, downstream-automation insight, wharton_lliu1 4TB).
+- Tasks: added 3 to `knowledge/tasks.md` (Others/FYI) — hold still in place / top priority, approvals won't propagate till sync resumes; emergency wharton_lliu1 → 4TB storage; (workaround ~1pm folded into hold item).
