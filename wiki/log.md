@@ -352,3 +352,9 @@
 - Source: PARCC Group chat, Combariza & Chaney, 2026-06-23T16:13–16:22Z (10 new msgs; same-day continuation of the 14:36Z paused-sync thread). Other 7 chats had no new messages.
 - Updated: [[2026-06-23-teams-chats-digest]] (added midday-update section + 2nd source), [[betty-cluster]] (midday escalation on home-dir issue), [[kenneth-chaney]] (manual workaround, downstream-automation insight, wharton_lliu1 4TB).
 - Tasks: added 3 to `knowledge/tasks.md` (Others/FYI) — hold still in place / top priority, approvals won't propagate till sync resumes; emergency wharton_lliu1 → 4TB storage; (workaround ~1pm folded into hold item).
+
+## [2026-06-23] ingest | Teams chats digest — LiteLLM contention pause / GLM down (digest_20260623T163557.json)
+- Source: Kenneth Chaney 1:1 Teams chat, 2026-06-23T20:19–20:34Z (5 new msgs). Other 7 chats had no new messages this cycle.
+- Key fact: Ken asked jvadala to pause requests to the PARCC LiteLLM gateway while resolving model-contention issues; jvadala complied and stopped his jobs. jvadala noted the served GLM model went down during the window. Transient evening incident.
+- Updated: [[2026-06-23-teams-chats-digest]] (new "LiteLLM model-contention pause" section + 4th source), [[kenneth-chaney]] (model-serving: 6/23 contention incident under GLM-DSA), [[index]] (digest source line).
+- Tasks: added 1 to `knowledge/tasks.md` (For me / Jeffrey) — keep LiteLLM requests paused until Ken's all-clear.

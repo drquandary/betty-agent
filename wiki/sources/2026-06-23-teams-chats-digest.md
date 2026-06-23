@@ -31,11 +31,18 @@ Ken Chaney explains the broken new-user home directories: account provisioning (
 - **Remaining syncs verified** (Ken, 16:34Z): verifying the rest of the syncs "in order: groups, VAST, Ceph, Slurm."
 - **All syncs verified, workaround durable** (Ken, 16:40Z): syncs verified. Ken dislikes needing the workaround but states it **should always be safe even after the root cause is fixed** — so it can stay in place as a permanent safety net rather than being unwound once the upstream pause is resolved. New-user provisioning is unblocked; the paused-sync root cause remains open.
 
+## LiteLLM model-contention pause (Ken 1:1, 20:19–20:34Z)
+
+- **Pause request** (Kenneth Chaney, 1:1 chat, 20:19–20:20Z): asked jvadala to **pause requests to LiteLLM** for a bit while he resolves **model-contention issues**. This is the PARCC LiteLLM gateway that fronts the served models (see [[kenneth-chaney]] proxy/API-key design).
+- **jvadala complied** (20:33Z): agreed and stopped his running jobs.
+- **GLM down** (jvadala, 20:34Z): noted that **GLM went down** — i.e. the served GLM model (Ken's [[kenneth-chaney]] GLM-DSA deployment) was unavailable, consistent with the contention Ken was working through. Status: transient incident, evening 6/23.
+
 ## Pages touched
 - Updated [[betty-cluster]] — added 2026-06-23 update to the BCM→VAST home-dir open-issue entry (sync paused; post-TAC manual fix plan); midday: hold now top priority, manual workaround ~1pm, approvals won't propagate until sync resumes; afternoon: workaround verified good, syncs (groups/VAST/Ceph/Slurm) verified, safe even post-root-cause
-- Updated [[kenneth-chaney]] — recorded the paused account sync, post-Palo-Alto-TAC resync + manual home-folder fix plan, the durable insight that paused user creation blocks all downstream automations, and the verified-workaround outcome
+- Updated [[kenneth-chaney]] — recorded the paused account sync, post-Palo-Alto-TAC resync + manual home-folder fix plan, the durable insight that paused user creation blocks all downstream automations, the verified-workaround outcome, and the evening LiteLLM model-contention pause + GLM-down incident
 
 ## Sources
 - PARCC Group Teams chat, Kenneth Chaney, 2026-06-23T14:36Z (digest `digest_20260623T105335.json`)
 - PARCC Group Teams chat, Combariza & Chaney, 2026-06-23T16:13–16:22Z (digest `digest_20260623T122658.json`)
 - PARCC Group Teams chat, Kenneth Chaney, 2026-06-23T16:33–16:40Z (digest `digest_20260623T125933.json`)
+- Kenneth Chaney 1:1 Teams chat, 2026-06-23T20:19–20:34Z (digest `digest_20260623T163557.json`) — LiteLLM pause / GLM down
