@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, hpc, cluster, parcc, upenn]
 created: 2026-04-08
-updated: 2026-06-18
-sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest]
+updated: 2026-06-23
+sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest]
 related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager, kenneth-chaney]
 status: current
 ---
@@ -60,6 +60,7 @@ See [[vast-storage]].
 ## Incidents / open issues (June 2026, from [[2026-06-16-teams-chats-digest]])
 - **`libhwloc.so.15` outage (6/16):** the library went missing → `dlopen(.../mpi_pmix.so): libhwloc.so.15: cannot open shared object file` → cluster-wide `srun` failures (`Invalid MPI type 'pmix'`) and nodes going down. Restored by [[kenneth-chaney]] (library put back); AHEAD doing an RCA on how it was deleted.
 - **BCM → VAST new-user home-dir creation fails** after the NFSv4 + idmap switch: BCM (`user; add ...; commit`) cannot create the home dir, leaving it **owned by root** with `/etc/skel` not copied (`Unable to copy to /vast/home/...`, `Failed to create home directory ... from /etc/skel/`). Blocks OOD login for new users (e.g. abbyleib, tamachad, rhoadese). Do **not** manually fix yet — skel deployment is also broken. See [[bcm-bright-cluster-manager]].
+  - **Update (2026-06-23, [[kenneth-chaney]]):** the broken home dirs are because **user creation and the rest of the account sync are still paused**. Plan: after the pending **Palo Alto TAC** (firewall vendor support) session, Ken will run one round of syncs and **manually fix all user home folders** that get created.
 - **`parcc_quota` home-folder logic broken** since the NFSv4 upgrade (for all users) — see [[parcc-helper-tools]].
 - **ColdFront ↔ Grouper PI miscommunication:** faculty accounts not flagged `is_pi` (e.g. tamachad); under debugging.
 - **VAST VMS portal flaky** (data plane unaffected, no user impact) — see [[vast-storage]].

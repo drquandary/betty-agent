@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-23] ingest | Teams digest — account sync paused, post-TAC home-folder fix plan
+- Source: [[2026-06-23-teams-chats-digest]] (PARCC Group, Kenneth Chaney, 2026-06-23T14:36Z, digest `digest_20260623T105335.json`)
+- Created: [[2026-06-23-teams-chats-digest]]
+- Updated: [[betty-cluster]] (BCM→VAST home-dir open issue: 2026-06-23 update), [[kenneth-chaney]] (paused account sync + post-TAC plan), [[index]]
+- Key fact: broken new-user home dirs are caused by user creation + account sync being paused; after the pending Palo Alto TAC firewall session, Ken will run one round of syncs and manually fix all home folders made.
+
 ## [2026-06-18] ingest | Teams digest — Ken GLM-DSA deployment + 110 dB server-room note
 - Source: [[2026-06-18-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-18T21:52–22:17Z, digest `digest_20260618T181730.json`)
 - Updated: [[kenneth-chaney]] (GLM-DSA deployment: Q4 quant, ~2% hit, no sglang day-zero support), [[betty-cluster]] (new Facility section, ~110 dB server-room noise), [[2026-06-18-teams-chats-digest]] (two new bullets + source)
