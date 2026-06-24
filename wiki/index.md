@@ -91,3 +91,4 @@
 - [[2026-06-16-teams-chats-digest]] — 8 Teams chats (Apr–Jun 2026): cli_filter `--mem` bug, GROMACS onboarding, macOS Kerberos fix, libhwloc outage, VLM hosting, betty-ai proxy design
 - [[2026-06-18-teams-chats-digest]] — Jamie confirms `pam_slurm_adopt` live on Betty + multi-job-per-node cgroup caveat
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
+- [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead

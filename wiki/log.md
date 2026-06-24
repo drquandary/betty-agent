@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-24] ingest | Teams digest — /ceph not mounted on DTN nodes, vendor ticket to Ahead
+- Source: [[2026-06-24-teams-chats-digest]] (PARCC Group, Combariza/Chaney, 2026-06-24T12:54–12:56Z, digest `digest_20260624T085626.json`)
+- Created: [[2026-06-24-teams-chats-digest]]
+- Updated: [[betty-storage-architecture]] (Tier 2 Ceph: tentative known issue — `/ceph` not mounted on DTN nodes), [[index]]
+- Key fact: Jaime flagged `/ceph` is not mounted on the DTN (data-transfer) nodes; team agreed a vendor ticket is the right route and Ken submitted one to Ahead. 1:1 thread same date was personal — not ingested.
+
 ## [2026-06-23] ingest | Teams digest — account sync paused, post-TAC home-folder fix plan
 - Source: [[2026-06-23-teams-chats-digest]] (PARCC Group, Kenneth Chaney, 2026-06-23T14:36Z, digest `digest_20260623T105335.json`)
 - Created: [[2026-06-23-teams-chats-digest]]
