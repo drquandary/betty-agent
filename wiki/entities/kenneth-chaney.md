@@ -4,7 +4,7 @@ tags: [people, parcc, systems, infra, ken, sandbox, model-serving]
 created: 2026-06-16
 updated: 2026-06-25
 sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest]
-related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala]
+related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala, glm-5.2, multi-token-prediction]
 status: current
 ---
 
@@ -23,6 +23,7 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - **Model serving** — deploys Unsloth quantized models on the B200 hardware, targeting native NVFP4 tensors. Interested in following Kimi-code.
   - **GLM-DSA deployment (in progress, 2026-06-18):** working out issues with the `glm-dsa` architecture. sglang did **not** provide day-zero support this release (a change from past releases). Serving at **Q4 quantization** with a measured **~2% performance hit**. Status: tentative/ongoing.
   - **Model-contention incident (2026-06-23 evening, ~20:19Z):** asked jvadala to **pause requests to the PARCC LiteLLM gateway** while resolving model-contention issues; jvadala stopped his jobs. The served **GLM model went down** during this window. Transient incident — resume traffic only on Ken's all-clear.
+  - **GLM-5.2 / z.ai interest (2026-06-25):** when jvadala shared [[z.ai]]'s GLM-5.2, Ken signalled intent to try it — *"Not yet, but we will!"* — and noted its speed comes from **MTP (multi-token prediction)**, *"a much faster MTP"* (not classic draft-model speculative decoding). See [[glm-5.2]], [[multi-token-prediction]]. Extends the GLM-family serving thread.
 - **VAST / BCM / NFSv4 ops** — leads triage on the 6/16 `libhwloc.so.15` outage (restored the library) and the BCM→VAST new-user home-dir creation failure after the NFSv4+idmap switch (see [[betty-cluster]], [[bcm-bright-cluster-manager]]).
   - **Account sync paused (2026-06-23):** user creation and the remainder of the account sync are currently paused — this is what leaves new home folders broken. Plan: after the pending **Palo Alto TAC** firewall-support session, run one round of syncs and manually fix all home folders that get made.
   - **Midday escalation (2026-06-23):** with 3 new PIs onboarded, Jaime flagged this top priority. Ken is manually running a workaround while awaiting BCM and/or VAST, targeting ~1pm. Key insight: **paused user creation blocks all downstream automations** — they assume users are already provisioned. Approved projects/allocations won't propagate to Betty until the sync resumes. Also handling an emergency Slack request to raise `wharton_lliu1` storage to 4TB.

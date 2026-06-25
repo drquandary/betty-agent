@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-25] ingest | Teams digest — z.ai/GLM-5.2 + MTP (Ken 1:1)
+- Source: [[2026-06-25-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-25T15:51–16:01Z, digest `digest_20260625T120842.json`)
+- Created: [[glm-5.2]] (model), [[z.ai]] (entity), [[multi-token-prediction]] (concept)
+- Updated: [[kenneth-chaney]] (GLM-5.2/MTP interest under Model serving + related), [[2026-06-25-teams-chats-digest]] (new section + source), [[index]]
+- Key facts: Jeffrey shared z.ai's GLM-5.2; Ken intends to try it ("Not yet, but we will!"); its speed comes from **MTP (multi-token prediction)** — "a much faster MTP" — not classic two-model draft/verify speculative decoding. Task added (For me · Jeffrey: evaluate GLM-5.2).
+
 ## [2026-06-24] ingest | Teams digest — /ceph not mounted on DTN nodes, vendor ticket to Ahead
 - Source: [[2026-06-24-teams-chats-digest]] (PARCC Group, Combariza/Chaney, 2026-06-24T12:54–12:56Z, digest `digest_20260624T085626.json`)
 - Created: [[2026-06-24-teams-chats-digest]]

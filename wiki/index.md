@@ -19,6 +19,7 @@
 - [[jeffrey-vadala]] — PARCC user-facilitation hire (jvadala); builds the Betty AI agent, owns ERF/GROMACS onboarding (1 source)
 - [[jaime-combariza]] — senior PARCC staff (jcombar1); drives ops, accounts, hardware, licensing; heavy cli_filter tester (2 sources)
 - [[kenneth-chaney]] — PARCC systems engineer; built `parcc_sandbox`, owns `parcc_sfree.py`, deploys quantized LLMs (1 source)
+- [[z.ai]] — External AI vendor; "Advanced AI Chatbot & Agent" powered by GLM-5.2 (tentative, 1 source)
 - [[jamie-schnaitter]] — PARCC systems engineer; Kerberos/SSH authority, authored the macOS `KRB5CCNAME` fix (1 source)
 
 ## Concepts
@@ -59,6 +60,7 @@
 - [[erf-user-facilitation]] — ERF code task + CI-facilitation onboarding; ryb's repo/branch workflow + HPC-culture resources (1 source)
 - [[betty-ai-agent]] — jvadala's Betty assistant (dashboard + pi/Claude agent), proxy/API-key design (1 source)
 - [[cuda-forward-compatibility-betty]] — CUDA/driver ceiling model, `cuda-compat` OS-image plan, default `arch/26.1`+`cuda/13.1.1`, driver-upgrade outlook (1 source)
+- [[multi-token-prediction]] — MTP inference speedup vs. classic draft/verify speculative decoding; GLM-5.2's "faster MTP" (tentative, 1 source)
 - [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative, 1 source)
 
 ## Models
@@ -67,6 +69,7 @@
 - [[llama-3-70b]] — Larger text-only, fits on 1 B200 with LoRA
 - [[mistral-7b]] — Efficient 7B baseline
 - [[deepseek-v3]] — 671B MoE, requires 8+ B200 GPUs
+- [[glm-5.2]] — z.ai flagship LLM; fast inference via MTP; on PARCC's radar to try (tentative, 1 source)
 
 ## Experiments
 <!-- Populated as experiments are run. See [[experiments/TEMPLATE]] for the page template. -->
