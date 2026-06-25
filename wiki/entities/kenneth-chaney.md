@@ -2,8 +2,8 @@
 type: entity
 tags: [people, parcc, systems, infra, ken, sandbox, model-serving]
 created: 2026-06-16
-updated: 2026-06-23
-sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest]
+updated: 2026-06-25
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest]
 related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala]
 status: current
 ---
@@ -31,6 +31,10 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - Floated hosting jvadala's [[surgical-tool-id-vlm]] on the cluster for higher throughput.
 - **Model recommendation to jvadala** — suggested the 120B open model jvadala now uses for the [[templeton-religious-trust-project]]; both wish for a published update to that model family.
 
+## Views / interests
+- **On assessing PARCC (tentative, 2026-06-25):** comfortable with an outside party (the Betty/PARCC anthropology study) gathering info — "we should be encouraging her." Holds that the deeper problem is PARCC has **no defined success metrics** ("What metric are we gauging ourselves against? What is good? None of that is defined right now"), and notes this opinion **differs from most of the group**.
+- **Shares the most AI/LLM overlap with jvadala** among the PARCC staff (vs. Ryan/Jamie). Pointed jvadala to the **NVIDIA BioNeMo agent toolkit** (`github.com/NVIDIA-BioNeMo/bionemo-agent-toolkit`, "turn any agent into a life-science expert"). Committed to scheduling regular coffees.
+
 ## API-key / agent guidance (to jvadala)
 - Use `parcc_sfree.py` as the dashboard data source; add a "booting AI in progress" label.
 - A webserver with a **local proxy** is the agreed way to protect the provider API key (`user/agent → localhost proxy → PARCC LiteLLM gateway → provider model`).
@@ -47,3 +51,4 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - [[2026-06-16-teams-chats-digest]] — sandbox, dashboard, model-serving, and ops threads
 - [[2026-06-18-teams-chats-digest]] — GLM-DSA deployment (Q4, no sglang day-zero support); 110 dB server-room note; 120B model recommendation to jvadala
 - [[2026-06-23-teams-chats-digest]] — account sync paused; manual home-folder fixes planned after Palo Alto TAC session
+- [[2026-06-25-teams-chats-digest]] — "no defined success metrics" view; BioNeMo agent toolkit; coffee-scheduling commitment

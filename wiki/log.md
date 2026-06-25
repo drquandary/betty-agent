@@ -364,3 +364,9 @@
 - Key fact: Ken asked jvadala to pause requests to the PARCC LiteLLM gateway while resolving model-contention issues; jvadala complied and stopped his jobs. jvadala noted the served GLM model went down during the window. Transient evening incident.
 - Updated: [[2026-06-23-teams-chats-digest]] (new "LiteLLM model-contention pause" section + 4th source), [[kenneth-chaney]] (model-serving: 6/23 contention incident under GLM-DSA), [[index]] (digest source line).
 - Tasks: added 1 to `knowledge/tasks.md` (For me / Jeffrey) — keep LiteLLM requests paused until Ken's all-clear.
+
+## [2026-06-25] ingest | Teams chats digest — Ken 1:1 (digest_20260625T095929.json)
+- Source: Kenneth Chaney 1:1 Teams chat, 2026-06-25T13:28–13:54Z (13 new msgs; mostly social, 3 durable items). Other 7 chats had no new messages this cycle.
+- Created: [[2026-06-25-teams-chats-digest]].
+- Updated: [[kenneth-chaney]] (new "Views / interests" section: no-defined-metrics view, BioNeMo toolkit, coffee commitment + 4th source), [[index]] (digest source line).
+- Tasks: added 1 to `knowledge/tasks.md` (For me) — check out NVIDIA BioNeMo agent toolkit; folded a 6/25 UPDATE sub-bullet under the existing pending-coffee item.
