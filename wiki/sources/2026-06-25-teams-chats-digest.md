@@ -32,6 +32,10 @@ Ken Chaney 1:1: argues PARCC's bigger problem than any outside assessment is the
 - **z.ai / GLM-5.2 surfaced.** Jeffrey shared the [[z.ai]] product link — "Advanced AI Chatbot & Agent powered by GLM-5.2" (builds websites, writes code, long-horizon tasks). Asked Ken if he'd used it; Ken: *"Not yet, but we will!"* → intent to evaluate, captured as a task. See [[glm-5.2]].
 - **Durable concept — MTP vs. speculative decoding.** Jeffrey framed the speedup as classic draft/verify speculative decoding: *"the draft model writes, and the large model just checks it?"* Ken corrected: *"It is a much faster MTP."* I.e. GLM-5.2's throughput edge is **multi-token prediction** (single model with extra prediction heads emitting several tokens per step), not a separate draft model. Synthesized into [[multi-token-prediction]]. Fits Ken's existing GLM-family serving thread (GLM-DSA, Unsloth quants — see [[kenneth-chaney]]).
 
+## Ken 1:1 follow-up — dflash + meet-up (2026-06-25T18:30–18:32Z)
+- **"dflash" gains a little context (still tentative).** Jeffrey: "dflash might be killer for this other project I am trying to do." Ken: "I'm going to get it tested on gpt oss today hopefully." → dflash is something Ken plans to test against a **GPT-OSS** serving stack, suggesting it is an inference/serving-side tool rather than a one-off script. Identity still unconfirmed; status: tentative. Follow-up task logged for the gpt-oss test result. See [[kenneth-chaney]].
+- The previously-confirmed 3pm coffee was coordinated live (Jeffrey out early; Ken to "wander over"). Remaining messages were chit-chat (auto-correct jokes) and not ingested.
+
 ## See also
 - [[kenneth-chaney]]
 - [[jaime-combariza]]
@@ -44,3 +48,4 @@ Ken Chaney 1:1: argues PARCC's bigger problem than any outside assessment is the
 - Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T13:28–13:54Z (digest `digest_20260625T095929.json`)
 - Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T15:11–15:15Z (digest `digest_20260625T113558.json`) — betty-toolkit idea, coffee confirmed (3pm), dflash mention
 - Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T15:51–16:01Z (digest `digest_20260625T120842.json`) — z.ai/GLM-5.2 shared, "Not yet, but we will!", "It is a much faster MTP"
+- Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T18:30–18:32Z (digest `digest_20260625T144501.json`) — dflash possibly useful for another project, Ken to test on gpt-oss; coffee coordinated live

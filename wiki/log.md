@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-25] ingest | Teams digest — dflash on GPT-OSS + meet-up (Ken 1:1)
+- Source: [[2026-06-25-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-25T18:30–18:32Z, digest `digest_20260625T144501.json`)
+- Updated: [[kenneth-chaney]] (dflash test on GPT-OSS note under Model serving), [[2026-06-25-teams-chats-digest]] (new follow-up section + source), [[index]]
+- Key facts: jvadala thinks "dflash might be killer for this other project"; Ken to "get it tested on gpt oss today" → dflash likely an inference/serving tool (still unidentified, tentative). 3pm coffee coordinated live. Remaining messages chit-chat. Task updated (For me · dflash follow-up).
+
 ## [2026-06-25] ingest | Teams digest — z.ai/GLM-5.2 + MTP (Ken 1:1)
 - Source: [[2026-06-25-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-25T15:51–16:01Z, digest `digest_20260625T120842.json`)
 - Created: [[glm-5.2]] (model), [[z.ai]] (entity), [[multi-token-prediction]] (concept)
