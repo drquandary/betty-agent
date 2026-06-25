@@ -92,4 +92,4 @@
 - [[2026-06-18-teams-chats-digest]] — Jamie confirms `pam_slurm_adopt` live on Betty + multi-job-per-node cgroup caveat
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
-- [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; coffee-scheduling commitment
+- [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; coffee commitment. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch

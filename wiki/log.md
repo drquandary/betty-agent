@@ -365,6 +365,12 @@
 - Updated: [[2026-06-23-teams-chats-digest]] (new "LiteLLM model-contention pause" section + 4th source), [[kenneth-chaney]] (model-serving: 6/23 contention incident under GLM-DSA), [[index]] (digest source line).
 - Tasks: added 1 to `knowledge/tasks.md` (For me / Jeffrey) — keep LiteLLM requests paused until Ken's all-clear.
 
+## [2026-06-25] ingest | Teams digest — ColdFront project-activation suspected side effect of Ken's user patch (digest_20260625T103228.json)
+- Source: PARCC Group chat, Kenneth Chaney, 2026-06-25T14:00Z (1 new msg, a quote-reply to Jaime's 6/24 report). Other 7 chats had no new messages this cycle.
+- Updated: [[2026-06-25-teams-chats-digest]] (new "PARCC Group — ColdFront project-activation follow-up" section), [[kenneth-chaney]] (workaround side-effect bullet + source line), [[betty-cluster]] (project-activation side effect under the home-dir/sync issue; frontmatter updated + 2026-06-25 source).
+- Key fact: ColdFront projects 269/270 (users `recha`/`surbhig`) failed to activate to Betty; Ken suspects **his manual user-creation patch** (the 6/23 paused-sync workaround) breaks project/allocation propagation. Status: tentative, root cause being confirmed.
+- Tasks: folded a 6/25 UPDATE sub-bullet under the existing ColdFront-activation item in `knowledge/tasks.md` (Others/FYI); no new standalone task.
+
 ## [2026-06-25] ingest | Teams chats digest — Ken 1:1 (digest_20260625T095929.json)
 - Source: Kenneth Chaney 1:1 Teams chat, 2026-06-25T13:28–13:54Z (13 new msgs; mostly social, 3 durable items). Other 7 chats had no new messages this cycle.
 - Created: [[2026-06-25-teams-chats-digest]].

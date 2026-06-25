@@ -19,6 +19,10 @@ Ken Chaney 1:1: argues PARCC's bigger problem than any outside assessment is the
 
 (Remaining messages in the thread were personal/social chit-chat and not ingested.)
 
+## PARCC Group — ColdFront project-activation follow-up (2026-06-25T14:00Z)
+- Ken replied to Jaime's 6/24 report that two ColdFront projects had not activated to Betty (users `recha` / `surbhig`, project IDs **269** and **270**): *"Taking a look now. Probably an issue with my patch for the users."*
+- **Durable link:** Ken attributes the failed project activation to **his manual user-creation patch** — the 6/23 workaround run while account sync was paused (see [[kenneth-chaney]], [[betty-cluster]]). So the manual path that unblocked *user* provisioning appears to have a side effect on *project/allocation* propagation. Root cause still being confirmed; status: tentative.
+
 ## See also
 - [[kenneth-chaney]]
 - [[jaime-combariza]]

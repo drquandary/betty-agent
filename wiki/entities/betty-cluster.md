@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, hpc, cluster, parcc, upenn]
 created: 2026-04-08
-updated: 2026-06-23
-sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest]
+updated: 2026-06-25
+sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest]
 related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager, kenneth-chaney]
 status: current
 ---
@@ -63,6 +63,7 @@ See [[vast-storage]].
   - **Update (2026-06-23, [[kenneth-chaney]]):** the broken home dirs are because **user creation and the rest of the account sync are still paused**. Plan: after the pending **Palo Alto TAC** (firewall vendor support) session, Ken will run one round of syncs and **manually fix all user home folders** that get created.
   - **Midday escalation (2026-06-23):** hold still in place; 3 new PIs onboarded → [[jaime-combariza]] flagged it top priority ("PARCC will not function properly if part of the system is down for weeks"). Ken running a manual workaround while awaiting BCM and/or VAST (~1pm target). Paused user creation is the **upstream dependency for the whole automation pipeline** — downstream automations assume users are already in place, and approved projects/allocations won't propagate to Betty until the sync resumes.
   - **Workaround verified (2026-06-23, ~16:33–16:40Z, [[kenneth-chaney]]):** the manual fix is **good for users**, and the remaining syncs (groups, VAST, Ceph, Slurm) are **verified**. Ken notes the workaround should stay **safe even after the root cause is fixed** (while disliking that it's needed). New-user provisioning is unblocked via the manual path; the underlying paused-sync root cause is still open.
+  - **Side effect on project activation (2026-06-25, [[kenneth-chaney]]):** [[jaime-combariza]] reported two ColdFront projects had not activated to Betty (users `recha`/`surbhig`, projects 269/270). Ken is investigating and suspects **his user patch** — the manual workaround that fixed *user* provisioning may break ColdFront→Betty *project/allocation* propagation. Status: tentative.
 - **`parcc_quota` home-folder logic broken** since the NFSv4 upgrade (for all users) — see [[parcc-helper-tools]].
 - **ColdFront ↔ Grouper PI miscommunication:** faculty accounts not flagged `is_pi` (e.g. tamachad); under debugging.
 - **VAST VMS portal flaky** (data plane unaffected, no user impact) — see [[vast-storage]].
