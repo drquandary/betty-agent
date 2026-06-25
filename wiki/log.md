@@ -371,6 +371,12 @@
 - Key fact: ColdFront projects 269/270 (users `recha`/`surbhig`) failed to activate to Betty; Ken suspects **his manual user-creation patch** (the 6/23 paused-sync workaround) breaks project/allocation propagation. Status: tentative, root cause being confirmed.
 - Tasks: folded a 6/25 UPDATE sub-bullet under the existing ColdFront-activation item in `knowledge/tasks.md` (Others/FYI); no new standalone task.
 
+## [2026-06-25] ingest | Teams digest — betty-toolkit idea + coffee confirmed (digest_20260625T113558.json)
+- Source: Kenneth Chaney 1:1 Teams chat, 2026-06-25T15:11–15:15Z (11 new msgs; mostly social — coffee-shop location, NVIDIA test). Other 7 chats had no new messages this cycle.
+- Updated: [[2026-06-25-teams-chats-digest]] (new "Ken 1:1 follow-up" section: betty-toolkit idea, coffee confirmed 3pm, dflash; 2nd source line), [[jeffrey-vadala]] (betty-toolkit aspiration + frontmatter/source), [[index]] (digest line).
+- Key facts: (1) jvadala wants to build a "betty-toolkit" — a Betty-local tool-discovery surface for researchers, modeled on the BioNeMo agent toolkit (tentative aspiration). (2) Coffee with Ken confirmed for 3pm today via calendar invite; coffee shop in the "red oval building" near Smilow. (3) Ken asked "Have you seen dflash?" — unidentified, captured tentatively.
+- Tasks: added 2 to `knowledge/tasks.md` (For me: betty-toolkit prototype, dflash follow-up); folded a 6/25-later UPDATE under the existing coffee item confirming 3pm + location.
+
 ## [2026-06-25] ingest | Teams chats digest — Ken 1:1 (digest_20260625T095929.json)
 - Source: Kenneth Chaney 1:1 Teams chat, 2026-06-25T13:28–13:54Z (13 new msgs; mostly social, 3 durable items). Other 7 chats had no new messages this cycle.
 - Created: [[2026-06-25-teams-chats-digest]].

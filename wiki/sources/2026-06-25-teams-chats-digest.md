@@ -19,6 +19,11 @@ Ken Chaney 1:1: argues PARCC's bigger problem than any outside assessment is the
 
 (Remaining messages in the thread were personal/social chit-chat and not ingested.)
 
+## Ken 1:1 follow-up — betty-toolkit idea + coffee confirmed (2026-06-25T15:11–15:15Z)
+- **"betty-toolkit" idea (tentative).** Riffing on the [[betty-ai-agent]] and the BioNeMo toolkit Ken shared, Jeffrey said he'd been "hoping to make a betty-toolkit that would be specific to betty but be like a way for researchers to find tools like above" — i.e. a Betty-local analog to the NVIDIA BioNeMo agent toolkit, a tool-discovery surface for researchers. Aspiration, not committed work; status: tentative. See [[jeffrey-vadala]].
+- **Coffee with Ken confirmed.** The previously-uncommitted coffee firmed up: Jeffrey received a calendar invite from Ken and confirmed they're meeting at **3pm today**. Location is the coffee shop in the "red oval building" (bottom floor near the bridge, close to Smilow).
+- **"dflash" (tentative, unidentified).** Ken asked "Have you seen dflash?" — no further context given in-thread; identity/relevance unknown. Captured for follow-up.
+
 ## PARCC Group — ColdFront project-activation follow-up (2026-06-25T14:00Z)
 - Ken replied to Jaime's 6/24 report that two ColdFront projects had not activated to Betty (users `recha` / `surbhig`, project IDs **269** and **270**): *"Taking a look now. Probably an issue with my patch for the users."*
 - **Durable link:** Ken attributes the failed project activation to **his manual user-creation patch** — the 6/23 workaround run while account sync was paused (see [[kenneth-chaney]], [[betty-cluster]]). So the manual path that unblocked *user* provisioning appears to have a side effect on *project/allocation* propagation. Root cause still being confirmed; status: tentative.
@@ -30,3 +35,4 @@ Ken Chaney 1:1: argues PARCC's bigger problem than any outside assessment is the
 
 ## Sources
 - Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T13:28–13:54Z (digest `digest_20260625T095929.json`)
+- Chaney, Kenneth P 1:1 Teams chat, 2026-06-25T15:11–15:15Z (digest `digest_20260625T113558.json`) — betty-toolkit idea, coffee confirmed (3pm), dflash mention
