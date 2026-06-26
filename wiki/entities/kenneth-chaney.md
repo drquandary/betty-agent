@@ -4,7 +4,7 @@ tags: [people, parcc, systems, infra, ken, sandbox, model-serving]
 created: 2026-06-16
 updated: 2026-06-26
 sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest]
-related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala, glm-5.2, multi-token-prediction, parcc-skills-modules]
+related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala, glm-5.2, multi-token-prediction, parcc-skills-modules, parcc-tokens-as-a-service, workweave-router]
 status: current
 ---
 
@@ -32,6 +32,8 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
   - **Workaround verified (2026-06-23, ~16:33–16:40Z):** manual fix confirmed **good for users**; remaining syncs (groups, VAST, Ceph, Slurm) **verified**. Ken's framing: dislikes needing the workaround, but it **should always be safe even after the root cause is fixed**. New-user provisioning unblocked via the manual path; paused-sync root cause still open.
   - **Workaround side effect on project activation (2026-06-25):** Jaime reported (6/24) that two ColdFront projects had not activated to Betty (users `recha`/`surbhig`, projects 269/270). Ken is investigating and **suspects his user patch** is the cause — i.e. the manual user-creation workaround appears to break ColdFront→Betty *project/allocation* propagation even where it unblocked user provisioning. Status: tentative, root cause being confirmed.
 - **Agent skills from Spack modules (2026-06-26, in progress)** — having an agent *"write a skill to create skills from modules in spack"*; plans to then auto-generate a skill for **every module in Ryan's Spack software tree** and make them **Lmod-loadable** (`ml parcc/skills/bio/0.1`). Wants to validate usefulness before merging skill repos with jvadala (who shared `drquandary/ParccSkills`). See [[parcc-skills-modules]], [[betty-software-deployment]].
+- **Tokens-as-a-service (2026-06-26)** — wants PARCC's LLM offering "fully going" and can **mint API keys on demand** (*"if you find people who want to use it, I can make them keys now"*). Sees a coming need for a **router** to "get people going to consistent models." See [[parcc-tokens-as-a-service]], [[workweave-router]].
+- **Prior research background (event cameras):** built a **structured-light 3D system that ran up to 40 kHz** — *"That was a fun project."* (Came up when jvadala shared Prophesee's event-camera structured-light EVK3D and asked about per-pixel volumetrics.) Explains his event-camera/vision-hardware depth.
 - **Identity / EULA** — built first-pass EULA functionality in Grouper.
 - Floated hosting jvadala's [[surgical-tool-id-vlm]] on the cluster for higher throughput.
 - **Model recommendation to jvadala** — suggested the 120B open model jvadala now uses for the [[templeton-religious-trust-project]]; both wish for a published update to that model family.
@@ -57,4 +59,4 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - [[2026-06-18-teams-chats-digest]] — GLM-DSA deployment (Q4, no sglang day-zero support); 110 dB server-room note; 120B model recommendation to jvadala
 - [[2026-06-23-teams-chats-digest]] — account sync paused; manual home-folder fixes planned after Palo Alto TAC session
 - [[2026-06-25-teams-chats-digest]] — "no defined success metrics" view; BioNeMo agent toolkit; coffee-scheduling commitment; ColdFront project-activation failure suspected to stem from his user patch
-- [[2026-06-26-teams-chats-digest]] — skills-from-Spack generator + Lmod-loadable skills; GLM-5.2 served for coding (move from Kimi); fp8 GLM lacks vision
+- [[2026-06-26-teams-chats-digest]] — skills-from-Spack generator + Lmod-loadable skills; GLM-5.2 served for coding (move from Kimi); fp8 GLM lacks vision; tokens-as-a-service (mints keys on demand, wants a router); built a 40 kHz structured-light 3D event-camera system

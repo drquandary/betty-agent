@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — tokens-as-a-service recruiting + Ken's event-camera background
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T20:45–21:09Z, digest `digest_20260626T171824.json`) — appended new "tokens-as-a-service + event cameras" section to same-day source page
+- Created: [[parcc-tokens-as-a-service]] (tentative concept page)
+- Updated: [[kenneth-chaney]] (tokens-as-a-service key-minting + router intent; 40 kHz structured-light 3D event-camera background), [[workweave-router]] (PARCC now wants a router for "consistent models"), [[index]]
+- Key facts: Ken — "if you find people who want to use it, I can make them keys now" + "We need to get tokens as a service fully going" + "we will eventually need a router … to get people going to consistent models." ~half the NVIDIA-workshop group already running their own ollama on parcc. Jeffrey knows "two labs," asked re: free beta, floated a TUI/RAG (papers + MATLAB) client (caveat: ChatGPT-Plus users would barely use tokens). Aside: Ken built a 40 kHz structured-light 3D event-camera system. Tasks: new "For me" recruiting item (+ TUI sub-idea).
+
 ## [2026-06-26] ingest | Teams digest — dflash reverted to standard; workweave/router shared
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T20:21–20:44Z, digest `digest_20260626T164500.json`) — appended new "dflash reverted + workweave/router idea" section to same-day source page
 - Created: [[workweave-router]] (tentative concept page)

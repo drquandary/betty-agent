@@ -3,7 +3,7 @@ type: source
 tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents, dflash, gpt-oss]
 created: 2026-06-26
 updated: 2026-06-26
-related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty, betty-auth-architecture, workweave-router]
+related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty, betty-auth-architecture, workweave-router, parcc-tokens-as-a-service]
 status: current
 ---
 
@@ -75,6 +75,15 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - **dflash shelved.** After the ~3:56pm crash-loop report, Ken: **"I'm putting the standard back in place now"** — rolling gpt-oss-120b back from the crash-looping dflash config to **standard serving**. So dflash on gpt-oss-120b is **not deployed** as of late afternoon 6/26; the LiteLLM `openai/gpt-oss-120b` route reverts to standard (non-dflash) serving until Ken stands it back up. Filed to [[dflash]] (status).
 - **workweave/router (new).** Jeffrey shared **github.com/workweave/router** — a "model router for agentic systems" that routes each prompt to the right model in **<50 ms** and claims **40-70% cost cuts** via "just an endpoint change." His framing: *"This is cool … Might be cool to use with dflash … Like a for super fast sub agent tasks"* — i.e. front a fast local serving stack with a per-prompt router for cheap, high-volume sub-agent calls. New tentative page [[workweave-router]]; relates to [[betty-ai-agent]] sub-agent tooling.
 
+### Ken ↔ Jeffrey 1:1 — tokens-as-a-service + event cameras (~20:45–21:09Z / 4:45–5:09 EDT)
+- **Tokens as a service.** Continuing from the dflash/LiteLLM work, the conversation turns to PARCC's LLM offering as a *service*:
+  - Ken: *"We will eventually need to implement a router or similar to get people going to consistent models"* — a per-prompt router need (cf. [[workweave-router]]), now voiced by PARCC itself rather than just Jeffrey.
+  - Demand signal: at the **NVIDIA workshop** Jeffrey *"listened in"* and saw **people using parcc for their own ollama** — *"like half the group."*
+  - Ken: *"We need to get tokens as a service fully going"* and crucially *"if you find people who want to use it, I can make them keys now"* — **key issuance is ready; the gap is users + terms.**
+  - Jeffrey: *"I know several. For free beta period?"* — has *"like two labs of people"* and floats building *"a little TUI with their lab tools … a rag db with research papers, formatting stuff, mat lab code."* Self-caveat: most already pay for **ChatGPT Plus** and just **paste code into MATLAB**, so they'd *"barely use tokens."* Also: *"people might pay to have us host their models too."*
+  - New concept page [[parcc-tokens-as-a-service]]; relates to [[dflash]], [[glm-5.2]], [[workweave-router]], [[betty-ai-agent]].
+- **Event-camera aside (Ken's background).** Jeffrey shared Prophesee's **Event Camera Structured Light EVK3D** (`prophesee.ai/event-camera-structured-light-evk-3d/`, IMX636 Sony-Prophesee sensor + VCSEL) and asked about **per-pixel volumetrics** for event cameras, mentioning his own pipeline ("I need a drone"). Ken: *"I built a version of the structured light 3d that went up to 40kHz … That was a fun project."* Durable background fact filed to [[kenneth-chaney]].
+
 ### Ceph working session ended (~18:44Z / 2:44 EDT)
 - System messages: **"Meeting ended … after 49 minutes 57 seconds"** (~50 min, 2:44 PM) — the dedicated **"Ceph"** planning session wrapped. Jeff, Andrew Chant, and Ryan Heath left the chat. The **6/27 6 AM maintenance window** set in that session stands.
 
@@ -109,3 +118,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T18:37–19:09Z (digest `digest_20260626T150904.json`) — Jeffrey's first LiteLLM gpt-oss-120b test slow → Ken: Mac-wifi bandwidth issue (his synthetic test 1k-in/1k-out); + "Ceph" meeting ended 2:44pm (~50m)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T19:56Z (digest `digest_20260626T161248.json`) — Ken: gpt-oss-120b + dflash was in a crash loop (deployment unstable again; explains afternoon slow results)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T20:21–20:44Z (digest `digest_20260626T164500.json`) — Ken reverts dflash ("putting the standard back in place now"); Jeffrey shares github.com/workweave/router and floats pairing it with dflash for fast sub-agent tasks
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T20:45–21:09Z (digest `digest_20260626T171824.json`) — tokens-as-a-service (Ken: "I can make them keys now" + need a router for consistent models; ~half the NVIDIA group already on parcc ollama); Jeffrey recruiting two labs + free-beta question + TUI/RAG idea; event-camera aside (Ken built a 40 kHz structured-light 3D system)
