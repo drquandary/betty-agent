@@ -3,7 +3,7 @@ type: source
 tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents, dflash, gpt-oss]
 created: 2026-06-26
 updated: 2026-06-26
-related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty, betty-auth-architecture]
+related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty, betty-auth-architecture, workweave-router]
 status: current
 ---
 
@@ -71,6 +71,10 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 ### dflash — back in a crash loop (~19:56Z / 3:56 EDT)
 - Ken: **"gpt-oss-120b with dflash was in a crash loop."** So after the ~1:15pm "stabilized" report the deployment went unstable again — this **likely explains Jeffrey's slow ~2:37–3:09pm results** (the crash loop, not just the Mac-wifi/measurement issues both had floated). Confirms the test deployment is **not stable**; the afternoon throughput figures are suspect pending Ken's all-clear. Filed to [[dflash]] (status/stability).
 
+### dflash reverted + workweave/router idea (~20:21–20:44Z / 4:21–4:44 EDT)
+- **dflash shelved.** After the ~3:56pm crash-loop report, Ken: **"I'm putting the standard back in place now"** — rolling gpt-oss-120b back from the crash-looping dflash config to **standard serving**. So dflash on gpt-oss-120b is **not deployed** as of late afternoon 6/26; the LiteLLM `openai/gpt-oss-120b` route reverts to standard (non-dflash) serving until Ken stands it back up. Filed to [[dflash]] (status).
+- **workweave/router (new).** Jeffrey shared **github.com/workweave/router** — a "model router for agentic systems" that routes each prompt to the right model in **<50 ms** and claims **40-70% cost cuts** via "just an endpoint change." His framing: *"This is cool … Might be cool to use with dflash … Like a for super fast sub agent tasks"* — i.e. front a fast local serving stack with a per-prompt router for cheap, high-volume sub-agent calls. New tentative page [[workweave-router]]; relates to [[betty-ai-agent]] sub-agent tooling.
+
 ### Ceph working session ended (~18:44Z / 2:44 EDT)
 - System messages: **"Meeting ended … after 49 minutes 57 seconds"** (~50 min, 2:44 PM) — the dedicated **"Ceph"** planning session wrapped. Jeff, Andrew Chant, and Ryan Heath left the chat. The **6/27 6 AM maintenance window** set in that session stands.
 
@@ -81,6 +85,7 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 
 ## See also
 - [[dflash]]
+- [[workweave-router]]
 - [[runai-betty]]
 - [[betty-auth-architecture]]
 - [[betty-storage-architecture]]
@@ -103,3 +108,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - "Ceph" meeting Teams chat, 2026-06-26T17:55–18:33Z (digest `digest_20260626T143548.json`) — downtime scheduled 6/27 6am, `ceph osd pause`, /ceph-data contact list, job-drain hunt (AHEAD guests Ryan Heath + Swapnil Ninave)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T18:37–19:09Z (digest `digest_20260626T150904.json`) — Jeffrey's first LiteLLM gpt-oss-120b test slow → Ken: Mac-wifi bandwidth issue (his synthetic test 1k-in/1k-out); + "Ceph" meeting ended 2:44pm (~50m)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T19:56Z (digest `digest_20260626T161248.json`) — Ken: gpt-oss-120b + dflash was in a crash loop (deployment unstable again; explains afternoon slow results)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T20:21–20:44Z (digest `digest_20260626T164500.json`) — Ken reverts dflash ("putting the standard back in place now"); Jeffrey shares github.com/workweave/router and floats pairing it with dflash for fast sub-agent tasks

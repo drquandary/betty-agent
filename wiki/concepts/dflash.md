@@ -4,7 +4,7 @@ tags: [dflash, inference, serving, gpt-oss, sglang, runai, kenneth-chaney, agent
 created: 2026-06-26
 updated: 2026-06-26
 sources: [2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest]
-related: [kenneth-chaney, jeffrey-vadala, templeton-religious-trust-project, runai-betty, vllm-serving]
+related: [kenneth-chaney, jeffrey-vadala, templeton-religious-trust-project, runai-betty, vllm-serving, workweave-router]
 status: tentative
 ---
 
@@ -26,6 +26,7 @@ An unidentified tool/project Ken Chaney is testing on PARCC against GPT-OSS serv
 - **Raw VPN endpoint is NOT usable (6/26, ~1:34pm EDT) — contradicts the earlier "stabilized" read:** despite the ~1:15pm "stabilized" claim, Jeffrey **kept getting 404** hitting the direct URL. His diagnosis: *"the server behind that hostname returns 404 for everything, including the OpenAI-standard `/v1/chat/completions` and `/v1/models` endpoints that SGLang always serves when it's running."* → the direct `sglang-…-runai-test` URL is **not serving** (the SGLang OpenAI server isn't actually up behind it). **Use LiteLLM, not the raw URL.**
 - **gpt-oss-20b in progress (6/26):** Ken is also bringing up **`gpt-oss-20b`** but *"the same config is not working for 20b"* yet. Throughput comparison at single concurrency: **gpt-oss-120b + DFlash ~300 tps** vs **gpt-oss-20b ~500 tps** (smaller model, faster; 20b not on a dflash config).
 - **Crash loop (6/26, ~3:56pm EDT):** Ken: **"gpt-oss-120b with dflash was in a crash loop."** So the deployment went unstable again after the early-afternoon "stabilized" report — this likely explains Jeffrey's slow/underwhelming ~2:37–3:09pm results (the crash loop, not just Mac-wifi/measurement). **Treat all the afternoon throughput numbers as suspect** and wait for Ken's all-clear before re-benchmarking.
+- **Reverted (6/26, ~4:21pm EDT):** Ken: **"I'm putting the standard back in place now"** — rolling gpt-oss-120b back from the crash-looping dflash config to the **standard serving config**. So as of late afternoon 6/26 dflash on gpt-oss-120b is **shelved / not deployed**; the LiteLLM `openai/gpt-oss-120b` route reverts to standard (non-dflash) serving. Don't benchmark dflash until Ken stands it back up.
 - **What it is:** Still not explicitly stated by Ken, but the endpoint evidence + throughput profile (high aggregate tps, draft-style speculative gains ~2–3×) narrow it to an **sglang inference-serving acceleration component**. Mark **tentative** until Ken explains in words. **Stability is still shaky** (crashing ~12:49pm, "stabilized" ~1:15pm, raw URL 404 ~1:34pm, crash loop ~3:56pm) — this is a test deployment, not production-ready.
 
 ## Access
@@ -45,6 +46,7 @@ An unidentified tool/project Ken Chaney is testing on PARCC against GPT-OSS serv
 - [[runai-betty]]
 - [[vllm-serving]]
 - [[templeton-religious-trust-project]]
+- [[workweave-router]] — model router Jeffrey floated fronting dflash with for fast sub-agent dispatch
 
 ## Sources
 - [[2026-06-25-teams-chats-digest]] — dflash introduced; "tested on gpt oss" plan

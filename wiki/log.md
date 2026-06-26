@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — dflash reverted to standard; workweave/router shared
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T20:21–20:44Z, digest `digest_20260626T164500.json`) — appended new "dflash reverted + workweave/router idea" section to same-day source page
+- Created: [[workweave-router]] (tentative concept page)
+- Updated: [[dflash]] (revert/shelved status + workweave-router cross-link), [[index]]
+- Key facts: Ken — "I'm putting the standard back in place now" → rolls gpt-oss-120b back from the crash-looping dflash config to standard serving (dflash shelved; LiteLLM `openai/gpt-oss-120b` reverts to non-dflash). Jeffrey shared github.com/workweave/router (<50ms per-prompt model router, claims 40-70% cost cuts) and floated pairing it with dflash for fast sub-agent tasks. Tasks: dflash item got 4:21pm revert UPDATE; new "For me" item to evaluate workweave/router.
+
 ## [2026-06-26] ingest | Teams digest — dflash gpt-oss-120b back in a crash loop
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T19:56Z, digest `digest_20260626T161248.json`) — appended new "dflash — back in a crash loop" section to same-day source page
 - Updated: [[dflash]] (crash-loop status note + stability timeline), [[index]]
