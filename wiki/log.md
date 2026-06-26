@@ -436,3 +436,9 @@
 ## [2026-06-26] ingest | Teams digest digest_20260626T132740 (Chaney 1:1 — dflash stabilized)
 - Updated: [[dflash]], [[2026-06-26-teams-chats-digest]], [[runai-betty]], [[index]]
 - Notes: dflash test endpoint went crashing→stabilized same day; ~5k tok/s/GPU @ conc.100 (~2–3× prior), ~300 tps single-stream, ~300 tps/user up to ~15 users; Ken to add to LiteLLM. Only the Chaney 1:1 chat had new messages (16); other 7 chats empty.
+
+## [2026-06-26] ingest | Teams digest digest_20260626T150904 (Chaney 1:1 test + Ceph meeting end)
+- Sources: Chaney↔Vadala 1:1 (9 new msgs, ~18:37–19:09Z) + "Ceph" meeting chat (4 system msgs). Other 7 chats had no new messages.
+- Updated: [[dflash]] (Access → client-side bandwidth caveat; source line), [[2026-06-26-teams-chats-digest]] (two new subsections: Jeffrey's first LiteLLM test → Mac-wifi bandwidth diagnosis; Ceph session ended 2:44pm ~50m; +source line).
+- Tasks: appended UPDATE sub-bullets in `knowledge/tasks.md` — under the gpt-oss-120b test item (slow result = likely Mac wifi; retest wired, then report to Ken) and under the Ceph item (working meeting ended 2:44pm; 6/27 6am window stands). No new standalone tasks.
+- Notes: mostly troubleshooting chit-chat + meeting-end system messages; no net-new entities/concepts. dflash still tentative.

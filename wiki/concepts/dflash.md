@@ -31,6 +31,7 @@ An unidentified tool/project Ken Chaney is testing on PARCC against GPT-OSS serv
 - **Use LiteLLM (supported path, 6/26):** call model **`openai/gpt-oss-120b`** through the standard PARCC LiteLLM gateway.
 - **Raw endpoint — DO NOT use:** `https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu` returns **404 for everything** (incl. `/v1/chat/completions`, `/v1/models`) even after the "stabilized" report — the SGLang OpenAI server isn't actually serving behind it. Was crashing ~12:49pm, reported "stabilized" ~1:15pm, but still 404 over the direct URL ~1:34pm.
 - **Performance (6/26):** ~5k tok/s/GPU @ concurrency 100; **~300 tps single-stream (gpt-oss-120b + DFlash)**; ~300 tps/user up to ~15 concurrent users. Compare **gpt-oss-20b ~500 tps single-stream** (smaller, no dflash config yet).
+- **Client-side caveat (6/26):** when Jeffrey tested via LiteLLM he saw slow results and suspected an "old model"; Ken's read was a **client bandwidth bottleneck** — *"if your mac on wifi, then that's a your wifi problem."* Ken's own benchmark was a **1k-in / 1k-out** synthetic workload. Takeaway: judge throughput from a **wired connection**, not Mac wifi, before attributing slowness to the server.
 
 ## Open questions
 - What does dflash actually do (sglang speculative-decode add-on, attention kernel, eval harness, something else)? Endpoint + ~2–3× throughput gain suggest an sglang acceleration component.
@@ -46,4 +47,4 @@ An unidentified tool/project Ken Chaney is testing on PARCC against GPT-OSS serv
 
 ## Sources
 - [[2026-06-25-teams-chats-digest]] — dflash introduced; "tested on gpt oss" plan
-- [[2026-06-26-teams-chats-digest]] — dflash running → crashing → stabilized w/ throughput numbers; LiteLLM plan
+- [[2026-06-26-teams-chats-digest]] — dflash running → crashing → stabilized w/ throughput numbers; LiteLLM plan; Jeffrey's first LiteLLM test (slow → client-wifi bandwidth caveat)

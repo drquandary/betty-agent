@@ -64,6 +64,13 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - **gpt-oss-20b WIP.** Ken is also standing up **`gpt-oss-20b`** but *"the same config is not working for 20b"* yet. Throughput comparison (single concurrency): **gpt-oss-120b + DFlash ~300 tps** vs **gpt-oss-20b ~500 tps** (smaller, faster; no dflash config on 20b).
 - **Draft models.** Jeffrey: *"do they have a draft model for glm 5.2?"* — Ken: *"not yet"* (consistent with GLM-5.2's MTP, [[multi-token-prediction]]). **Kimi** has one Ken spotted, pending a license/access acceptance (*"I just need to agree to stuff"*). Filed to [[glm-5.2]].
 
+### dflash — Jeffrey's first LiteLLM test + bandwidth diagnosis (~18:37–19:09Z / 2:37–3:09 EDT)
+- After Ken's nudge to try it, Jeffrey **tested `openai/gpt-oss-120b` via LiteLLM** and saw underwhelming results: *"trying, not sure"*, *"seems like thats old model?"*
+- **Ken's diagnosis = client-side, not server:** *"Where are you sending this from?"* → *"If your mac on wifi, then that's a your wifi problem"*, adding his **synthetic test was 1k in / 1k out**. Jeffrey confirmed he's **on the Mac over wifi** and said he'd **plug in (ethernet)** and retest. Durable takeaway filed to [[dflash]] (Access → client-side caveat): benchmark from a wired link before blaming the serving stack.
+
+### Ceph working session ended (~18:44Z / 2:44 EDT)
+- System messages: **"Meeting ended … after 49 minutes 57 seconds"** (~50 min, 2:44 PM) — the dedicated **"Ceph"** planning session wrapped. Jeff, Andrew Chant, and Ryan Heath left the chat. The **6/27 6 AM maintenance window** set in that session stands.
+
 ## PARCC Group — VPN/Duo support routing for external users (~17:34–17:56Z / 1:34–1:56 EDT)
 - **Jaime Combariza:** a Pitt user on **Keystone** reports her **VPN/Duo no longer works** — who do we contact?
 - **Ken Chaney** gives the routing rule: find **who sponsored the PennKey**, then go to that sponsor's **LSP (Local Support Provider)** — e.g. **PARCC → HireIT**, **SEAS → CETS**.
@@ -91,3 +98,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:34–17:58Z (digest `digest_20260626T140055.json`) — dflash on LiteLLM, raw endpoint 404, gpt-oss-20b, draft models
 - PARCC Group Teams chat, 2026-06-26T17:34–17:56Z (digest `digest_20260626T140055.json`) — VPN/Duo → sponsor's LSP routing
 - "Ceph" meeting Teams chat, 2026-06-26T17:55–18:33Z (digest `digest_20260626T143548.json`) — downtime scheduled 6/27 6am, `ceph osd pause`, /ceph-data contact list, job-drain hunt (AHEAD guests Ryan Heath + Swapnil Ninave)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T18:37–19:09Z (digest `digest_20260626T150904.json`) — Jeffrey's first LiteLLM gpt-oss-120b test slow → Ken: Mac-wifi bandwidth issue (his synthetic test 1k-in/1k-out); + "Ceph" meeting ended 2:44pm (~50m)
