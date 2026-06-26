@@ -2,9 +2,9 @@
 type: entity
 tags: [people, parcc, systems, infra, ken, sandbox, model-serving]
 created: 2026-06-16
-updated: 2026-06-25
-sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest]
-related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala, glm-5.2, multi-token-prediction]
+updated: 2026-06-26
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest]
+related: [betty-cluster, parcc-helper-tools, betty-ai-agent, surgical-tool-id-vlm, vast-storage, bcm-bright-cluster-manager, jaime-combariza, jamie-schnaitter, jeffrey-vadala, glm-5.2, multi-token-prediction, parcc-skills-modules]
 status: current
 ---
 
@@ -24,12 +24,14 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
   - **GLM-DSA deployment (in progress, 2026-06-18):** working out issues with the `glm-dsa` architecture. sglang did **not** provide day-zero support this release (a change from past releases). Serving at **Q4 quantization** with a measured **~2% performance hit**. Status: tentative/ongoing.
   - **Model-contention incident (2026-06-23 evening, ~20:19Z):** asked jvadala to **pause requests to the PARCC LiteLLM gateway** while resolving model-contention issues; jvadala stopped his jobs. The served **GLM model went down** during this window. Transient incident — resume traffic only on Ken's all-clear.
   - **GLM-5.2 / z.ai interest (2026-06-25):** when jvadala shared [[z.ai]]'s GLM-5.2, Ken signalled intent to try it — *"Not yet, but we will!"* — and noted its speed comes from **MTP (multi-token prediction)**, *"a much faster MTP"* (not classic draft-model speculative decoding). See [[glm-5.2]], [[multi-token-prediction]]. Extends the GLM-family serving thread.
+  - **GLM-5.2 now served for coding (2026-06-26):** told jvadala *"you can move any of your coding from kimi over to glm 5.2"* — so GLM-5.2 is live on PARCC's coding stack alongside **Kimi-code**. Re: vision, agreed it's missing on the **fp8** build (jvadala: full model is supposed to do vision). See [[glm-5.2]].
   - **dflash test on GPT-OSS (2026-06-25, tentative):** plans to "get it tested on gpt oss today" after jvadala flagged "dflash might be killer for this other project." Suggests dflash is an inference/serving-side tool Ken is evaluating against a GPT-OSS stack; identity still unconfirmed.
 - **VAST / BCM / NFSv4 ops** — leads triage on the 6/16 `libhwloc.so.15` outage (restored the library) and the BCM→VAST new-user home-dir creation failure after the NFSv4+idmap switch (see [[betty-cluster]], [[bcm-bright-cluster-manager]]).
   - **Account sync paused (2026-06-23):** user creation and the remainder of the account sync are currently paused — this is what leaves new home folders broken. Plan: after the pending **Palo Alto TAC** firewall-support session, run one round of syncs and manually fix all home folders that get made.
   - **Midday escalation (2026-06-23):** with 3 new PIs onboarded, Jaime flagged this top priority. Ken is manually running a workaround while awaiting BCM and/or VAST, targeting ~1pm. Key insight: **paused user creation blocks all downstream automations** — they assume users are already provisioned. Approved projects/allocations won't propagate to Betty until the sync resumes. Also handling an emergency Slack request to raise `wharton_lliu1` storage to 4TB.
   - **Workaround verified (2026-06-23, ~16:33–16:40Z):** manual fix confirmed **good for users**; remaining syncs (groups, VAST, Ceph, Slurm) **verified**. Ken's framing: dislikes needing the workaround, but it **should always be safe even after the root cause is fixed**. New-user provisioning unblocked via the manual path; paused-sync root cause still open.
   - **Workaround side effect on project activation (2026-06-25):** Jaime reported (6/24) that two ColdFront projects had not activated to Betty (users `recha`/`surbhig`, projects 269/270). Ken is investigating and **suspects his user patch** is the cause — i.e. the manual user-creation workaround appears to break ColdFront→Betty *project/allocation* propagation even where it unblocked user provisioning. Status: tentative, root cause being confirmed.
+- **Agent skills from Spack modules (2026-06-26, in progress)** — having an agent *"write a skill to create skills from modules in spack"*; plans to then auto-generate a skill for **every module in Ryan's Spack software tree** and make them **Lmod-loadable** (`ml parcc/skills/bio/0.1`). Wants to validate usefulness before merging skill repos with jvadala (who shared `drquandary/ParccSkills`). See [[parcc-skills-modules]], [[betty-software-deployment]].
 - **Identity / EULA** — built first-pass EULA functionality in Grouper.
 - Floated hosting jvadala's [[surgical-tool-id-vlm]] on the cluster for higher throughput.
 - **Model recommendation to jvadala** — suggested the 120B open model jvadala now uses for the [[templeton-religious-trust-project]]; both wish for a published update to that model family.
@@ -55,3 +57,4 @@ PARCC systems/infrastructure engineer who builds cluster tooling (`parcc_sandbox
 - [[2026-06-18-teams-chats-digest]] — GLM-DSA deployment (Q4, no sglang day-zero support); 110 dB server-room note; 120B model recommendation to jvadala
 - [[2026-06-23-teams-chats-digest]] — account sync paused; manual home-folder fixes planned after Palo Alto TAC session
 - [[2026-06-25-teams-chats-digest]] — "no defined success metrics" view; BioNeMo agent toolkit; coffee-scheduling commitment; ColdFront project-activation failure suspected to stem from his user patch
+- [[2026-06-26-teams-chats-digest]] — skills-from-Spack generator + Lmod-loadable skills; GLM-5.2 served for coding (move from Kimi); fp8 GLM lacks vision

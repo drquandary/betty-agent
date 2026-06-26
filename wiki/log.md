@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — Ken/Jeffrey 1:1: GLM vision + agent skills
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T15:17–15:30Z, digest `digest_20260626T114656.json`) — appended to the same-day source page
+- Created: [[parcc-skills-modules]]
+- Updated: [[glm-5.2]] (served for coding / Kimi alternative; fp8 build lacks vision, full model expected to; Jeffrey routes vision to Claude), [[kenneth-chaney]] (skills-from-Spack generator; GLM-5.2-for-coding; fp8 no-vision), [[jeffrey-vadala]] (ParccSkills repo; GLM long-task stall workaround), [[2026-06-26-teams-chats-digest]], [[index]]
+- Key facts: fp8 GLM lacks vision (regular model supposed to); GLM-5.2 now servable for coding (move from Kimi); Ken building a skill that writes skills from Spack modules → Lmod-loadable `ml parcc/skills/bio/0.1`; Jeffrey's `drquandary/ParccSkills` (resume-session, Nsight+Karpathy-loop); both want to merge repos. Tasks updated: closed GLM-vision follow-up; added skills-merge + Ken-spack-skills items; GLM-5.2 eval item updated to "available."
+
 ## [2026-06-26] ingest | Teams digest — Ceph remediation needs coordinated downtime
 - Source: [[2026-06-26-teams-chats-digest]] (PARCC Group, Chaney/Combariza, 2026-06-26T12:15–12:22Z, digest `digest_20260626T083924.json`)
 - Created: [[2026-06-26-teams-chats-digest]]
