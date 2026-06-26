@@ -73,7 +73,7 @@
 - [[llama-3-70b]] — Larger text-only, fits on 1 B200 with LoRA
 - [[mistral-7b]] — Efficient 7B baseline
 - [[deepseek-v3]] — 671B MoE, requires 8+ B200 GPUs
-- [[glm-5.2]] — z.ai flagship LLM; fast inference via MTP; now served for coding on PARCC (Kimi alternative); fp8 build lacks vision (tentative, 2 sources)
+- [[glm-5.2]] — z.ai flagship LLM; fast inference via MTP; now served for coding on PARCC (Kimi alternative); fp8 build lacks vision; NVIDIA NVFP4 (B200-native 4-bit) build under consideration on 8 GPUs (tentative, 2 sources)
 
 ## Experiments
 <!-- Populated as experiments are run. See [[experiments/TEMPLATE]] for the page template. -->
@@ -100,4 +100,4 @@
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
 - [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; jvadala's "betty-toolkit" tool-discovery idea; coffee confirmed 3pm; dflash to be tested on GPT-OSS. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch
-- [[2026-06-26-teams-chats-digest]] — Ceph downtime SCHEDULED 6/27 6am (dedicated Ceph session w/ AHEAD guests; `ceph osd pause`, /ceph-data contact list, job-drain hunt); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash served via sglang+RunAI on gpt-oss-120b (on LiteLLM as openai/gpt-oss-120b; unstable — crash-looped ~3:56pm then reverted to standard ~4:21pm); workweave/router shared as a possible dflash front-end; tokens-as-a-service (Ken mints keys now + wants a router; Jeffrey recruiting two labs); Ken's 40 kHz event-camera structured-light background)
+- [[2026-06-26-teams-chats-digest]] — GLM-5.2 NVFP4 (NVIDIA HF build) shared, Ken weighing it on 8 GPUs; Ceph downtime SCHEDULED 6/27 6am (dedicated Ceph session w/ AHEAD guests; `ceph osd pause`, /ceph-data contact list, job-drain hunt); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash served via sglang+RunAI on gpt-oss-120b (on LiteLLM as openai/gpt-oss-120b; unstable — crash-looped ~3:56pm then reverted to standard ~4:21pm); workweave/router shared as a possible dflash front-end; tokens-as-a-service (Ken mints keys now + wants a router; Jeffrey recruiting two labs); Ken's 40 kHz event-camera structured-light background)

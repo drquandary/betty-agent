@@ -84,6 +84,11 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
   - New concept page [[parcc-tokens-as-a-service]]; relates to [[dflash]], [[glm-5.2]], [[workweave-router]], [[betty-ai-agent]].
 - **Event-camera aside (Ken's background).** Jeffrey shared Prophesee's **Event Camera Structured Light EVK3D** (`prophesee.ai/event-camera-structured-light-evk-3d/`, IMX636 Sony-Prophesee sensor + VCSEL) and asked about **per-pixel volumetrics** for event cameras, mentioning his own pipeline ("I need a drone"). Ken: *"I built a version of the structured light 3d that went up to 40kHz … That was a fun project."* Durable background fact filed to [[kenneth-chaney]].
 
+### Ken ↔ Jeffrey 1:1 — GLM-5.2 NVFP4 quant (~23:13–23:15Z / 7:13–7:15 EDT)
+- Ken shared an NVIDIA-published **NVFP4** quantization of GLM-5.2 — **`huggingface.co/nvidia/GLM-5.2-NVFP4`** — and mused about deployment: *"I'm thinking if I should put nvfp4 on 8 GPUs hmmmm."*
+- Jeffrey: *"Oooh that should be zippy."* **NVFP4** is NVIDIA's **4-bit floating-point** format, native to **Blackwell (B200) tensor cores** — hardware-accelerated rather than emulated 4-bit — so it should run fast on Betty's [[dgx-b200-partition|B200s]]. A **distinct build** from the **fp8** GLM PARCC currently serves (which lacks vision); whether NVFP4 keeps vision is unconfirmed.
+- Status: **not deployed** — a deployment Ken is weighing (NVFP4 on 8 GPUs). Filed to [[glm-5.2]] (quant variants).
+
 ### Ceph working session ended (~18:44Z / 2:44 EDT)
 - System messages: **"Meeting ended … after 49 minutes 57 seconds"** (~50 min, 2:44 PM) — the dedicated **"Ceph"** planning session wrapped. Jeff, Andrew Chant, and Ryan Heath left the chat. The **6/27 6 AM maintenance window** set in that session stands.
 
@@ -119,3 +124,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T19:56Z (digest `digest_20260626T161248.json`) — Ken: gpt-oss-120b + dflash was in a crash loop (deployment unstable again; explains afternoon slow results)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T20:21–20:44Z (digest `digest_20260626T164500.json`) — Ken reverts dflash ("putting the standard back in place now"); Jeffrey shares github.com/workweave/router and floats pairing it with dflash for fast sub-agent tasks
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T20:45–21:09Z (digest `digest_20260626T171824.json`) — tokens-as-a-service (Ken: "I can make them keys now" + need a router for consistent models; ~half the NVIDIA group already on parcc ollama); Jeffrey recruiting two labs + free-beta question + TUI/RAG idea; event-camera aside (Ken built a 40 kHz structured-light 3D system)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T23:13–23:15Z (digest `digest_20260626T192414.json`) — Ken shares NVIDIA NVFP4 quant of GLM-5.2 (huggingface.co/nvidia/GLM-5.2-NVFP4), weighing NVFP4 on 8 GPUs; Jeffrey: "should be zippy"
