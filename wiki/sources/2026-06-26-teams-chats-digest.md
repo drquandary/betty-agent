@@ -1,9 +1,9 @@
 ---
 type: source
-tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents]
+tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents, dflash, gpt-oss]
 created: 2026-06-26
 updated: 2026-06-26
-related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction]
+related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash]
 status: current
 ---
 
@@ -32,7 +32,12 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
   - **Jeffrey** shared **github.com/drquandary/ParccSkills** — two skills: **resume-session** (fuzzy-match into any prior session; built for Claude Code, *"not tried with Pi"*) and the **Nsight profiling + Karpathy-loop** skill.
   - Both agreed: *"definitely we should work on combining fully."* Overlaps Jeffrey's **betty-toolkit** idea ([[jeffrey-vadala]]).
 
+## Ken ↔ Jeffrey 1:1 — dflash testing (~16:02–16:08Z / 12:02–12:08 EDT)
+- Continuing the **dflash** thread ([[2026-06-25-teams-chats-digest]]): Ken reports **"dflash is running"** and **"I need to test it now."** When Jeffrey asked "for what model," Ken said **`gpt-oss-120b` to start**.
+- So dflash's first test target on PARCC is the **gpt-oss-120b** serving stack. Still an unidentified inference/serving tool — filed tentatively to [[dflash]]; follow up with Ken on results.
+
 ## See also
+- [[dflash]]
 - [[betty-storage-architecture]]
 - [[glm-5.2]]
 - [[parcc-skills-modules]]

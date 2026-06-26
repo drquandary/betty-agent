@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — dflash running, testing on gpt-oss-120b
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T16:02–16:08Z, digest `digest_20260626T122146.json`) — appended to same-day source page
+- Created: [[dflash]] (tentative stub — unidentified tool, first test target `gpt-oss-120b`)
+- Updated: [[2026-06-26-teams-chats-digest]] (dflash subsection + frontmatter tags/related), [[index]]
+- Key facts: Ken "dflash is running" / "I need to test it now"; first model `gpt-oss-120b` "to start". Still unidentified (likely inference/serving). Task updated: dflash item (For me · 6/26 UPDATE). Follow up with Ken on results.
+
 ## [2026-06-26] ingest | Teams digest — Ken/Jeffrey 1:1: GLM vision + agent skills
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T15:17–15:30Z, digest `digest_20260626T114656.json`) — appended to the same-day source page
 - Created: [[parcc-skills-modules]]

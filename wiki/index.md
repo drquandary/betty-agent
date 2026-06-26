@@ -63,6 +63,7 @@
 - [[multi-token-prediction]] — MTP inference speedup vs. classic draft/verify speculative decoding; GLM-5.2's "faster MTP" (tentative, 1 source)
 - [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative, 1 source)
 - [[parcc-skills-modules]] — agent "skills" as discoverable units: Ken's skills-from-Spack generator + Lmod-loadable tree, jvadala's ParccSkills repo (tentative, 1 source)
+- [[dflash]] — unidentified tool Ken is testing on PARCC against gpt-oss-120b; possibly inference/serving (tentative, 2 sources)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**
@@ -97,4 +98,4 @@
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
 - [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; jvadala's "betty-toolkit" tool-discovery idea; coffee confirmed 3pm; dflash to be tested on GPT-OSS. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch
-- [[2026-06-26-teams-chats-digest]] — Ceph remediation needs a coordinated downtime (AHEAD timing, /ceph-data groups, Jaime offered 9 AM); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge
+- [[2026-06-26-teams-chats-digest]] — Ceph remediation needs a coordinated downtime (AHEAD timing, /ceph-data groups, Jaime offered 9 AM); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash running (testing on gpt-oss-120b)
