@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, runai, scheduling, ai-platform]
 created: 2026-04-10
-updated: 2026-04-10
-sources: []
-related: [betty-cluster, vast-storage, betty-storage-architecture, slurm-on-betty]
+updated: 2026-06-26
+sources: [2026-06-26-teams-chats-digest]
+related: [betty-cluster, vast-storage, betty-storage-architecture, slurm-on-betty, dflash, vllm-serving]
 status: tentative
 ---
 
@@ -17,9 +17,10 @@ RunAI AI job scheduling platform is present on Betty with a VAST mount at `/mnt/
 - **Mount point**: `/mnt/vast/runai` on VAST storage (NFS 4.2 over RDMA, same as other VAST mounts)
 - **Discovery**: found during Part 2 storage exploration on dgx028 (2026-04-10)
 - **RunAI** is NVIDIA's AI workload scheduling platform, typically used for GPU cluster management, fractional GPU allocation, and ML pipeline orchestration
+- **Actively serving inference (6/26):** Ken Chaney stood up a test inference endpoint **`https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu`** (reachable on the PARCC VPN). The `-runai-` segment and the `inference.betty.parcc.upenn.edu` domain indicate RunAI is **actively scheduling/serving model inference on Betty** (here an sglang + gpt-oss-120b + [[dflash]] test), alongside [[slurm-on-betty]]. First concrete evidence RunAI is in real use, not just a mount. (`status: tentative` retained — only one deployment observed.)
 
 ## What we don't know
-- Whether RunAI is actively used or is a legacy/pilot installation
+- ~~Whether RunAI is actively used or is a legacy/pilot installation~~ → at least used for **test inference serving** as of 6/26 (see above); breadth of use still unknown
 - How it interacts with [[slurm-on-betty]] -- does it replace Slurm for some workloads, or run alongside it?
 - Whether regular users can access RunAI, or if it is admin-only
 - What configuration or data lives under `/mnt/vast/runai`

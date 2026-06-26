@@ -3,7 +3,7 @@ type: source
 tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents, dflash, gpt-oss]
 created: 2026-06-26
 updated: 2026-06-26
-related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash]
+related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty]
 status: current
 ---
 
@@ -36,8 +36,14 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Continuing the **dflash** thread ([[2026-06-25-teams-chats-digest]]): Ken reports **"dflash is running"** and **"I need to test it now."** When Jeffrey asked "for what model," Ken said **`gpt-oss-120b` to start**.
 - So dflash's first test target on PARCC is the **gpt-oss-120b** serving stack. Still an unidentified inference/serving tool — filed tentatively to [[dflash]]; follow up with Ken on results.
 
+### dflash endpoint + crash (~16:34–16:49Z / 12:34–12:49 EDT)
+- Jeffrey asked **"how do I use it?"** Ken: while **on the PARCC VPN**, hit the endpoint directly — **`https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu`**.
+- The hostname reveals the full serving stack: **sglang** engine + **gpt-oss-120b** + **dflash** on **run:ai** ([[runai-betty]]), a **test** deployment under `inference.betty.parcc.upenn.edu`. This is the first concrete signal that **RunAI actively serves inference on Betty** (not just the `/mnt/vast/runai` mount), and that **dflash is an sglang-side acceleration component**.
+- Minutes later (~16:49Z) Ken: **"andddd it is crashing lol"** — the test endpoint is **not yet stable**. Filed to [[dflash]] (Access + status) and [[runai-betty]].
+
 ## See also
 - [[dflash]]
+- [[runai-betty]]
 - [[betty-storage-architecture]]
 - [[glm-5.2]]
 - [[parcc-skills-modules]]
@@ -51,3 +57,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - PARCC Group Teams chat, 2026-06-26T12:15–12:22Z (digest `digest_20260626T083924.json`)
 - PARCC Group Teams chat, 2026-06-26T12:22–12:51Z (digest `digest_20260626T091149.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T15:17–15:30Z (digest `digest_20260626T114656.json`)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T16:34–16:49Z (digest `digest_20260626T125412.json`)

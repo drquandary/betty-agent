@@ -416,3 +416,9 @@
 - Source: PARCC Group Teams chat, 2026-06-26T12:22–12:51Z (2 new msgs; Jaime 12:22 already ingested prior cycle, Ken 12:50 new). Other 7 chats had no new messages.
 - Updated: [[2026-06-26-teams-chats-digest]] (added Ken 9 AM confirm + PG-scaling status), [[betty-storage-architecture]] (new Ceph PG-scaling note: 256→512 done, target ~2048; "sooner vs later" per AHEAD).
 - Tasks: appended an UPDATE sub-bullet under the existing Ceph item in `knowledge/tasks.md` (Ken confirmed 9 AM; PG-scaling progress detail).
+
+## [2026-06-26] ingest | Teams chats digest — dflash endpoint + crash (digest_20260626T125412.json)
+- Source: Chaney↔Vadala 1:1 Teams chat, 2026-06-26T16:34–16:49Z (4 new msgs). Other 7 chats had no new messages.
+- Updated: [[dflash]] (Access section + serving-stack reveal + crash status; frontmatter tags/related), [[runai-betty]] ("actively serving inference" evidence; resolved part of the "is it used?" open question; frontmatter source/related/updated), [[2026-06-26-teams-chats-digest]] (new dflash endpoint+crash subsection, 4th source line, runai-betty related), [[index]] (dflash, runai-betty, digest lines).
+- Key facts: (1) dflash test endpoint = `https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu`, reachable on the PARCC VPN — hostname reveals the stack = sglang + gpt-oss-120b + dflash on RunAI (test). (2) First concrete evidence RunAI serves inference on Betty. (3) Endpoint crashing as of ~12:49pm EDT — not stable. dflash remains tentative (still no plain-English description from Ken).
+- Tasks: appended an UPDATE sub-bullet under the existing dflash item in `knowledge/tasks.md` (For me); no new standalone task.

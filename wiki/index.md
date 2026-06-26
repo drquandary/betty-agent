@@ -11,7 +11,7 @@
 - [[genoa-std-mem-partition]] — 64 AMD EPYC CPU nodes, standard memory (1 source)
 - [[genoa-lrg-mem-partition]] — 10 AMD EPYC CPU nodes, ~1TB RAM each (1 source)
 - [[vast-storage]] — NFS 4.2 over RDMA on InfiniBand, 40 storage endpoints (2 sources)
-- [[runai-betty]] — RunAI AI job scheduling platform, VAST mount at /mnt/vast/runai (tentative)
+- [[runai-betty]] — RunAI AI job scheduling platform; now seen serving test inference (sglang/gpt-oss-120b/dflash endpoint, 6/26); VAST mount at /mnt/vast/runai (tentative, 1 source)
 - [[parcc-helper-tools]] — `parcc_*.py` scripts for quota, queue, debug (1 source)
 - [[open-ondemand-betty]] — Web portal at ood.betty.parcc.upenn.edu (1 source)
 - [[slurm-on-betty]] — Slurm 24.11.7 with backfill scheduler (1 source)
@@ -63,7 +63,7 @@
 - [[multi-token-prediction]] — MTP inference speedup vs. classic draft/verify speculative decoding; GLM-5.2's "faster MTP" (tentative, 1 source)
 - [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative, 1 source)
 - [[parcc-skills-modules]] — agent "skills" as discoverable units: Ken's skills-from-Spack generator + Lmod-loadable tree, jvadala's ParccSkills repo (tentative, 1 source)
-- [[dflash]] — unidentified tool Ken is testing on PARCC against gpt-oss-120b; possibly inference/serving (tentative, 2 sources)
+- [[dflash]] — Ken's sglang-served inference component tested on gpt-oss-120b via RunAI; test endpoint live on PARCC VPN but crashing 6/26 (tentative, 2 sources)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**
@@ -98,4 +98,4 @@
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
 - [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; jvadala's "betty-toolkit" tool-discovery idea; coffee confirmed 3pm; dflash to be tested on GPT-OSS. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch
-- [[2026-06-26-teams-chats-digest]] — Ceph remediation needs a coordinated downtime (AHEAD timing, /ceph-data groups, Jaime offered 9 AM); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash running (testing on gpt-oss-120b)
+- [[2026-06-26-teams-chats-digest]] — Ceph remediation needs a coordinated downtime (AHEAD timing, /ceph-data groups, Jaime offered 9 AM); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash served via sglang+RunAI on gpt-oss-120b (endpoint on PARCC VPN, crashing 6/26)
