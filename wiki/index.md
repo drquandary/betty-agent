@@ -96,3 +96,4 @@
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
 - [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; jvadala's "betty-toolkit" tool-discovery idea; coffee confirmed 3pm; dflash to be tested on GPT-OSS. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch
+- [[2026-06-26-teams-chats-digest]] — Ceph remediation needs a coordinated downtime; AHEAD asked for timing/duration, /ceph-data groups to be contacted, Jaime offered 9 AM

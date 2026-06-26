@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, storage, vast, ceph, nvme, architecture]
 created: 2026-04-10
-updated: 2026-06-24
-sources: [2026-06-24-teams-chats-digest]
+updated: 2026-06-26
+sources: [2026-06-24-teams-chats-digest, 2026-06-26-teams-chats-digest]
 related: [vast-storage, betty-cluster, runai-betty, gpu-topology-betty, betty-network-architecture]
 status: current
 ---
@@ -33,6 +33,7 @@ Betty has three storage tiers: VAST NFS over RDMA (primary), CephFS (mirrored + 
 - **CephFS-Prod-Mirrored**: data replication for durability -- use for data that needs extra protection
 - **CephFS-Prod-Local**: local-only namespace, nearly empty, purpose unclear
 - **Known issue (status: tentative, 2026-06-24)**: `/ceph` is **not mounted on the DTN (data-transfer) nodes**, so Ceph-backed data cannot be staged via the DTNs. Reported by Jaime Combariza; a vendor ticket was opened with Ahead by Ken Chaney. Tracking resolution — see [[2026-06-24-teams-chats-digest]].
+  - **Remediation plan (status: tentative, 2026-06-26)**: the fix is expected to require a **coordinated downtime**. AHEAD has been asked for timing and downtime duration; **groups that hold /ceph data must be contacted and coordinated**, and faculty are to be looped in. Team discussing scheduling (Jaime offered 9 AM). Group Ceph discussion deferred to **Mon 6/29** when everyone is back. See [[2026-06-26-teams-chats-digest]].
 
 ## Tier 3: Local NVMe (per-node)
 - `/dev/md0` -- ext4, 1.8 TB RAID array, mounted at `/`

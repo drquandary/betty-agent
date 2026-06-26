@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — Ceph remediation needs coordinated downtime
+- Source: [[2026-06-26-teams-chats-digest]] (PARCC Group, Chaney/Combariza, 2026-06-26T12:15–12:22Z, digest `digest_20260626T083924.json`)
+- Created: [[2026-06-26-teams-chats-digest]]
+- Updated: [[betty-storage-architecture]] (Tier 2 Ceph: tentative remediation-plan note — coordinated downtime, AHEAD timing ask, contact /ceph-data groups), [[index]]
+- Key facts: Ken wants to meet earlier to leave time to reach out to faculty + AHEAD; Jaime asked AHEAD when/how-long the downtime; groups with /ceph data must be contacted/coordinated; Jaime offered 9 AM. Distinct from today's 2pm sync; group Ceph talk still deferred to Mon 6/29. Task updated (Others/FYI · Ceph item UPDATE).
+
 ## [2026-06-25] ingest | Teams digest — dflash on GPT-OSS + meet-up (Ken 1:1)
 - Source: [[2026-06-25-teams-chats-digest]] (Kenneth Chaney 1:1, 2026-06-25T18:30–18:32Z, digest `digest_20260625T144501.json`)
 - Updated: [[kenneth-chaney]] (dflash test on GPT-OSS note under Model serving), [[2026-06-25-teams-chats-digest]] (new follow-up section + source), [[index]]
