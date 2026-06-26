@@ -399,3 +399,8 @@
 - Created: [[2026-06-25-teams-chats-digest]].
 - Updated: [[kenneth-chaney]] (new "Views / interests" section: no-defined-metrics view, BioNeMo toolkit, coffee commitment + 4th source), [[index]] (digest source line).
 - Tasks: added 1 to `knowledge/tasks.md` (For me) — check out NVIDIA BioNeMo agent toolkit; folded a 6/25 UPDATE sub-bullet under the existing pending-coffee item.
+
+## [2026-06-26] ingest | Teams chats digest — Ceph PG scaling (digest_20260626T091149.json)
+- Source: PARCC Group Teams chat, 2026-06-26T12:22–12:51Z (2 new msgs; Jaime 12:22 already ingested prior cycle, Ken 12:50 new). Other 7 chats had no new messages.
+- Updated: [[2026-06-26-teams-chats-digest]] (added Ken 9 AM confirm + PG-scaling status), [[betty-storage-architecture]] (new Ceph PG-scaling note: 256→512 done, target ~2048; "sooner vs later" per AHEAD).
+- Tasks: appended an UPDATE sub-bullet under the existing Ceph item in `knowledge/tasks.md` (Ken confirmed 9 AM; PG-scaling progress detail).

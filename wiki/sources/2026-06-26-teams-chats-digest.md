@@ -16,8 +16,10 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - **Ceph remediation needs a coordinated downtime** — continuing the `/ceph`-on-DTN thread ([[2026-06-24-teams-chats-digest]]):
   - **Ken Chaney** suggested meeting **earlier in the day** so there's time to **reach out to faculty and AHEAD** to do the work.
   - **Jaime Combariza** said he **asked AHEAD when this needs to be done and how long the downtime would be**, noted the team **has to contact the groups that have /ceph data and coordinate** with them, and offered he is **available at 9:00 AM if everyone is**.
+  - **Ken Chaney (~8:50 AM)** confirmed **9 AM** ("I'm good at 9am"), so an earlier Ceph meeting is agreed by Jaime + Ken. From his **call with AHEAD the night of 6/25** it's a **"sooner vs later"** situation.
+- **Ceph PG (placement-group) scaling status** — Ken: the cluster **"just barely got over this hump on PG scaling, from 256 to 512,"** but there's **"a good bit to go"** toward a target of **~2048 PGs**. So the `/ceph` remediation is an in-progress PG-scaling/rebalance operation, which helps explain the need for a coordinated downtime.
 - This is distinct from today's confirmed **2 PM PARCC sync**; the full group Ceph discussion is still deferred to **Mon 6/29** when everyone is back (Jamie Schnaitter out until 7/1).
-- Filed onto [[betty-storage-architecture]] (Tier 2: Ceph) as a tentative remediation-plan note.
+- Filed onto [[betty-storage-architecture]] (Tier 2: Ceph) as a tentative remediation-plan + PG-scaling note.
 
 ## See also
 - [[betty-storage-architecture]]
@@ -27,3 +29,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 
 ## Sources
 - PARCC Group Teams chat, 2026-06-26T12:15–12:22Z (digest `digest_20260626T083924.json`)
+- PARCC Group Teams chat, 2026-06-26T12:22–12:51Z (digest `digest_20260626T091149.json`)
