@@ -68,6 +68,9 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - After Ken's nudge to try it, Jeffrey **tested `openai/gpt-oss-120b` via LiteLLM** and saw underwhelming results: *"trying, not sure"*, *"seems like thats old model?"*
 - **Ken's diagnosis = client-side, not server:** *"Where are you sending this from?"* → *"If your mac on wifi, then that's a your wifi problem"*, adding his **synthetic test was 1k in / 1k out**. Jeffrey confirmed he's **on the Mac over wifi** and said he'd **plug in (ethernet)** and retest. Durable takeaway filed to [[dflash]] (Access → client-side caveat): benchmark from a wired link before blaming the serving stack.
 
+### dflash — back in a crash loop (~19:56Z / 3:56 EDT)
+- Ken: **"gpt-oss-120b with dflash was in a crash loop."** So after the ~1:15pm "stabilized" report the deployment went unstable again — this **likely explains Jeffrey's slow ~2:37–3:09pm results** (the crash loop, not just the Mac-wifi/measurement issues both had floated). Confirms the test deployment is **not stable**; the afternoon throughput figures are suspect pending Ken's all-clear. Filed to [[dflash]] (status/stability).
+
 ### Ceph working session ended (~18:44Z / 2:44 EDT)
 - System messages: **"Meeting ended … after 49 minutes 57 seconds"** (~50 min, 2:44 PM) — the dedicated **"Ceph"** planning session wrapped. Jeff, Andrew Chant, and Ryan Heath left the chat. The **6/27 6 AM maintenance window** set in that session stands.
 
@@ -99,3 +102,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - PARCC Group Teams chat, 2026-06-26T17:34–17:56Z (digest `digest_20260626T140055.json`) — VPN/Duo → sponsor's LSP routing
 - "Ceph" meeting Teams chat, 2026-06-26T17:55–18:33Z (digest `digest_20260626T143548.json`) — downtime scheduled 6/27 6am, `ceph osd pause`, /ceph-data contact list, job-drain hunt (AHEAD guests Ryan Heath + Swapnil Ninave)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T18:37–19:09Z (digest `digest_20260626T150904.json`) — Jeffrey's first LiteLLM gpt-oss-120b test slow → Ken: Mac-wifi bandwidth issue (his synthetic test 1k-in/1k-out); + "Ceph" meeting ended 2:44pm (~50m)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T19:56Z (digest `digest_20260626T161248.json`) — Ken: gpt-oss-120b + dflash was in a crash loop (deployment unstable again; explains afternoon slow results)

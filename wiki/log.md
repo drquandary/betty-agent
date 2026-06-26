@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — dflash gpt-oss-120b back in a crash loop
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T19:56Z, digest `digest_20260626T161248.json`) — appended new "dflash — back in a crash loop" section to same-day source page
+- Updated: [[dflash]] (crash-loop status note + stability timeline), [[index]]
+- Key facts: Ken — "gpt-oss-120b with dflash was in a crash loop" → deployment unstable again after the ~1:15pm "stabilized" report; likely explains Jeffrey's slow ~2:37–3:09pm results (not just Mac-wifi). Afternoon throughput numbers now suspect; wait for Ken's all-clear. Tasks: dflash item got the crash-loop UPDATE.
+
 ## [2026-06-26] ingest | Teams digest — Ceph downtime SCHEDULED 6/27 6am (dedicated Ceph working session)
 - Source: [[2026-06-26-teams-chats-digest]] ("Ceph" meeting chat, 2026-06-26T17:55–18:33Z, digest `digest_20260626T143548.json`) — appended new "Ceph working session" section to same-day source page
 - Updated: [[betty-storage-architecture]] (Tier 2 Ceph: new "Downtime scheduled — START 6/27 6am" note — `ceph osd pause` drain, ~31-account /ceph-data contact list, `squeue|grep /ceph` job-drain hunt, AHEAD guests Ryan Heath + Swapnil Ninave), [[index]]
