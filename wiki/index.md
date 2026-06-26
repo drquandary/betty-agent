@@ -63,7 +63,7 @@
 - [[multi-token-prediction]] — MTP inference speedup vs. classic draft/verify speculative decoding; GLM-5.2's "faster MTP" (tentative, 1 source)
 - [[templeton-religious-trust-project]] — jvadala's 120B-LLM classification → knowledge-graph/SNA research project (tentative, 1 source)
 - [[parcc-skills-modules]] — agent "skills" as discoverable units: Ken's skills-from-Spack generator + Lmod-loadable tree, jvadala's ParccSkills repo (tentative, 1 source)
-- [[dflash]] — Ken's sglang-served inference acceleration component on gpt-oss-120b via RunAI; stabilized 6/26 at ~5k tok/s/GPU @ conc.100 (~2–3× prior), ~300 tps single-stream; LiteLLM-bound (tentative, 2 sources)
+- [[dflash]] — Ken's sglang-served inference acceleration on gpt-oss-120b via RunAI; ~5k tok/s/GPU @ conc.100, ~300 tps single-stream; now on **LiteLLM** as `openai/gpt-oss-120b` (raw VPN endpoint 404s — use LiteLLM); 20b WIP (tentative, 2 sources)
 
 ## Models
 - [[qwen2.5-vl-7b-instruct]] — Vision-language, 7B params — **our current focus**

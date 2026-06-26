@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — dflash on LiteLLM; raw endpoint 404s; VPN/Duo→LSP routing
+- Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1 + PARCC Group, 2026-06-26T17:34–17:58Z, digest `digest_20260626T140055.json`) — appended to same-day source page
+- Updated: [[dflash]] (now on LiteLLM as `openai/gpt-oss-120b`; raw VPN endpoint returns 404 on everything incl. `/v1/*` — contradicts earlier "stabilized" read, use LiteLLM; gpt-oss-20b WIP, ~500 tps vs 120b+DFlash ~300 tps), [[glm-5.2]] (no draft model yet — MTP; Kimi has one pending license), [[betty-auth-architecture]] (new section: VPN/Duo for sponsored externals → sponsor's LSP, PARCC→HireIT/SEAS→CETS), [[index]]
+- Tasks: dflash item + GLM-5.2 item UPDATEs (For me); new FYI — Keystone/Pitt user VPN/Duo → Jaime emailing HireIT.
+
 ## [2026-06-26] ingest | Teams digest — dflash running, testing on gpt-oss-120b
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T16:02–16:08Z, digest `digest_20260626T122146.json`) — appended to same-day source page
 - Created: [[dflash]] (tentative stub — unidentified tool, first test target `gpt-oss-120b`)

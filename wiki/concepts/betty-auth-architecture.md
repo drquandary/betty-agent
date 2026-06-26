@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, security, authentication, kerberos, pam, ssh]
 created: 2026-04-10
-updated: 2026-06-18
-sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest]
+updated: 2026-06-26
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-26-teams-chats-digest]
 related: [betty-cluster, open-ondemand-betty, ood-troubleshooting, kerberos-ssh-macos-fix]
 status: current
 ---
@@ -54,6 +54,16 @@ pam_slurm_adopt.so action_no_jobs=deny                       # blocks SSH if no 
 
 A common **client-side** SSH failure on macOS is `Permission denied (publickey,gssapi-with-mic)`, caused not by the server but by the Mac presenting a credential from the wrong Kerberos provider. macOS ships **Heimdal**; package managers (conda, brew, …) can install **MIT** Kerberos + their own `ssh`, polluting the environment. The fix is `export KRB5CCNAME="API:"` before `kinit`. Full diagnosis, the diagnostic checklist, and the fix are on the dedicated page [[kerberos-ssh-macos-fix]] (from the [[2026-06-16-teams-chats-digest]], diagnosed by [[jamie-schnaitter]] and [[ryan-bradley]]).
 
+## VPN / Duo support routing for external & sponsored users
+
+When a user (especially an **external collaborator** on a **sponsored PennKey** — e.g. a Pitt user on Keystone) reports their **VPN or Duo has stopped working**, PARCC is *not* the right fixer. The routing rule (from [[kenneth-chaney]], 2026-06-26):
+
+- **Identify who sponsored the PennKey**, then send them to that sponsor's **LSP (Local Support Provider)**.
+- Examples: **PARCC → HireIT**, **SEAS → CETS**.
+- The sponsor is the one who opens the LSP ticket/email (e.g. Jaime sponsored a Pitt user's PennKey, so Jaime emails HireIT).
+
+Duo/VPN issues are identity-layer problems handled by the central LSP, distinct from Betty's own Kerberos/`pam_slurm_adopt` SSH controls below.
+
 ## Practical notes
 
 - Kerberos tickets expire -- if SSH starts failing after hours of work, run `kinit` again
@@ -72,3 +82,4 @@ A common **client-side** SSH failure on macOS is `Permission denied (publickey,g
 - Live inspection of `/etc/pam.d/sshd` on dgx028 (OOD session 5207320, 2026-04-10)
 - [[2026-06-16-teams-chats-digest]] -- macOS Kerberos SSH failure + fix thread
 - [[2026-06-18-teams-chats-digest]] -- Jamie confirms pam_slurm_adopt is live + multi-job cgroup caveat
+- [[2026-06-26-teams-chats-digest]] -- VPN/Duo for sponsored external users routes to the sponsor's LSP (PARCC→HireIT, SEAS→CETS)

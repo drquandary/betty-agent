@@ -3,7 +3,7 @@ type: source
 tags: [teams, parcc, ceph, storage, downtime, vendor, glm, skills, agents, dflash, gpt-oss]
 created: 2026-06-26
 updated: 2026-06-26
-related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty]
+related: [betty-storage-architecture, jaime-combariza, kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, multi-token-prediction, dflash, runai-betty, betty-auth-architecture]
 status: current
 ---
 
@@ -49,9 +49,21 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - On distribution: the raw URL is **"just an endpoint"**; Ken will **"get it on litellm shortly"** so it's reachable via the standard PARCC LiteLLM gateway, not only the direct VPN URL.
 - These are the first **real throughput figures** for an sglang+dflash+RunAI inference deployment on Betty. Filed to [[dflash]] and [[runai-betty]].
 
+### dflash on LiteLLM + raw endpoint 404 + gpt-oss-20b (~17:34–17:44Z / 1:34–1:44 EDT)
+- **On LiteLLM now.** Ken: *"you can test it out on litellm now with the `openai/gpt-oss-120b`."* So gpt-oss-120b + dflash is reachable through the standard PARCC **LiteLLM gateway** — the supported path.
+- **But the raw VPN endpoint is broken — contradicts the ~1:15pm "stabilized" read.** Jeffrey *"kept getting 404"* on the direct URL; his diagnosis: *"the server behind that hostname returns 404 for everything, including the OpenAI-standard `/v1/chat/completions` and `/v1/models` endpoints that SGLang always serves when it's running."* → the SGLang OpenAI server isn't actually up behind `sglang-…-runai-test`. **Use LiteLLM, not the direct URL.** Filed to [[dflash]] (Access) + [[runai-betty]].
+- **gpt-oss-20b WIP.** Ken is also standing up **`gpt-oss-20b`** but *"the same config is not working for 20b"* yet. Throughput comparison (single concurrency): **gpt-oss-120b + DFlash ~300 tps** vs **gpt-oss-20b ~500 tps** (smaller, faster; no dflash config on 20b).
+- **Draft models.** Jeffrey: *"do they have a draft model for glm 5.2?"* — Ken: *"not yet"* (consistent with GLM-5.2's MTP, [[multi-token-prediction]]). **Kimi** has one Ken spotted, pending a license/access acceptance (*"I just need to agree to stuff"*). Filed to [[glm-5.2]].
+
+## PARCC Group — VPN/Duo support routing for external users (~17:34–17:56Z / 1:34–1:56 EDT)
+- **Jaime Combariza:** a Pitt user on **Keystone** reports her **VPN/Duo no longer works** — who do we contact?
+- **Ken Chaney** gives the routing rule: find **who sponsored the PennKey**, then go to that sponsor's **LSP (Local Support Provider)** — e.g. **PARCC → HireIT**, **SEAS → CETS**.
+- **Jaime** confirms he sponsored it and **will email HireIT**. So Duo/VPN identity issues for sponsored externals are an LSP matter, not a PARCC/Betty fix. Filed to [[betty-auth-architecture]].
+
 ## See also
 - [[dflash]]
 - [[runai-betty]]
+- [[betty-auth-architecture]]
 - [[betty-storage-architecture]]
 - [[glm-5.2]]
 - [[parcc-skills-modules]]
@@ -67,3 +79,5 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T15:17–15:30Z (digest `digest_20260626T114656.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T16:34–16:49Z (digest `digest_20260626T125412.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:15–17:25Z (digest `digest_20260626T132740.json`)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:34–17:58Z (digest `digest_20260626T140055.json`) — dflash on LiteLLM, raw endpoint 404, gpt-oss-20b, draft models
+- PARCC Group Teams chat, 2026-06-26T17:34–17:56Z (digest `digest_20260626T140055.json`) — VPN/Duo → sponsor's LSP routing
