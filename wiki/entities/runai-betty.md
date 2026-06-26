@@ -18,6 +18,7 @@ RunAI AI job scheduling platform is present on Betty with a VAST mount at `/mnt/
 - **Discovery**: found during Part 2 storage exploration on dgx028 (2026-04-10)
 - **RunAI** is NVIDIA's AI workload scheduling platform, typically used for GPU cluster management, fractional GPU allocation, and ML pipeline orchestration
 - **Actively serving inference (6/26):** Ken Chaney stood up a test inference endpoint **`https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu`** (reachable on the PARCC VPN). The `-runai-` segment and the `inference.betty.parcc.upenn.edu` domain indicate RunAI is **actively scheduling/serving model inference on Betty** (here an sglang + gpt-oss-120b + [[dflash]] test), alongside [[slurm-on-betty]]. First concrete evidence RunAI is in real use, not just a mount. (`status: tentative` retained — only one deployment observed.)
+- **Throughput observed (6/26):** after stabilizing, that RunAI-served endpoint hit **~5k tok/s/GPU at concurrency 100** and **~300 tps single-stream** — so RunAI inference on Betty can deliver production-scale throughput. Ken plans to front it with **LiteLLM**. See [[dflash]].
 
 ## What we don't know
 - ~~Whether RunAI is actively used or is a legacy/pilot installation~~ → at least used for **test inference serving** as of 6/26 (see above); breadth of use still unknown

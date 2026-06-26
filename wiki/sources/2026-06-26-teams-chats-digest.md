@@ -41,6 +41,14 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - The hostname reveals the full serving stack: **sglang** engine + **gpt-oss-120b** + **dflash** on **run:ai** ([[runai-betty]]), a **test** deployment under `inference.betty.parcc.upenn.edu`. This is the first concrete signal that **RunAI actively serves inference on Betty** (not just the `/mnt/vast/runai` mount), and that **dflash is an sglang-side acceleration component**.
 - Minutes later (~16:49Z) Ken: **"andddd it is crashing lol"** — the test endpoint is **not yet stable**. Filed to [[dflash]] (Access + status) and [[runai-betty]].
 
+### dflash stabilized + throughput numbers (~17:15–17:25Z / 1:15–1:25 EDT)
+- Ken: **"I think it is stabilized now"** — the endpoint now **responds**. Reported performance:
+  - **~5,000 tokens/sec/GPU** aggregate at **concurrency 100**, which Ken calls **"about double (almost triple) previous performance."**
+  - **~300 tps at single concurrency** (one request).
+  - Per-user **~300 tps sustained for up to ~15 concurrent users**; beyond that, **slowdown**. (Solo, Jeffrey gets the fast single-stream rate — he joked he'd get "whiplash.")
+- On distribution: the raw URL is **"just an endpoint"**; Ken will **"get it on litellm shortly"** so it's reachable via the standard PARCC LiteLLM gateway, not only the direct VPN URL.
+- These are the first **real throughput figures** for an sglang+dflash+RunAI inference deployment on Betty. Filed to [[dflash]] and [[runai-betty]].
+
 ## See also
 - [[dflash]]
 - [[runai-betty]]
@@ -58,3 +66,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - PARCC Group Teams chat, 2026-06-26T12:22–12:51Z (digest `digest_20260626T091149.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T15:17–15:30Z (digest `digest_20260626T114656.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T16:34–16:49Z (digest `digest_20260626T125412.json`)
+- Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:15–17:25Z (digest `digest_20260626T132740.json`)

@@ -422,3 +422,7 @@
 - Updated: [[dflash]] (Access section + serving-stack reveal + crash status; frontmatter tags/related), [[runai-betty]] ("actively serving inference" evidence; resolved part of the "is it used?" open question; frontmatter source/related/updated), [[2026-06-26-teams-chats-digest]] (new dflash endpoint+crash subsection, 4th source line, runai-betty related), [[index]] (dflash, runai-betty, digest lines).
 - Key facts: (1) dflash test endpoint = `https://sglang-gpt-oss-120b-dflash-runai-test.inference.betty.parcc.upenn.edu`, reachable on the PARCC VPN — hostname reveals the stack = sglang + gpt-oss-120b + dflash on RunAI (test). (2) First concrete evidence RunAI serves inference on Betty. (3) Endpoint crashing as of ~12:49pm EDT — not stable. dflash remains tentative (still no plain-English description from Ken).
 - Tasks: appended an UPDATE sub-bullet under the existing dflash item in `knowledge/tasks.md` (For me); no new standalone task.
+
+## [2026-06-26] ingest | Teams digest digest_20260626T132740 (Chaney 1:1 — dflash stabilized)
+- Updated: [[dflash]], [[2026-06-26-teams-chats-digest]], [[runai-betty]], [[index]]
+- Notes: dflash test endpoint went crashing→stabilized same day; ~5k tok/s/GPU @ conc.100 (~2–3× prior), ~300 tps single-stream, ~300 tps/user up to ~15 users; Ken to add to LiteLLM. Only the Chaney 1:1 chat had new messages (16); other 7 chats empty.
