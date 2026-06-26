@@ -21,6 +21,15 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - This is distinct from today's confirmed **2 PM PARCC sync**; the full group Ceph discussion is still deferred to **Mon 6/29** when everyone is back (Jamie Schnaitter out until 7/1).
 - Filed onto [[betty-storage-architecture]] (Tier 2: Ceph) as a tentative remediation-plan + PG-scaling note.
 
+## Ceph working session — downtime scheduled (~17:55–18:33Z / 1:55–2:33 EDT)
+- Ken Chaney created a **dedicated "Ceph" meeting chat** and a live meeting **started 1:55 PM**, pulling in **AHEAD/vendor guests Ryan Heath and Swapnil Ninave** alongside Ryan Bradley; **Jeffrey ("Jeff") was invited**; Andrew Chant and Jay Deheve joined then left. This is the working session that operationalizes the morning's Ceph-downtime plan.
+- **Maintenance window START: 06/27/2026 @ 6:00 AM** (Ken) — the Ceph remediation/PG-scaling downtime begins the next morning.
+- **`ceph osd pause`** posted by Ken — staging the pre-downtime drain step (stop OSD scheduling so the cluster can be quiesced).
+- **Affected-account contact list** (~31 users/groups holding /ceph data) compiled by Ken: akreddy, brisson, chaneyk, dyer1, ggrant, jbabdor, jmurr, jushi, ksusztak, pcamara, ryb, sattertt, tamachad, ycheng11, yyee, zives, asokr, ccb, chenyuli, gahead, glogsdon, jcombar1, juliochi, kj4tbt, mzarella, qinl1, ryroark, sun12, vidalr, yxdeng, zahrt — the notify-before-the-window set.
+- **Live job-drain hunt:** Swapnil Ninave ran `squeue -t RUNNING -O "JobID,UserID,NodeList,WorkDir" | grep /ceph` and surfaced a running job — **6850091**, node **epyc-2-2**, workdir `/ceph/projects/ksusztak/nephrobase_1/Siyu/3_Projects/6_scMR`. Jobs touching /ceph must be drained before the 6 AM pause.
+- **Live cluster I/O:** Michael Saldaris posted `ceph status` snapshots — client ~234 MiB/s→1.4 GiB/s rd, recovery ~52 MiB/s / 17 objects/s — confirming the cluster is still actively rebalancing as the PG scale-up proceeds.
+- Filed to [[betty-storage-architecture]] (Tier 2: Ceph → downtime-scheduled note).
+
 ## Ken ↔ Jeffrey 1:1 — GLM vision + agent skills (~15:17–15:30Z / 11:17–11:30 EDT)
 - **GLM vision support.** Resolves the open "did you get glm to work with vision?" thread ([[2026-06-25-teams-chats-digest]] → this one):
   - Jeffrey: *"I don't think the fp8 does vision"* but *"the regular model is supposed to."* So the **fp8-quantized** GLM build PARCC serves lacks vision; the **full-precision model** is expected to support it.
@@ -81,3 +90,4 @@ PARCC Group: the `/ceph` remediation will require a coordinated downtime — AHE
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:15–17:25Z (digest `digest_20260626T132740.json`)
 - Chaney↔Vadala 1:1 Teams chat, 2026-06-26T17:34–17:58Z (digest `digest_20260626T140055.json`) — dflash on LiteLLM, raw endpoint 404, gpt-oss-20b, draft models
 - PARCC Group Teams chat, 2026-06-26T17:34–17:56Z (digest `digest_20260626T140055.json`) — VPN/Duo → sponsor's LSP routing
+- "Ceph" meeting Teams chat, 2026-06-26T17:55–18:33Z (digest `digest_20260626T143548.json`) — downtime scheduled 6/27 6am, `ceph osd pause`, /ceph-data contact list, job-drain hunt (AHEAD guests Ryan Heath + Swapnil Ninave)

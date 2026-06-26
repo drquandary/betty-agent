@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-26] ingest | Teams digest — Ceph downtime SCHEDULED 6/27 6am (dedicated Ceph working session)
+- Source: [[2026-06-26-teams-chats-digest]] ("Ceph" meeting chat, 2026-06-26T17:55–18:33Z, digest `digest_20260626T143548.json`) — appended new "Ceph working session" section to same-day source page
+- Updated: [[betty-storage-architecture]] (Tier 2 Ceph: new "Downtime scheduled — START 6/27 6am" note — `ceph osd pause` drain, ~31-account /ceph-data contact list, `squeue|grep /ceph` job-drain hunt, AHEAD guests Ryan Heath + Swapnil Ninave), [[index]]
+- Key facts: maintenance window begins **6/27 6:00am**; Jeffrey was invited to the session; running job 6850091 (epyc-2-2, `/ceph/projects/ksusztak/...`) flagged for drain; cluster still rebalancing (~52 MiB/s recovery). Tasks: Ceph FYI item got DOWNTIME-SCHEDULED UPDATE; gpt-oss-120b item got Ken's "curious how it'll do for you now" nudge.
+
 ## [2026-06-26] ingest | Teams digest — dflash on LiteLLM; raw endpoint 404s; VPN/Duo→LSP routing
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1 + PARCC Group, 2026-06-26T17:34–17:58Z, digest `digest_20260626T140055.json`) — appended to same-day source page
 - Updated: [[dflash]] (now on LiteLLM as `openai/gpt-oss-120b`; raw VPN endpoint returns 404 on everything incl. `/v1/*` — contradicts earlier "stabilized" read, use LiteLLM; gpt-oss-20b WIP, ~500 tps vs 120b+DFlash ~300 tps), [[glm-5.2]] (no draft model yet — MTP; Kimi has one pending license), [[betty-auth-architecture]] (new section: VPN/Duo for sponsored externals → sponsor's LSP, PARCC→HireIT/SEAS→CETS), [[index]]
