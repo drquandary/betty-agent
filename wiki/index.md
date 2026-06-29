@@ -21,6 +21,7 @@
 - [[kenneth-chaney]] — PARCC systems engineer; built `parcc_sandbox`, owns `parcc_sfree.py`, deploys quantized LLMs (1 source)
 - [[z.ai]] — External AI vendor; "Advanced AI Chatbot & Agent" powered by GLM-5.2 (tentative, 1 source)
 - [[jamie-schnaitter]] — PARCC systems engineer; Kerberos/SSH authority, authored the macOS `KRB5CCNAME` fix (1 source)
+- [[bhuv-jain]] — UPenn physics prof, AI-in-education interest; upcoming engagement test case (facilitation vs consultant vs RSE) (tentative, 1 source)
 
 ## Concepts
 - [[lora-fine-tuning]] — Low-Rank Adaptation, parameter-efficient fine-tuning
@@ -100,4 +101,5 @@
 - [[2026-06-23-teams-chats-digest]] — Ken: account sync paused; manual home-folder workaround run + verified (groups/VAST/Ceph/Slurm); root cause still open; evening LiteLLM model-contention pause + GLM-down incident
 - [[2026-06-24-teams-chats-digest]] — `/ceph` not mounted on DTN nodes; Ken submitted a vendor ticket to Ahead
 - [[2026-06-25-teams-chats-digest]] — Ken 1:1: PARCC lacks defined success metrics; BioNeMo agent toolkit shared; jvadala's "betty-toolkit" tool-discovery idea; coffee confirmed 3pm; dflash to be tested on GPT-OSS. PARCC Group: ColdFront projects 269/270 failed to activate — Ken suspects his user patch
+- [[2026-06-29-teams-chats-digest]] — Ryan/Jeffrey 1:1: role definitions (facilitation vs "AI consultant" vs RSE; funded-service overlap; USRSE materials); upcoming Prof. Bhuv Jain (AI-education) meeting; rachitk OOM fix = decode-on-GPU, found via a multi-day Opus-4.8 agent harness (ParccSkills, now w/ Nsight CLI), verified by Google; LLM cost (GLM-5.2 "beating opus 4.8" on long tasks, `npx ccusage`, subscription-subsidy concern → on-prem)
 - [[2026-06-26-teams-chats-digest]] — GLM-5.2 NVFP4 (NVIDIA HF build) shared, Ken weighing it on 8 GPUs; Ceph downtime SCHEDULED 6/27 6am (dedicated Ceph session w/ AHEAD guests; `ceph osd pause`, /ceph-data contact list, job-drain hunt); + Ken/Jeffrey 1:1: GLM fp8 no-vision, GLM-5.2 served for coding, skills-from-Spack + ParccSkills merge, dflash served via sglang+RunAI on gpt-oss-120b (on LiteLLM as openai/gpt-oss-120b; unstable — crash-looped ~3:56pm then reverted to standard ~4:21pm); workweave/router shared as a possible dflash front-end; tokens-as-a-service (Ken mints keys now + wants a router; Jeffrey recruiting two labs); Ken's 40 kHz event-camera structured-light background)

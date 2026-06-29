@@ -2,9 +2,9 @@
 type: concept
 tags: [parcc, skills, agents, spack, modules, lmod, tooling]
 created: 2026-06-26
-updated: 2026-06-26
-sources: [2026-06-26-teams-chats-digest]
-related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent]
+updated: 2026-06-29
+sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest]
+related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent, erf-user-facilitation]
 status: tentative
 ---
 
@@ -25,6 +25,17 @@ An emerging PARCC effort to package agent "skills" so they can be discovered and
 - Repo: **github.com/drquandary/ParccSkills** (jvadala). Two skills as of 2026-06-26:
   - **resume-session** — fuzzy-match back into any prior session; built for **Claude Code**, **not yet tried with Pi**.
   - **Nsight profiling + Karpathy-loop** skill (GPU profiling + iterative agent loop).
+- After the PARCC↔NVIDIA meeting, Jeffrey **added the NVIDIA Nsight ("Insight") CLI** into the harness (2026-06-29).
+
+### The harness method (how the skills get used in practice) — 2026-06-29
+The ParccSkills "Karpathy-loop" is the engine behind Jeffrey's facilitation deliverables. Method as he described it for the **rachitk** OOM case:
+1. **Babysit Opus 4.8 running ~10 agents for a couple of days** against the problem.
+2. **Refine** the loop; **discard bogus answers**; keep the most plausible candidate.
+3. The harness **tests/benchmarks** the candidate fixes (now with the Nsight CLI for GPU profiling).
+4. **Verify independently** — Jeffrey confirmed the winning answer with **Google** and found others had recommended the same fix.
+- **rachitk result:** the fix was to **decode ON the GPU itself** (avoid the CPU↔GPU round-trip that triggered the OOM — the case involved both a CPU and a *prospective* GPU OOM).
+- Self-critique / lesson: "I should have just googled it first" — the multi-day agent search converged on a known answer, so cheap lookup first, harness for verification/benchmarking second.
+- **Cost/role angle:** this kind of read-the-code-and-optimize work is exactly what ryb is trying to classify as facilitation vs funded consulting (see [[erf-user-facilitation]]), and prompted his cost question — could it run on **GLM-5.2** instead of Opus 4.8 (Jeffrey: yes), and what does the Opus run cost (`npx ccusage`)? See [[glm-5.2]].
 
 ### Convergence
 - Both want to **combine into a shared PARCC skills repo** ("definitely we should work on combining fully"), gated on Ken validating his generator first.
@@ -39,3 +50,4 @@ An emerging PARCC effort to package agent "skills" so they can be discovered and
 
 ## Sources
 - [[2026-06-26-teams-chats-digest]] — Ken/Jeffrey 1:1 on skills-from-spack + ParccSkills repo
+- [[2026-06-29-teams-chats-digest]] — the multi-day Opus-4.8 harness method, Nsight-CLI addition, and the rachitk decode-on-GPU OOM fix

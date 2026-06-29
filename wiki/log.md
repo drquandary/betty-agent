@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-29] ingest | Teams digest — role definitions (facilitation/consultant/RSE), rachitk OOM harness, GLM-5.2 vs Opus cost
+- Source: [[2026-06-29-teams-chats-digest]] (Bradley↔Vadala 1:1, 2026-06-29T18:57–19:20Z, digest `digest_20260629T152046.json`). Only chat with new messages (56); 8 other chats had 0 new.
+- Created: [[bhuv-jain]] (tentative entity — UPenn physics prof, AI-education engagement test case)
+- Updated: [[erf-user-facilitation]] (facilitation vs "AI consultant" vs RSE role definitions + funded-service overlap + USRSE materials), [[parcc-skills-modules]] (multi-day Opus-4.8 harness method, Nsight-CLI addition, rachitk decode-on-GPU OOM fix), [[glm-5.2]] ("beating opus 4.8" on some long tasks; `ccusage`/subscription-subsidy cost argument), [[index]]
+- Key facts: Ryan wants role consistency — read-code-and-optimize work may overlap a *funded* PARCC consulting service; "consulting" = time-limited engagement, varying accountability. rachitk fix = decode ON the GPU (CPU + prospective GPU OOM), found via Opus-4.8 ~10-agent harness over a couple days, verified by Google. Ryan asks: GLM-5.2 vs Opus 4.8 cost (`npx ccusage`); subsidized subscriptions "won't be around forever." Jeffrey: GLM-5.2 "should work." Tasks: 6 new "For me" items (Wed 10am training chat, browse USRSE pre-Jain, document rachitk reasoning, answer cost question, gromacs follow-up).
+
 ## [2026-06-26] ingest | Teams digest — tokens-as-a-service recruiting + Ken's event-camera background
 - Source: [[2026-06-26-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-26T20:45–21:09Z, digest `digest_20260626T171824.json`) — appended new "tokens-as-a-service + event cameras" section to same-day source page
 - Created: [[parcc-tokens-as-a-service]] (tentative concept page)
