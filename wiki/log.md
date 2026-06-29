@@ -487,3 +487,10 @@
 - Updated: [[2026-06-29-teams-chats-digest]] (new "Late-afternoon continuation" subsection), [[parcc-skills-modules]] (new "Roadmap / to-make" + "Why skills/hooks, not CLAUDE.md" sections; +2 related), [[ryan-bradley]] (GitHub `bradleyrp`, AI-coding views, +4th source, updated date), [[index]] (skills-modules + 6/29 digest lines).
 - Tasks: appended 4 items to `knowledge/tasks.md` (For me) — add Ryan (`bradleyrp`) as ParccSkills collaborator (BLOCKED); README "to make" data-packaging skill; MWE/check-your-work skill (Ryan's idea, he'll help w/ tutorial); co-develop fall "GLM 5.2 and AI Coders" workshop.
 - Notes: mostly shop talk; durable facts = Ryan's GitHub username, skill-lint tool, and the CLAUDE.md-vs-hooks rule-enforcement model. No new entity/concept pages.
+
+## [2026-06-29] ingest | Teams digest digest_20260629T173640 (Bradley 1:1 — repo access fixed + benchmark plan)
+- Source: Bradley↔Vadala 1:1 Teams chat, 2026-06-29T21:03–21:07Z (~5:03–5:07pm EDT, 11 new msgs). Other 8 chats had no new messages. Continuation of the same thread in [[2026-06-29-teams-chats-digest]].
+- Updated: [[parcc-skills-modules]] (roadmap: collaborator-add RESOLVED — repo was public, Jeffrey added Ryan, Ken to add a few; new benchmark/test-case bullet w/ benchtest), [[2026-06-29-teams-chats-digest]] (new "Evening continuation ~5:03–5:07pm" subsection).
+- Key facts: ParccSkills repo is **public** (why the earlier collaborator invite failed); Ryan now added. New reference: **github.com/upenn/benchtest** (Ryan's regression/perf-test format — target for reformulated benchmarks). Benchmark idea: scatter input data over many folders → LLM tracks files down + dumps an MWE → reformat into benchtest. Jeffrey to paste into ParccSkills README via the github agent.
+- Tasks: in `knowledge/tasks.md` — marked the "Add Ryan as collaborator" item [x] RESOLVED; appended an UPDATE sub-bullet under the MWE/check-your-work item (scatter-data benchmark + benchtest format + README paste). No new standalone tasks.
+- Notes: no new entity/concept pages; benchtest noted inline (not yet its own page).

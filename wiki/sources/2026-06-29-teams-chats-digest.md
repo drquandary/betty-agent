@@ -59,6 +59,11 @@ Ryan ↔ Jeffrey 1:1 thread: role-definition framing (facilitation vs "AI consul
   - **Data-packaging skill** (README "to make") — bundle code + data into a zip / auto-shared location; motivated by rachitk sending **no code or data** (Jeffrey: "imagine if [rachit] used GLM5.2 to package the data for you").
   - **Collaborator add BLOCKED** — Ryan's GitHub is **`bradleyrp`**; Jeffrey's invite to ParccSkills failed ("it wont let me add you"); Ryan asked for the error. See [[ryan-bradley]].
 
+### Evening continuation (~5:03–5:07pm EDT) — repo access fixed + benchmark plan
+- **Collaborator add RESOLVED.** Ryan diagnosed the failed invite: "it looks like it's **public**, maybe that's why." Jeffrey then **added him** ("i added you") and opened the floor — "any ideas have, feel free. **Ken said he was going to do a few too**." So ParccSkills now has Ryan as a collaborator and Ken queued to contribute.
+- **Benchmark / MWE test case (Ryan).** Ryan proposed the concrete test for the data-packaging + MWE skills: a **contrived example of a user who scatters input data over lots of folders**, then have **GLM-5.2 (or whichever model) track them down and dump the MWE somewhere** so it can be tested. He also wants the LLM to **reformulate the benchmark into his regression/performance-testing format — `github.com/upenn/benchtest`**.
+- Jeffrey: "yeah definitly" — he'll **paste Ryan's idea into the ParccSkills README via the github agent** (Ryan reacted 👍/1 Like) and "we can fill it out more." → see [[parcc-skills-modules]] roadmap.
+
 ## See also
 - [[erf-user-facilitation]] — the facilitation/role-definition thread continues here
 - [[parcc-skills-modules]] — the ParccSkills harness behind the rachitk fix
