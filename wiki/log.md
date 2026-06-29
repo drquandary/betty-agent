@@ -481,3 +481,9 @@
 - Updated: [[glm-5.2]] (new NVFP4 quant-variant note + quant-variants summary line + source-line extension), [[2026-06-26-teams-chats-digest]] (new "GLM-5.2 NVFP4 quant" subsection + source line), [[index]] (glm-5.2 line + 6/26 digest line).
 - Key facts: NVIDIA published an NVFP4 quant of GLM-5.2 (huggingface.co/nvidia/GLM-5.2-NVFP4); Ken weighing deploying NVFP4 on 8 GPUs ("hmmmm"); Jeffrey "should be zippy". NVFP4 = NVIDIA 4-bit float, native to Blackwell/B200 tensor cores → fast on Betty. Distinct from the served fp8 build (which lacks vision); NVFP4 vision support unconfirmed. Not deployed yet.
 - Tasks: appended an UPDATE sub-bullet under the GLM-5.2 evaluation item in `knowledge/tasks.md` (For me) — follow up with Ken on NVFP4 standup + whether 4-bit build keeps vision. No new standalone task.
+
+## [2026-06-29] ingest | Teams digest digest_20260629T170251 (Bradley 1:1 — late-afternoon AI-coding talk)
+- Source: Bradley↔Vadala 1:1 Teams chat, 2026-06-29T20:29–21:02Z (~4:29–5:02pm EDT, 53 new msgs). Other 8 chats had no new messages. Continuation of the same thread already in [[2026-06-29-teams-chats-digest]].
+- Updated: [[2026-06-29-teams-chats-digest]] (new "Late-afternoon continuation" subsection), [[parcc-skills-modules]] (new "Roadmap / to-make" + "Why skills/hooks, not CLAUDE.md" sections; +2 related), [[ryan-bradley]] (GitHub `bradleyrp`, AI-coding views, +4th source, updated date), [[index]] (skills-modules + 6/29 digest lines).
+- Tasks: appended 4 items to `knowledge/tasks.md` (For me) — add Ryan (`bradleyrp`) as ParccSkills collaborator (BLOCKED); README "to make" data-packaging skill; MWE/check-your-work skill (Ryan's idea, he'll help w/ tutorial); co-develop fall "GLM 5.2 and AI Coders" workshop.
+- Notes: mostly shop talk; durable facts = Ryan's GitHub username, skill-lint tool, and the CLAUDE.md-vs-hooks rule-enforcement model. No new entity/concept pages.

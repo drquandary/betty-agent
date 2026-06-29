@@ -4,7 +4,7 @@ tags: [parcc, skills, agents, spack, modules, lmod, tooling]
 created: 2026-06-26
 updated: 2026-06-29
 sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest]
-related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent, erf-user-facilitation]
+related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent, erf-user-facilitation, ryan-bradley, glm-5.2]
 status: tentative
 ---
 
@@ -27,6 +27,21 @@ An emerging PARCC effort to package agent "skills" so they can be discovered and
   - **Nsight profiling + Karpathy-loop** skill (GPU profiling + iterative agent loop).
 - After the PARCC↔NVIDIA meeting, Jeffrey **added the NVIDIA Nsight ("Insight") CLI** into the harness (2026-06-29).
 - **Pi-Agent (2026-06-29).** Jeffrey runs his agents on **Pi-Agent** — his own "super minimal agent in cli" — which he positions as "sort of the same thing as **opencode**, just with less cruft / less bloat … **less ux and prompt**" and which "**saves tokens**." He pitched it to Ryan (who tried [[glm-5.2|GLM-5.2]] in opencode and liked it but finds agentic flows "too hands-off") as the elegant, low-overhead alternative. The `resume-session` skill above was "built for Claude Code, not yet tried with Pi" — so Pi-Agent is the lighter runtime he's migrating toward.
+
+### Roadmap / "to make" (2026-06-29 eve)
+- **Add Ryan as a collaborator** — Jeffrey confirmed Ryan's GitHub is **`bradleyrp`** and tried to add him to ParccSkills, but the invite **failed** ("it wont let me add you"); unresolved (see [[ryan-bradley]]).
+- **Data-packaging skill (planned, README "to make").** Ryan's idea: a skill that **bundles a problem's code + data into a zip or an auto-shared location** so a handoff ships a runnable example. Motivated by the rachitk case, which cost extra time because rachit sent **no code/examples and no data** (Jeffrey had to synthesize data). Ryan: "imagine if your rachit interaction used real data because he used GLM5.2 to package the data for you. might have saved time." Jeffrey is adding this to the repo README as a "to make."
+- **MWE / check-your-work skill (planned, Ryan's idea).** A skill that **checks an agent's work** and/or **reduces a complicated example to a Minimal Working Example** testable "without asking 20 questions over email." Ken separately mentioned a "skills library"; Ryan offered to help write a **tutorial** for it.
+- **skill-lint** (`github.com/himself65/skill-lint`) — third-party linter/validator for `SKILL.md` files (Claude.ai / Claude Code / other agents). Jeffrey shared it as a way to **force an agent into a mode** (or have a sub-agent with its own context enforce it). A candidate dependency for validating ParccSkills entries.
+- **Fall workshop** "using GLM 5.2 and AI Coders" — Jeffrey + Ryan to co-develop (see [[ryan-bradley]], [[glm-5.2]]).
+
+### Why skills/hooks, not CLAUDE.md (rule-enforcement lore, 2026-06-29)
+Context from Ryan's complaint that Opus **ignored his `CLAUDE.md` formatting rules** (it said the instruction "fell off the context window because it wasn't important"). Jeffrey's working model, which motivates the skills effort:
+- **`CLAUDE.md` is for general "directions or themes," not hard rules** — rule-following from it is "a roll of the dice."
+- For **real rules, use hooks** — e.g. a hook that fires after a specific action and **injects a prompt** forcing the model to justify deviations ("tell me why you sinned").
+- **Specialized agents / skills** can force the model into a mode; a sub-agent with its own context can do the check.
+- **Opus 4.8 enforced "rule following"** more than 4.6/4.7 (which "had a habit" of dropping instructions); but in **long conversations (>80K tokens)** even important instructions get dropped **before compaction**. Practical fallback for the 80-char-docstring case: a **git pre-commit hook** (Opus's own suggestion).
+- Jeffrey's broader take on where agents save time: mainly the **first prototype phase** and as a **linter/bug-checker**; for editing (e.g. his papers) they produce "sparkly clean" output but still need a fine-tooth comb, so they're not a pure time-saver.
 
 ### The harness method (how the skills get used in practice) — 2026-06-29
 The ParccSkills "Karpathy-loop" is the engine behind Jeffrey's facilitation deliverables. Method as he described it for the **rachitk** OOM case:
