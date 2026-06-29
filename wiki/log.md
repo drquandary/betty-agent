@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-29] ingest | Teams digest (cont. 2) — Pi-Agent vs opencode + research-loop handoff to Ken
+- Source: [[2026-06-29-teams-chats-digest]] (Bradley↔Vadala eve + new Chaney↔Vadala thread, digest `digest_20260629T162846.json`). Two chats with new messages (Ryan 19, Ken 8); 7 others had 0 new.
+- Updated: [[parcc-skills-modules]] (Pi-Agent as the lean runtime; Ken-handoff section), [[jeffrey-vadala]] (Pi-Agent + ParccSkills=research-loop, +6/29 source), [[glm-5.2]] (Ryan's "pretty good" opencode datapoint), [[2026-06-29-teams-chats-digest]] (evening + Ken-thread sections)
+- Key facts: Jeffrey runs agents on **Pi-Agent** — his minimal CLI agent ("less cruft/bloat than opencode, less ux+prompt, saves tokens"); pitched it to Ryan, who **tried GLM-5.2 briefly Fri in opencode** ("pretty good") but finds agentic flows "too hands-off" (uses Q&A→markdown/diffs). **GROMACS bench committed for Wed 7/1.** Jeffrey **opened the research-loop conversation with Ken** (per Ryan's rec) — shared ParccSkills link, relayed Ryan's framing (data-movement-from-code-vs-Nsight; horizontal scaling; transparent/reproducible > better); cost rebuttal = the multi-day token spend let him **multitask ~10 projects** vs ~a week solo. Tasks: GROMACS-Wed-bench item, A-B/Ken item got handoff UPDATE, new FYI (Ryan GLM-5.2/Pi-Agent).
+
 ## [2026-06-29] ingest | Teams digest — role definitions (facilitation/consultant/RSE), rachitk OOM harness, GLM-5.2 vs Opus cost
 - Source: [[2026-06-29-teams-chats-digest]] (Bradley↔Vadala 1:1, 2026-06-29T18:57–19:20Z, digest `digest_20260629T152046.json`). Only chat with new messages (56); 8 other chats had 0 new.
 - Created: [[bhuv-jain]] (tentative entity — UPenn physics prof, AI-education engagement test case)

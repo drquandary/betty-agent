@@ -26,6 +26,7 @@ An emerging PARCC effort to package agent "skills" so they can be discovered and
   - **resume-session** — fuzzy-match back into any prior session; built for **Claude Code**, **not yet tried with Pi**.
   - **Nsight profiling + Karpathy-loop** skill (GPU profiling + iterative agent loop).
 - After the PARCC↔NVIDIA meeting, Jeffrey **added the NVIDIA Nsight ("Insight") CLI** into the harness (2026-06-29).
+- **Pi-Agent (2026-06-29).** Jeffrey runs his agents on **Pi-Agent** — his own "super minimal agent in cli" — which he positions as "sort of the same thing as **opencode**, just with less cruft / less bloat … **less ux and prompt**" and which "**saves tokens**." He pitched it to Ryan (who tried [[glm-5.2|GLM-5.2]] in opencode and liked it but finds agentic flows "too hands-off") as the elegant, low-overhead alternative. The `resume-session` skill above was "built for Claude Code, not yet tried with Pi" — so Pi-Agent is the lighter runtime he's migrating toward.
 
 ### The harness method (how the skills get used in practice) — 2026-06-29
 The ParccSkills "Karpathy-loop" is the engine behind Jeffrey's facilitation deliverables. Method as he described it for the **rachitk** OOM case:
@@ -50,6 +51,7 @@ Two cooperating loops:
 - Ryan's **real interest** is whether this harness **generalizes to other users' workflows**, not the recursive loop itself. He separately flagged that the most "native"-to-the-model part is **how the model inferred the data movement from the code (vs. from Nsight) and proposed a fix** — that's the capability worth probing.
 - Cost objection: **two days of agent labor is too expensive to be a general test.** Path forward he proposed: **if GLM-5.2 can do the same task**, and they **quantify tokens + wall-clock time**, the workflow could be generalized to other users.
 - Ryan's quality bar: **"better is secondary to transparent and reproducible across other projects."** Recommended (twice) **talking it through with Ken**; Jeffrey has **full logs** and **mentioned it to Ken last week**. → see tasks: A-B GLM-5.2 vs Opus-4.8 benchmark + Ken conversation.
+- **Handoff to Ken initiated (2026-06-29 eve).** Jeffrey opened the thread with [[kenneth-chaney]] — framed it as "my **research-loop** tool … the one the Nvidia dudes liked," shared the ParccSkills link, and relayed Ryan's two framing quotes (data-movement-inferred-from-code vs Nsight; horizontal scaling; transparent/reproducible > better). His cost rebuttal: the multi-day token spend was offset because it **let him multitask ~10 other projects** — solo, one-at-a-time, the same conclusion (decode-on-GPU) "may have taken a week." Expects it runs on **GLM-5.2 or even a lesser model**. Awaiting Ken's reply.
 
 ### Convergence
 - Both want to **combine into a shared PARCC skills repo** ("definitely we should work on combining fully"), gated on Ken validating his generator first.

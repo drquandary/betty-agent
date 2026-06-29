@@ -40,6 +40,16 @@ Ryan ↔ Jeffrey 1:1 thread: role-definition framing (facilitation vs "AI consul
 - Worked detail: Jeffrey told it to fetch **synthetic/test data** (got encoded test data), then it tried to **replicate rachit's ~20% GPU utilization ~5 different ways**; Jeffrey **actively managed** it rather than fire-and-forget.
 - **rachit status:** Jeffrey asked if rachit replied; Ryan: "not to me. I assume he will try to implement your advice." (See [[parcc-skills-modules]] for the full architecture writeup.)
 
+### Evening continuation (~4–4:29pm EDT) — Pi-Agent vs opencode, GROMACS bench date
+- **GPU decode aside:** Jeffrey notes decoding/decompressing on the GPU "are something people do for games and stuff" — i.e. the rachitk fix is a mainstream technique, reinforcing the should-have-googled-first lesson.
+- **GROMACS:** Jeffrey "didn't forget about the gromacs stuff" but "still need[s] to run bench on it" → committed to **running the benchmark Wednesday (7/1)** and reporting issues. Ryan 👍.
+- **GLM-5.2 / agent UX:** Ryan **tried GLM-5.2 briefly Friday in opencode** — "pretty good" — but finds the **agentic stuff too hands-off**; he uses opencode for **Q&A → markdown or diffs** he implements himself. Jeffrey suggested running GLM-5.2 on **Pi-Agent** (his "super minimal agent in cli," "saves tokens," "less cruft / less bloat … less ux and prompt") — "sort of the same thing as opencode, just with less bloat," pitched to Ryan's "appreciat[ion of] elegance." See [[parcc-skills-modules]], [[glm-5.2]].
+
+### Ken thread (~4:14–4:20pm EDT) — research-loop handoff per Ryan
+- Acting on Ryan's repeated recommendation, **Jeffrey opened the research-loop discussion with Ken Chaney**: "Ryan wanted me to talk to you about my 'research-loop' tool … the one the Nvidia dudes liked," with the **github.com/drquandary/ParccSkills** link.
+- He **relayed Ryan's two framing quotes verbatim**: (1) the interesting part is less the recursive loop, more **how the model inferred the movement of the data from the code (or was it all from Nsight?) and proposed a solution** — "more 'native' to the model"; real interest is whether it **scales horizontally** to other users; two days of agent labor is a high cost to test, but if **GLM-5.2** can do it and they quantify **tokens/time**, generalize. (2) "**better is secondary to transparent and reproducible** … I'd recommend talking about this with Ken."
+- **Jeffrey's cost rebuttal to Ken:** the multi-day harness was expensive in tokens **but enabled multitasking on ~10 other projects**; doing it manually one-at-a-time "may have taken me a week to get the same conclusion which was the decoding needed to be done on the gpu." He expects it to work on **GLM-5.2 or even a lesser model**. Awaiting Ken's response. See [[parcc-skills-modules]].
+
 ## See also
 - [[erf-user-facilitation]] — the facilitation/role-definition thread continues here
 - [[parcc-skills-modules]] — the ParccSkills harness behind the rachitk fix

@@ -2,8 +2,8 @@
 type: entity
 tags: [people, parcc, facilitation, jvadala, betty-ai, vlm]
 created: 2026-06-16
-updated: 2026-06-26
-sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest]
+updated: 2026-06-29
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest]
 related: [betty-cluster, betty-ai-agent, surgical-tool-id-vlm, templeton-religious-trust-project, erf-user-facilitation, gromacs-on-betty, slurm-cli-filter, slurm-advisor, ryan-bradley, jaime-combariza, kenneth-chaney, jamie-schnaitter, parcc-skills-modules, glm-5.2]
 status: current
 ---
@@ -23,7 +23,8 @@ PARCC user-facilitation hire and the primary author/operator of the Betty AI age
 - **[[surgical-tool-id-vlm]]** — a prior vision-language-model project (surgical implement identification) being considered for hosting on Betty.
 - **[[templeton-religious-trust-project]]** — Templeton-funded research: classifying ~2000 free-text religious-experience responses with a 120B open LLM (per Ken's suggestion) and converting them to knowledge graphs for SNA.
 - **"betty-toolkit" idea (tentative)** — wants to build a Betty-specific tool-discovery toolkit for researchers, modeled on NVIDIA's BioNeMo agent toolkit (which Ken shared 6/25). Aspiration, not yet started; complements [[betty-ai-agent]].
-- **ParccSkills repo** — `github.com/drquandary/ParccSkills`, his agent-skills repo. Two skills (2026-06-26): **resume-session** (fuzzy-match back into any prior session; built for Claude Code, not yet tried with Pi) and **Nsight profiling + Karpathy-loop**. Wants to merge with Ken's skills work; see [[parcc-skills-modules]].
+- **ParccSkills repo** — `github.com/drquandary/ParccSkills`, his agent-skills repo (a.k.a. his "research-loop" tool, "the one the Nvidia dudes liked"). Two skills (2026-06-26): **resume-session** (fuzzy-match back into any prior session; built for Claude Code, not yet tried with Pi) and **Nsight profiling + Karpathy-loop**. Wants to merge with Ken's skills work; on 6/29 he handed it to Ken for review per Ryan's rec. See [[parcc-skills-modules]].
+- **Pi-Agent** — his own "super minimal agent in cli," pitched as opencode "with less cruft / less bloat … less ux and prompt" and token-saving; the lighter runtime he's moving his agent harness toward. See [[parcc-skills-modules]].
 - **Agentic GLM usage (2026-06-26)** — tried [[glm-5.2]] for long-horizon "long tasks" per the hype, but the served **fp8** build has no vision so the run **got stuck**; workaround is an agent that **routes vision subtasks to Claude**.
 - **Facilitation tasks** — the ERF code-compilation exercise and the [[gromacs-on-betty]] 1.5M-water onboarding benchmark ryb assigned.
 - **Bug-finding** — found the `--mem` propagation bug in ryb's [[slurm-cli-filter]] (~2026-06-15).
@@ -45,3 +46,4 @@ PARCC user-facilitation hire and the primary author/operator of the Betty AI age
 - [[2026-06-18-teams-chats-digest]] — Templeton religious-trust project (120B LLM classification → knowledge graphs for SNA)
 - [[2026-06-25-teams-chats-digest]] — "betty-toolkit" tool-discovery idea (modeled on BioNeMo agent toolkit)
 - [[2026-06-26-teams-chats-digest]] — ParccSkills repo (resume-session, Nsight+Karpathy-loop); GLM fp8 no-vision → routes vision to Claude
+- [[2026-06-29-teams-chats-digest]] — Pi-Agent (minimal CLI agent) vs opencode; handed the research-loop/ParccSkills tool to Ken per Ryan's rec; GROMACS bench committed for Wed 7/1

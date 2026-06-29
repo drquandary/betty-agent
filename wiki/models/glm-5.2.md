@@ -23,6 +23,7 @@ status: tentative
 
 - **vs Opus 4.8 on long-horizon tasks (2026-06-29).** Jeffrey: GLM-5.2 is **"beating opus 4.8 actually … in some long term tasks."** Stated when Ryan asked whether the multi-day [[parcc-skills-modules|agent-harness]] work (rachitk OOM fix) could run on GLM-5.2 instead of Opus 4.8 — Jeffrey: "it should work." No benchmark numbers given; `tentative`.
 - **Cost driver toward on-prem (2026-06-29).** This claim sits inside Ryan's cost argument: he converts Claude **subscription** usage to **API-equivalent rates with `npx ccusage`**, and warns personal subscriptions are **"heavily subsidized and this won't be around forever."** GLM-5.2 (served on PARCC's own stack) is the on-prem hedge — relevant to [[parcc-tokens-as-a-service]].
+- **Ryan's hands-on impression (2026-06-29).** Ryan **tried GLM-5.2 briefly Friday in opencode** and found it **"pretty good"** — but uses it for **Q&A → markdown/diffs he implements himself**, finding the agentic flows "too hands-off." (Jeffrey countered by pitching **Pi-Agent** as a leaner runtime — see [[parcc-skills-modules]].) First end-user datapoint on GLM-5.2 from a PARCC staffer, even if non-agentic.
 
 > status: tentative — served for coding, but quant/benchmark specs unconfirmed, the fp8-vs-full vision split is from chat, and the "beats Opus 4.8 on long tasks" claim is Jeffrey's impression with no numbers.
 
