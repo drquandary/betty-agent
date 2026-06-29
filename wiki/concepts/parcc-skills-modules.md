@@ -37,6 +37,20 @@ The ParccSkills "Karpathy-loop" is the engine behind Jeffrey's facilitation deli
 - Self-critique / lesson: "I should have just googled it first" — the multi-day agent search converged on a known answer, so cheap lookup first, harness for verification/benchmarking second.
 - **Cost/role angle:** this kind of read-the-code-and-optimize work is exactly what ryb is trying to classify as facilitation vs funded consulting (see [[erf-user-facilitation]]), and prompted his cost question — could it run on **GLM-5.2** instead of Opus 4.8 (Jeffrey: yes), and what does the Opus run cost (`npx ccusage`)? See [[glm-5.2]].
 
+### Karpathy-loop architecture (Jeffrey's description, 2026-06-29 afternoon)
+Two cooperating loops:
+1. **ML-task loop** — rate the outputs of an ML training run, **adjust parameters, and rerun training**; score each trial.
+2. **Wiki-logging loop** — logs trials and failures to give the agent a **persistent memory** of what's been tried (the Karpathy LLM-wiki pattern; same idea as this wiki).
+- The **Nsight ("Nvidia insight") CLI** is wired in as a third signal: it reads what the GPU is doing, **logs that to the wiki, and folds it into the scoring**.
+- Jeffrey's view on model requirements: **"a dumber model could do all this"** — the task isn't compute-intelligence-bound. What actually mattered was **long-running persistence**: many primitive agents **give up**, so they "have to be trained to just keep trying stuff." That persistence is **why he used Opus 4.8** (pushed it via "long running"); **GLM is supposed to do that** too. → motivates the A-B test below.
+- Worked example (rachitk): Jeffrey told it to **get synthetic / test data**; it pulled some **encoded test data**, then tried to **replicate the ~20% GPU utilization rachit was seeing in ~5 different ways**. Jeffrey **actively managed** it ("it's like I stepped in and managed these things") rather than fire-and-forget ("I didn't just say 'fix it' and come back 3 days later").
+- **Proposed improvement:** add a **"deep research" phase** up front — Jeffrey thinks it "would have caught the deciding thing" (the known answer), consistent with the should-have-googled-first lesson. (Ryan: "I don't know what deep research means" → worth defining when pitching it.)
+
+### Does it scale horizontally? (Ryan's framing, 2026-06-29)
+- Ryan's **real interest** is whether this harness **generalizes to other users' workflows**, not the recursive loop itself. He separately flagged that the most "native"-to-the-model part is **how the model inferred the data movement from the code (vs. from Nsight) and proposed a fix** — that's the capability worth probing.
+- Cost objection: **two days of agent labor is too expensive to be a general test.** Path forward he proposed: **if GLM-5.2 can do the same task**, and they **quantify tokens + wall-clock time**, the workflow could be generalized to other users.
+- Ryan's quality bar: **"better is secondary to transparent and reproducible across other projects."** Recommended (twice) **talking it through with Ken**; Jeffrey has **full logs** and **mentioned it to Ken last week**. → see tasks: A-B GLM-5.2 vs Opus-4.8 benchmark + Ken conversation.
+
 ### Convergence
 - Both want to **combine into a shared PARCC skills repo** ("definitely we should work on combining fully"), gated on Ken validating his generator first.
 - Conceptually overlaps Jeffrey's **"betty-toolkit"** tool-discovery idea (see [[jeffrey-vadala]], [[betty-ai-agent]]) — both aim to make Betty's capabilities discoverable to researchers/agents; the Lmod-loadable angle is a concrete delivery mechanism.

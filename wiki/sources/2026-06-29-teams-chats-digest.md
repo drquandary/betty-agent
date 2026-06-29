@@ -32,6 +32,14 @@ Ryan ↔ Jeffrey 1:1 thread: role-definition framing (facilitation vs "AI consul
 - Ryan's strategic concern: **personal subscriptions are heavily subsidized and "won't be around forever"** → on-prem models may be the better long-term bet.
 - Jeffrey: **GLM-5.2 is "beating opus 4.8 … in some long term tasks … it should work."** See [[glm-5.2]].
 
+### Afternoon continuation (~3:22–3:36pm EDT) — harness architecture + horizontal-scaling question
+- **Karpathy-loop architecture** Jeffrey laid out: (1) an **ML-task loop** (rate training outputs → adjust params → rerun → score) and (2) a **wiki-logging loop** for persistent memory of trials/failures; the **Nsight CLI** feeds GPU behavior into the wiki and the scoring. "A dumber model could do all this."
+- **Why Opus 4.8:** not intelligence but **long-running persistence** — primitive agents "give up," so they must be "trained to just keep trying." **GLM is supposed to do that** too → motivates an A-B test. Jeffrey offered an **agentic bench**; thinks Ken would like it.
+- **Proposed "deep research" phase** that "would have caught the deciding thing" (the known answer). Ryan: "I don't know what deep research means."
+- **Ryan's real interest:** does this **scale horizontally** to other users' workflows? The most model-"native" part is **how it inferred data movement from the code (vs. Nsight) and proposed a fix.** Two days of agent labor is too costly as a general test, **but if GLM-5.2 can do it and they quantify tokens + time, generalize.** Bar: **"better is secondary to transparent and reproducible."** Recommended (twice) **talking to Ken**; Jeffrey has logs, mentioned it to Ken last week.
+- Worked detail: Jeffrey told it to fetch **synthetic/test data** (got encoded test data), then it tried to **replicate rachit's ~20% GPU utilization ~5 different ways**; Jeffrey **actively managed** it rather than fire-and-forget.
+- **rachit status:** Jeffrey asked if rachit replied; Ryan: "not to me. I assume he will try to implement your advice." (See [[parcc-skills-modules]] for the full architecture writeup.)
+
 ## See also
 - [[erf-user-facilitation]] — the facilitation/role-definition thread continues here
 - [[parcc-skills-modules]] — the ParccSkills harness behind the rachitk fix
