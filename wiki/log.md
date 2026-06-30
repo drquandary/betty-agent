@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-06-30] ingest | Teams digest (3rd) — LiteLLM reboot + lab chatbot; `rheer` upgrade
+- Source: [[2026-06-30-teams-chats-digest]] (digest `digest_20260630T164338.json`, 9 chats / 7 new: Chaney 5 ~20:18–20:39Z, PARCC Group 2). 
+- Updated: [[2026-06-30-teams-chats-digest]] (appended 3rd-digest section), [[parcc-tokens-as-a-service]] (LiteLLM gateway reboot = transient GLM-5.2 outage; "chatbot for a lab" = concrete lab-client instance), tasks.md.
+- Key facts: Jeffrey couldn't reach GLM-5.2 → Ken: **"We were rebooting LiteLLM"** (transient gateway reboot, not a model issue). Jeffrey restated intent to **build a "chatbot for a lab"** (first instance of the lab-tools TUI / tokens-as-a-service beta). PARCC Group: Jaime re-asked Ken to **upgrade user `rheer` (not a PI)**; Ken apologized, has a **Thursday 7/2 meeting** with the PI to watch a live login. Tasks: added `rheer`-upgrade FYI + LiteLLM-reboot FYI; UPDATE on lab-TUI item.
+
 ## [2026-06-30] ingest | Teams digest (2nd) — "Claude Science" announced
 - Source: [[2026-06-30-teams-chats-digest]] (Chaney↔Vadala, 9 new ~18:08–18:32Z, digest `digest_20260630T143816.json`). Only Chaney chat had new messages; 8 others 0 new.
 - Created: [[claude-science]]

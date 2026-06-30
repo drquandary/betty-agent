@@ -3,7 +3,7 @@ type: source
 tags: [teams, digest, chaney, glm, nvfp4, parcc-skills, reliability, claude-science]
 created: 2026-06-30
 updated: 2026-06-30
-related: [kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, claude-science]
+related: [kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, claude-science, parcc-tokens-as-a-service]
 status: current
 ---
 
@@ -49,9 +49,21 @@ Chaney↔Vadala 1:1 (2026-06-30T17:05–17:33Z): Ken **migrated GLM-5.2 serving 
   - **Accuracy caveat:** Ken — "Getting important details wrong though … We have B200 not H100." So its default hardware assumptions were wrong for Betty (assumed H100; Betty is [[dgx-b200-partition|B200]]).
 - Relevance: a direct reference point / competitor for the in-house [[parcc-skills-modules|ParccSkills]] + betty-toolkit + skills-curation effort — same "inbuilt skills for science/HPC" shape. See [[claude-science]].
 
+## Third digest — 2026-06-30T16:44 (LiteLLM reboot + lab chatbot; PARCC user upgrade)
+
+- Source: `knowledge/raw/digest_20260630T164338.json` (generated 2026-06-30T16:44:12). 9 chats, 7 new total: **Chaney, Kenneth P** (5, ~20:18–20:39Z) and **PARCC Group** (2, ~20:21–20:39Z).
+
+### LiteLLM reboot + Jeffrey's "chatbot for a lab" (Chaney chat)
+- Jeffrey couldn't reach GLM-5.2 ("how is GLM5.2 doing … i can[']t seem to get it … not that i need it"); Ken's explanation: **"We were rebooting LiteLLM."** So the access gap was a transient gateway reboot, not a model problem — [[parcc-tokens-as-a-service|LiteLLM]] is the single gateway fronting the coding/served stack.
+- Jeffrey restated intent: **"i was going to work on a chatbot for a lab"** — the concrete first instance of the lab-tools TUI / tokens-as-a-service beta-lab idea. See [[parcc-tokens-as-a-service]].
+
+### PARCC user upgrade — `rheer` (PARCC Group, ops/FYI)
+- Jaime: **"check on `rheer` who is not a PI. Please upgrade this user"** (a repeat ask). Ken apologized for missing it and has a **Thursday (7/2) meeting with this PI** to watch them log in live and prevent recurrence. Account-ops item (Ken's action), not durable cluster knowledge.
+
 ## See also
 - [[glm-5.2]]
 - [[parcc-skills-modules]]
+- [[parcc-tokens-as-a-service]]
 - [[claude-science]]
 - [[kenneth-chaney]]
 - [[jeffrey-vadala]]
