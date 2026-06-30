@@ -2,8 +2,8 @@
 type: concept
 tags: [parcc, skills, agents, spack, modules, lmod, tooling]
 created: 2026-06-26
-updated: 2026-06-29
-sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest]
+updated: 2026-06-30
+sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest]
 related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent, erf-user-facilitation, ryan-bradley, glm-5.2]
 status: tentative
 ---
@@ -69,8 +69,19 @@ Two cooperating loops:
 - Ryan's quality bar: **"better is secondary to transparent and reproducible across other projects."** Recommended (twice) **talking it through with Ken**; Jeffrey has **full logs** and **mentioned it to Ken last week**. → see tasks: A-B GLM-5.2 vs Opus-4.8 benchmark + Ken conversation.
 - **Handoff to Ken initiated (2026-06-29 eve).** Jeffrey opened the thread with [[kenneth-chaney]] — framed it as "my **research-loop** tool … the one the Nvidia dudes liked," shared the ParccSkills link, and relayed Ryan's two framing quotes (data-movement-inferred-from-code vs Nsight; horizontal scaling; transparent/reproducible > better). His cost rebuttal: the multi-day token spend was offset because it **let him multitask ~10 other projects** — solo, one-at-a-time, the same conclusion (decode-on-GPU) "may have taken a week." Expects it runs on **GLM-5.2 or even a lesser model**. Awaiting Ken's reply.
 
+### Ken's evaluation criteria for the tool (2026-06-30)
+Ken replied (caveat: he **must read the tool before giving real feedback**, and hit a transient **404 because the repo had gone private** — now fixed, he's added as `k-chaney`). His framing for whether a multi-day agent harness is worth running:
+- Ryan is mainly pushing **reliability** — the bar for being a tool that can be **recommended/used**.
+- The cost that matters **isn't tokens, it's human time** — *"even though it is a compressed amount of time you spend on it, you still spend time on it … the time is the bigger part."* The optimization is the "running vs swimming across a river" calculus: **token-time × human duration × actual human direct attention.**
+- Two gating questions: **(1)** is it reliable enough that the time/tokens are unlikely to be wasted? **(2)** if it fails, do we still learn something? — *"the result out of the tools should be learning something, even if it fails."*
+- Ideal trajectory: **trust it enough to eventually give it to researchers.** Risk (exists for any software): a researcher could burn ~$50 tokens + ~$500 compute for nothing.
+- **Internal-vs-researcher scope:** Jeffrey clarified he **only intended internal use**, not researcher-facing; Ken argues *"same thought process applies even for internal use."*
+- Jeffrey's counter-data (his rachitk run): **3–4 days wall-clock but only ~2–3 hrs of direct attention** (steering, hitting OK, checking logs), little token-crunching while off work, **auto-logged the whole run to the wiki/knowledge-graph**, and improved the tool — *"I doubt a noob could really beat me unless they had direct experience with that app."* On reliability he told Ryan *"the proof will be in the puddin — if the fix actually works."* This is the empirical case for the harness against Ken's time/reliability bar.
+
 ### Convergence
 - Both want to **combine into a shared PARCC skills repo** ("definitely we should work on combining fully"), gated on Ken validating his generator first.
+- **Collaborator add (2026-06-30).** After Ken 404'd on the (now-private) ParccSkills repo, Jeffrey **added Ken** as a collaborator (GitHub **`k-chaney`**) — joining Ryan (`bradleyrp`). So both PARCC staff now have direct access; next ball is Ken reading the harness before feedback.
+- **Curation as a team decision (2026-06-30).** Ken wants the group to **"sit down and hash out the ways these skills should be curated in the PARCC environment overall"** and says he has **"initial ideas for testing this."** So skills curation is being elevated from the two-person repo merge to a **PARCC-wide governance/testing question** (how skills are vetted, versioned, and exposed — ties to the Lmod-loadable delivery and Ken's skills-from-Spack generator).
 - Conceptually overlaps Jeffrey's **"betty-toolkit"** tool-discovery idea (see [[jeffrey-vadala]], [[betty-ai-agent]]) — both aim to make Betty's capabilities discoverable to researchers/agents; the Lmod-loadable angle is a concrete delivery mechanism.
 
 ## See also
@@ -83,3 +94,4 @@ Two cooperating loops:
 ## Sources
 - [[2026-06-26-teams-chats-digest]] — Ken/Jeffrey 1:1 on skills-from-spack + ParccSkills repo
 - [[2026-06-29-teams-chats-digest]] — the multi-day Opus-4.8 harness method, Nsight-CLI addition, and the rachitk decode-on-GPU OOM fix
+- [[2026-06-30-teams-chats-digest]] — Ken's reliability/time evaluation criteria for the harness; repo went private → Ken added (`k-chaney`); curation as a PARCC-wide question

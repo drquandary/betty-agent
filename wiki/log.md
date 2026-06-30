@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-30] ingest | Teams digest — GLM-5.2 → NVFP4 migration + Ken's reliability criteria
+- Source: [[2026-06-30-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-30T17:05–17:33Z, digest `digest_20260630T133322.json`). Only Chaney chat had new messages (37); 8 others had 0 new.
+- Created: [[2026-06-30-teams-chats-digest]]
+- Updated: [[glm-5.2]] (NVFP4 now the served build — migrated to cut token cost; supersedes "under consideration"), [[parcc-skills-modules]] (Ken's reliability/human-time evaluation criteria; repo went private → Ken added `k-chaney`; curation as a PARCC-wide question), [[index]]
+- Key facts: Ken **"migrated us to nvfp4 for glm 5.2"** to bring token cost down (NVFP4 build now default; fp8 superseded; vision-on-NVFP4 unconfirmed). Ken's harness-evaluation framing: reliability is the bar; **human time > tokens** as the real cost; (1) reliable enough not to waste time? (2) learn something even on failure?; trajectory = trust enough to give researchers eventually; same calculus applies even for Jeffrey's intended internal-only use. Jeffrey's data: 3–4 days wall-clock / ~2–3 hrs attention / auto-logged to wiki. ParccSkills now private → Ken added (`k-chaney`); Ken wants the team to hash out skills curation PARCC-wide. Ken **agreed to lead the Betty field trip**. Tasks: field-trip UPDATE (Ken agreed), ParccSkills-merge UPDATE (private + Ken added), new curation item, A-B/Ken-harness UPDATE (Ken's criteria).
+
 ## [2026-06-29] ingest | Teams digest (cont. 2) — Pi-Agent vs opencode + research-loop handoff to Ken
 - Source: [[2026-06-29-teams-chats-digest]] (Bradley↔Vadala eve + new Chaney↔Vadala thread, digest `digest_20260629T162846.json`). Two chats with new messages (Ryan 19, Ken 8); 7 others had 0 new.
 - Updated: [[parcc-skills-modules]] (Pi-Agent as the lean runtime; Ken-handoff section), [[jeffrey-vadala]] (Pi-Agent + ParccSkills=research-loop, +6/29 source), [[glm-5.2]] (Ryan's "pretty good" opencode datapoint), [[2026-06-29-teams-chats-digest]] (evening + Ken-thread sections)
