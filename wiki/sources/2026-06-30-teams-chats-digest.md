@@ -1,9 +1,9 @@
 ---
 type: source
-tags: [teams, digest, chaney, glm, nvfp4, parcc-skills, reliability]
+tags: [teams, digest, chaney, glm, nvfp4, parcc-skills, reliability, claude-science]
 created: 2026-06-30
 updated: 2026-06-30
-related: [kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules]
+related: [kenneth-chaney, jeffrey-vadala, glm-5.2, parcc-skills-modules, claude-science]
 status: current
 ---
 
@@ -38,8 +38,20 @@ Chaney↔Vadala 1:1 (2026-06-30T17:05–17:33Z): Ken **migrated GLM-5.2 serving 
 ### Betty field trip
 - Ken **agreed to lead** the field trip for Jeffrey's wife's student ("We should be able to do that"). Schedule TBD; mind the 110 dB server-room hearing-protection caveat.
 
+## Second digest — 2026-06-30T14:38 (Claude Science)
+
+- Source: `knowledge/raw/digest_20260630T143816.json` (generated 2026-06-30T14:38:54). Only **Chaney, Kenneth P** had new messages (9 new, ~18:08–18:32Z); other 8 chats 0 new.
+
+### "Claude Science" announced (durable, tentative)
+- Anthropic **announced "Claude Science"** (Jeffrey: "Claude science just announced"). Observations from Jeffrey + Ken trying it:
+  - It can run **"jobs"** and appears to be a **bundle of inbuilt skills for HPC & science tasks** (Jeffrey: "it's a bunch of inbuilt skills … for hpc and science tasks").
+  - It **auto-generated a whole profile for running GPU benchmarks on Betty** ("set up a whole profile for running GPU benchmarks on Betty").
+  - **Accuracy caveat:** Ken — "Getting important details wrong though … We have B200 not H100." So its default hardware assumptions were wrong for Betty (assumed H100; Betty is [[dgx-b200-partition|B200]]).
+- Relevance: a direct reference point / competitor for the in-house [[parcc-skills-modules|ParccSkills]] + betty-toolkit + skills-curation effort — same "inbuilt skills for science/HPC" shape. See [[claude-science]].
+
 ## See also
 - [[glm-5.2]]
 - [[parcc-skills-modules]]
+- [[claude-science]]
 - [[kenneth-chaney]]
 - [[jeffrey-vadala]]

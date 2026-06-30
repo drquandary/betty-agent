@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-06-30] ingest | Teams digest (2nd) — "Claude Science" announced
+- Source: [[2026-06-30-teams-chats-digest]] (Chaney↔Vadala, 9 new ~18:08–18:32Z, digest `digest_20260630T143816.json`). Only Chaney chat had new messages; 8 others 0 new.
+- Created: [[claude-science]]
+- Updated: [[2026-06-30-teams-chats-digest]] (appended 2nd-digest section), [[index]]
+- Key facts: Anthropic **announced "Claude Science"** — appears to be **inbuilt agent skills for HPC/science**, can run **"jobs"**, and **auto-generated a GPU-benchmark profile for Betty**. Accuracy caveat: it **assumed H100; Betty is B200** (Ken: "We have B200 not H100"). Tracked as a reference point/competitor for ParccSkills + betty-toolkit. Task: added "evaluate Claude Science" item for Jeffrey.
+
 ## [2026-06-30] ingest | Teams digest — GLM-5.2 → NVFP4 migration + Ken's reliability criteria
 - Source: [[2026-06-30-teams-chats-digest]] (Chaney↔Vadala 1:1, 2026-06-30T17:05–17:33Z, digest `digest_20260630T133322.json`). Only Chaney chat had new messages (37); 8 others had 0 new.
 - Created: [[2026-06-30-teams-chats-digest]]
