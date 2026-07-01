@@ -109,6 +109,18 @@ All 9 Bradley messages are Jeffrey pasting a **two-part honest distillation** of
 
 ---
 
+## Sixth pull — 2026-07-01T14:02 (digest_20260701T140201.json)
+
+`knowledge/raw/digest_20260701T140201.json` (generated 2026-07-01T14:02:38). 9 chats; **15 new, all in Bradley, Ryan Patrick** (~17:31–17:40Z). A continuation of the earlier ParccSkills thread, now about **what a skill *is* and how to standardize it**.
+
+### Skill anatomy + Ryan's standards proposal (durable → [[parcc-skills-modules]])
+- Opener: Ryan is still **digesting Jeffrey's earlier "wall of text"** (the rachitk distillation) — *"a lot of text and really tilted towards the subjunctive case."* Jeffrey: no rush; reflects it was a human+Claude collaboration ("impossible for me on my own without Claude's detailed knowledge … impossible for Claude on its own without my pushback") and that it *"gave me a bunch of really cool ways to update the skills."*
+- **Format truth:** Ryan — *"the skills are all just text, right? are there any standards for them?"*; Jeffrey — *"no … they can be."* So skills are **plain text with no adopted standard** (a standard is possible; see skill-lint). Some skills **run `.sh` commands**.
+- **`resume-session` anatomy** (Jeffrey's "simple one"): a **fuzzy-matching simple text search** over **past-session files** → **returns a result** → ends with a **shell command to load a new window depending on the session**. The **harness looper** is heavier — *"I had 3 `.sh` commands."*
+- **Ryan's proposal (the new durable bit):** *"it would be useful to develop some standards around **human-legible vs machine-readable** skills so that we have **parity**. maybe there are some more **formal methods** for doing this."* Sharpens the PARCC-wide skills-curation question from "vet/version" toward "**spec** a skill must satisfy." Filed to [[parcc-skills-modules]]; task added under the skills-curation item.
+
+---
+
 ## See also
 - [[gpu-host-gather-bottleneck]]
 - [[claude-science]]

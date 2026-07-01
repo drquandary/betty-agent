@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-07-01] ingest | Teams digest (6th pull) — skill anatomy + Ryan's human/machine-readable standards proposal
+- Source: [[2026-07-01-teams-chats-digest]] (appended "Sixth pull" section; digest `digest_20260701T140201.json`, 9 chats / 15 new — all Bradley, Ryan Patrick ~17:31–17:40Z).
+- Updated: [[parcc-skills-modules]] (new "Skill anatomy & the standards question" section + frontmatter/sources), [[index]], tasks.md.
+- Key facts: Skills are **plain text, no adopted standard** (Ryan: "just text, any standards?"; Jeffrey: "no… they can be"); some skills **run `.sh` commands**. `resume-session` anatomy = fuzzy text search over past-session files → result → shell command to open a new window per session; the **harness looper had 3 `.sh` commands**. **Ryan's durable proposal:** standards for **human-legible vs machine-readable** skills "so that we have **parity**," possibly via **formal methods** — sharpens the PARCC-wide skills-curation question from vet/version toward a skill *spec*. Task: added as an UPDATE sub-bullet under the skills-curation item.
+
 ## [2026-07-01] ingest | Teams digest (3rd pull) — VAST NFSv4 ACLs + Dell R6725 mix-up
 - Source: [[2026-07-01-teams-chats-digest]] (appended "Third pull" section; digest `digest_20260701T111840.json`, 9 chats / 10 new — all PARCC Group ~14:49–15:11Z).
 - Updated: [[vast-group-permissions]] (Fix 4 corrected to NFSv4 `nfs4_setfacl`/`nfs4_editfacl` for VAST; POSIX form noted as wrong tool there), [[vast-storage]] (new Permissions & ACLs section), [[betty-cluster]] (Incoming hardware: 4× Dell R6725), [[index]], tasks.md.

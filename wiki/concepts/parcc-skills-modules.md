@@ -2,8 +2,8 @@
 type: concept
 tags: [parcc, skills, agents, spack, modules, lmod, tooling]
 created: 2026-06-26
-updated: 2026-06-30
-sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest]
+updated: 2026-07-01
+sources: [2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest, 2026-07-01-teams-chats-digest]
 related: [betty-software-deployment, betty-lmod-architecture, kenneth-chaney, jeffrey-vadala, betty-ai-agent, erf-user-facilitation, ryan-bradley, glm-5.2]
 status: tentative
 ---
@@ -27,6 +27,14 @@ An emerging PARCC effort to package agent "skills" so they can be discovered and
   - **Nsight profiling + Karpathy-loop** skill (GPU profiling + iterative agent loop).
 - After the PARCC↔NVIDIA meeting, Jeffrey **added the NVIDIA Nsight ("Insight") CLI** into the harness (2026-06-29).
 - **Pi-Agent (2026-06-29).** Jeffrey runs his agents on **Pi-Agent** — his own "super minimal agent in cli" — which he positions as "sort of the same thing as **opencode**, just with less cruft / less bloat … **less ux and prompt**" and which "**saves tokens**." He pitched it to Ryan (who tried [[glm-5.2|GLM-5.2]] in opencode and liked it but finds agentic flows "too hands-off") as the elegant, low-overhead alternative. The `resume-session` skill above was "built for Claude Code, not yet tried with Pi" — so Pi-Agent is the lighter runtime he's migrating toward.
+
+### Skill anatomy & the standards question (2026-07-01)
+What a "skill" actually is, per Jeffrey's description to Ryan, and the standards axis Ryan wants to formalize:
+- **Format today: just text, no standard.** Skills are **plain (markdown) text files** with **no enforced schema** — Ryan: "the skills are all just text, right? are there any standards for them?"; Jeffrey: "no … they can be." So a standard is *possible but not yet adopted* (see `SKILL.md` linting via [[#roadmap]]'s **skill-lint** below).
+- **Skills can carry executable steps.** *"sometimes I have skills run `.sh` commands."* A skill is text plus optional shell hooks, not pure prose.
+- **Worked example — `resume-session` (a "simple one").** Anatomy: (1) a **fuzzy-matching simple text search** over the **past-session files**, (2) it **returns a result**, (3) it **ends with a shell command to load a new window depending on the session**. So even the minimal skill is text + a terminating `.sh` action.
+- **The harness looper** (the Karpathy-loop runtime) is heavier: *"I had 3 `.sh` commands."* — multiple shell hooks vs resume-session's single one.
+- **Ryan's proposed standards axis (durable):** develop **standards around human-legible vs machine-readable skills so that "we have parity,"** and possibly apply **"more formal methods for doing this."** Rationale: a skill has a human-readable face (the prose an author reads/edits) and a machine-executed face (the `.sh` hooks / structured directives an agent runs); Ryan wants those two to stay in sync (parity) under a common, possibly formally-specified standard. This sharpens the PARCC-wide **skills-curation** question (see [[#convergence]]) from "how do we vet/version skills" toward "what is the *spec* a skill must satisfy." Feeds the skills-curation session task.
 
 ### Roadmap / "to make" (2026-06-29 eve)
 - **Add Ryan as a collaborator — RESOLVED (6/29 eve).** The repo was **public**, which is likely why the invite originally failed (Ryan: "it looks like it's public, maybe that's why"); Jeffrey then **added him** ("i added you"). Ryan (`bradleyrp`) can now contribute directly, and **Ken is also going to add a few** ideas (see [[ryan-bradley]]).
@@ -95,3 +103,4 @@ Ken replied (caveat: he **must read the tool before giving real feedback**, and 
 - [[2026-06-26-teams-chats-digest]] — Ken/Jeffrey 1:1 on skills-from-spack + ParccSkills repo
 - [[2026-06-29-teams-chats-digest]] — the multi-day Opus-4.8 harness method, Nsight-CLI addition, and the rachitk decode-on-GPU OOM fix
 - [[2026-06-30-teams-chats-digest]] — Ken's reliability/time evaluation criteria for the harness; repo went private → Ken added (`k-chaney`); curation as a PARCC-wide question
+- [[2026-07-01-teams-chats-digest]] — skill anatomy (text + `.sh` hooks; resume-session & 3-command harness looper) and Ryan's human-legible-vs-machine-readable "parity" standards proposal
