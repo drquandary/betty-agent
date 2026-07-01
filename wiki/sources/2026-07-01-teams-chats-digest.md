@@ -1,9 +1,9 @@
 ---
 type: source
-tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions, vast, nfs4-acl, hardware, mig]
+tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions, vast, nfs4-acl, hardware, mig, gpu, cupy, performance]
 created: 2026-07-01
 updated: 2026-07-01
-related: [claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, vast-storage, betty-cluster, jamie-schnaitter, kenneth-chaney, jaime-combariza]
+related: [gpu-host-gather-bottleneck, claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, vast-storage, betty-cluster, jamie-schnaitter, kenneth-chaney, jaime-combariza]
 status: current
 ---
 
@@ -89,7 +89,28 @@ Jaime relayed a **Dell call**: the **4 servers are 99% for Penn Medicine, not PA
 ### `lwhyc` 23-day runaway — premise questioned
 Ken: *"Running for 23 days where? Most nodes should be rebooted at this point."* Recent reboots should have cleared any 23-day process, so the finding may be a **stale/misread uptime** rather than a real runaway — pin down the node before hunting.
 
+---
+
+## Fifth pull — 2026-07-01T13:28 (digest_20260701T132836.json)
+
+`knowledge/raw/digest_20260701T132836.json` (generated 2026-07-01T13:29:09). 9 chats; **10 new across two**: **Bradley, Ryan Patrick** (9, all Jeffrey outbound, ~17:15–17:28Z) and **PARCC Group** (1). No new PARCC-ops substance.
+
+### rachitk GPU case study — full technical distillation (durable → new page)
+All 9 Bradley messages are Jeffrey pasting a **two-part honest distillation** of the rachitk GPU-starvation debug (fulfilling Ryan's standing "spell out the reasoning in writing" ask). This is the first place the *technical mechanism* is recorded in depth (the 6/29 digest only had the high-level "decode-on-GPU" summary). Synthesized into a new dedicated page **[[gpu-host-gather-bottleneck]]**. Headline facts:
+- **Root cause:** the "transfer" was a **host-side `ascontiguousarray` gather** of a transposed strided array = ~97% of the cost; actual **PCIe HtoD copy = 38 ms** (nsys). Not the wire, not the filesystem.
+- **Microbench:** contiguous 9.3 GB/s vs strided 2.0 GB/s vs pinned 55.7 GB/s (≈ NVIDIA's 53.8).
+- **Fix:** transfer contiguous int8 → transpose/cast **on the GPU**; memory-careful (strand-by-strand) to dodge CuPy-pool OOM. **util 13.6%→53%, transfer 68.9s→3.05s (~22×), output numerically identical.**
+- **Methodology:** falsification loop; three wrong turns (VAST-contention, "compute-bound", multi-node) each killed by a test; the synthetic-proxy trap validated the *wrong* bottleneck until his real code ran; CuPy async needs a device-sync around compute timers.
+- **Env-rebuild grind:** single-node MPI (`OMPI_MCA_pml=ob1`, `btl=self,vader,sm`), HPCX-vs-conda MPI collision (`OPAL_PREFIX`), NVRTC headers (`CUDA_PATH`), Zarr >2 GB chunk cap (`compressor=None`).
+- Jeffrey's framing to Ryan: *"~20–30% training knowledge, ~70–80% empirical"*; ended with *"what do you think?"* (awaiting Ryan). Ties to the [[parcc-skills-modules]] research-loop + data-packaging/MWE roadmap.
+
+### PARCC Group (chit-chat)
+- Jaime: *"ah so PARCC !!!"* — no content.
+
+---
+
 ## See also
+- [[gpu-host-gather-bottleneck]]
 - [[claude-science]]
 - [[ryan-bradley]]
 - [[parcc-skills-modules]]
