@@ -511,3 +511,10 @@
 - Key facts: ParccSkills repo is **public** (why the earlier collaborator invite failed); Ryan now added. New reference: **github.com/upenn/benchtest** (Ryan's regression/perf-test format — target for reformulated benchmarks). Benchmark idea: scatter input data over many folders → LLM tracks files down + dumps an MWE → reformat into benchtest. Jeffrey to paste into ParccSkills README via the github agent.
 - Tasks: in `knowledge/tasks.md` — marked the "Add Ryan as collaborator" item [x] RESOLVED; appended an UPDATE sub-bullet under the MWE/check-your-work item (scatter-data benchmark + benchtest format + README paste). No new standalone tasks.
 - Notes: no new entity/concept pages; benchtest noted inline (not yet its own page).
+
+## [2026-07-01] ingest | Teams digest digest_20260701T080602 (Bradley 1:1 — Claude Science RSE positioning)
+- Source: Bradley↔Vadala 1:1 Teams chat, 2026-07-01T11:37–11:45Z (13 new msgs). Other 8 chats had 0 new.
+- Created: [[2026-07-01-teams-chats-digest]].
+- Updated: [[claude-science]] (new "PARCC / RSE positioning" section + 2nd source + related ryan-bradley/parcc-tokens-as-a-service; updated date), [[index]] (claude-science line → 2 sources + RSE note; new 7/1 source line).
+- Tasks: appended UPDATE sub-bullets in `knowledge/tasks.md` — under the ParccSkills 404 REOPENED item (still unresolved, Jeffrey "idk why", re-invite still owed) and under the Claude Science item (RSE-positioning discussion; demo to Ryan at next sync; "prep for it"). No new standalone tasks.
+- Notes: ~half the messages were delayed-delivery reconciliation (transport noise, not substance). Durable signal = Claude Science reframed from "product to try" → "narrative PARCC's RSE services should respond to"; audience = grad students. claude-science stays tentative.
