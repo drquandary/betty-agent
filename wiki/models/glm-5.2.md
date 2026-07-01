@@ -2,9 +2,9 @@
 type: model
 tags: [llm, glm, zai, model-serving, mtp]
 created: 2026-06-25
-updated: 2026-06-30
-sources: [2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest]
-related: [z.ai, multi-token-prediction, kenneth-chaney, jeffrey-vadala, deepseek-v3]
+updated: 2026-07-01
+sources: [2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest, 2026-07-01-teams-chats-digest]
+related: [z.ai, multi-token-prediction, kenneth-chaney, jeffrey-vadala, deepseek-v3, parcc-skills-modules]
 status: tentative
 ---
 
@@ -24,6 +24,7 @@ status: tentative
 - **vs Opus 4.8 on long-horizon tasks (2026-06-29).** Jeffrey: GLM-5.2 is **"beating opus 4.8 actually … in some long term tasks."** Stated when Ryan asked whether the multi-day [[parcc-skills-modules|agent-harness]] work (rachitk OOM fix) could run on GLM-5.2 instead of Opus 4.8 — Jeffrey: "it should work." No benchmark numbers given; `tentative`.
 - **Cost driver toward on-prem (2026-06-29).** This claim sits inside Ryan's cost argument: he converts Claude **subscription** usage to **API-equivalent rates with `npx ccusage`**, and warns personal subscriptions are **"heavily subsidized and this won't be around forever."** GLM-5.2 (served on PARCC's own stack) is the on-prem hedge — relevant to [[parcc-tokens-as-a-service]].
 - **Ryan's hands-on impression (2026-06-29).** Ryan **tried GLM-5.2 briefly Friday in opencode** and found it **"pretty good"** — but uses it for **Q&A → markdown/diffs he implements himself**, finding the agentic flows "too hands-off." (Jeffrey countered by pitching **Pi-Agent** as a leaner runtime — see [[parcc-skills-modules]].) First end-user datapoint on GLM-5.2 from a PARCC staffer, even if non-agentic.
+- **ZCode — vendor's official harness (2026-07-01).** z.ai ships **ZCode** (`zcode.z.ai`), its "official harness for GLM-5.2." Jeffrey flagged it as the harness **"to use with our glm"** — point ZCode at PARCC's served GLM-5.2. A third candidate front-end (with Pi-Agent / opencode) for the coding workflow; not yet evaluated. See [[z.ai]], [[parcc-skills-modules]].
 
 > status: tentative — served for coding, but quant/benchmark specs unconfirmed, the fp8-vs-full vision split is from chat, and the "beats Opus 4.8 on long tasks" claim is Jeffrey's impression with no numbers.
 
@@ -43,3 +44,4 @@ status: tentative
 - [[2026-06-26-teams-chats-digest]] — GLM-5.2 now servable for coding ("move coding from kimi over to glm 5.2"); fp8 build lacks vision, full model expected to; Jeffrey routes vision to Claude; Ken shares NVIDIA NVFP4 quant (huggingface.co/nvidia/GLM-5.2-NVFP4), weighing it on 8 GPUs.
 - [[2026-06-29-teams-chats-digest]] — Jeffrey: GLM-5.2 "beating opus 4.8 … in some long term tasks," "it should work"; Ryan's subscription-subsidy / `ccusage` cost argument for on-prem.
 - [[2026-06-30-teams-chats-digest]] — Ken **migrated GLM-5.2 serving to NVFP4** to bring token cost down ("I migrated us to nvfp4 for glm 5.2").
+- [[2026-07-01-teams-chats-digest]] — Jeffrey shares **ZCode** (`zcode.z.ai`), z.ai's official GLM-5.2 harness, "to use with our glm."

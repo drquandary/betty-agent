@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, ood, web-portal, parcc, broken]
 created: 2026-04-08
-updated: 2026-04-10
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-09-jvadala-ood-bug-reproduction, 2026-04-10-jaime-modules-sh-fix]
-related: [betty-cluster, slurm-on-betty, ood-troubleshooting, b200-mig45-partition, vast-storage, betty-lmod-architecture]
+updated: 2026-07-01
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-09-jvadala-ood-bug-reproduction, 2026-04-10-jaime-modules-sh-fix, 2026-07-01-teams-chats-digest]
+related: [betty-cluster, slurm-on-betty, ood-troubleshooting, b200-mig45-partition, vast-storage, betty-lmod-architecture, betty-auth-architecture]
 status: current
 ---
 
@@ -40,7 +40,7 @@ Browser-based portal for Betty at `ood.betty.parcc.upenn.edu` — currently BETA
 ## Missing / broken (vs typical OOD deployments)
 | What | Expected | Actual |
 |------|----------|--------|
-| JupyterLab / Notebook app | Standard | **Missing** — use `betty-jupyter.sh` CLI + SSH tunnel instead |
+| JupyterLab / Notebook app | Standard | **Now LIVE (GA 2026-07-01)** — Ryan dropped the "Beta" label; **PARCC-curated environments only**. (Was "Missing" in the April audit; the `betty-jupyter.sh` CLI + SSH tunnel is now a fallback, not the only path.) See [[#OOD Jupyter reached GA (2026-07-01)]]. |
 | RStudio | Standard | **Missing** |
 | VS Code Server | Standard | **Missing** |
 | Files app | Standard (`/pun/sys/dashboard/files/...`) | **Returns 404 "Not Found"** — not wired into portal routing |
@@ -107,6 +107,12 @@ Full investigation details preserved in [[ood-troubleshooting#Lmod cache corrupt
   ```
 - Verified manually in session `5199382` — session stayed unlocked for the remainder of its hour after running these commands in the in-session terminal.
 
+## OOD Jupyter reached GA (2026-07-01)
+Ryan Bradley announced in PARCC Group (2026-07-01 ~4:14pm) that the OOD **Jupyter** app **"is working and I dropped 'Beta'"** — so the notebook app is now generally available in the portal, closing the long-standing "JupyterLab missing" gap from the April audit. Key facts:
+- **PARCC-curated environments only.** The app *"only lets you use PARCC-curated environments"* — users can't register arbitrary kernels; this is the likely reason Jaime's earlier "I don't see kernel options" question surfaced (the fix that "something overwrote" the day before now appears to hold). A deliberate constraint, not a bug.
+- **OOD terminal recommended as a login-trouble workaround.** Ryan: the **terminal is "very good, and a nice alternative when users are having login problems."** So for users hitting SSH/Duo/Kerberos login friction ([[betty-auth-architecture]], [[kerberos-ssh-macos-fix]]), the OOD web terminal is now a sanctioned fallback path onto Betty.
+- Ryan invited feedback from the team. Status of the older April desktop bugs (black screen, Files-app 404, shell-allowlist) is unchanged by this note — this is specifically about the Jupyter + terminal apps.
+
 ## Interactive Desktop form (Betty's customization)
 Betty's form differs from stock upstream bc_desktop. Fields present:
 - **Account** — pre-filled with your ColdFront account (e.g. `jcombar1-betty-testing`)
@@ -145,3 +151,4 @@ OOD writes per-session staging files under `~/ondemand/data/sys/dashboard/batch_
 - [[2026-04-08-betty-system-guide]]
 - [[2026-04-07-ryb-ood-bc-desktop-investigation]]
 - [[2026-04-09-jvadala-ood-bug-reproduction]]
+- [[2026-07-01-teams-chats-digest]] — Ryan: OOD Jupyter out of Beta (GA), PARCC-curated envs only; terminal a good login-trouble workaround.

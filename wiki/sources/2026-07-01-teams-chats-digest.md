@@ -3,7 +3,7 @@ type: source
 tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions, vast, nfs4-acl, hardware, mig, gpu, cupy, performance]
 created: 2026-07-01
 updated: 2026-07-01
-related: [gpu-host-gather-bottleneck, claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, vast-storage, betty-cluster, jamie-schnaitter, kenneth-chaney, jaime-combariza]
+related: [gpu-host-gather-bottleneck, claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, vast-storage, betty-cluster, jamie-schnaitter, kenneth-chaney, jaime-combariza, z.ai, glm-5.2, open-ondemand-betty]
 status: current
 ---
 
@@ -118,6 +118,30 @@ All 9 Bradley messages are Jeffrey pasting a **two-part honest distillation** of
 - **Format truth:** Ryan — *"the skills are all just text, right? are there any standards for them?"*; Jeffrey — *"no … they can be."* So skills are **plain text with no adopted standard** (a standard is possible; see skill-lint). Some skills **run `.sh` commands**.
 - **`resume-session` anatomy** (Jeffrey's "simple one"): a **fuzzy-matching simple text search** over **past-session files** → **returns a result** → ends with a **shell command to load a new window depending on the session**. The **harness looper** is heavier — *"I had 3 `.sh` commands."*
 - **Ryan's proposal (the new durable bit):** *"it would be useful to develop some standards around **human-legible vs machine-readable** skills so that we have **parity**. maybe there are some more **formal methods** for doing this."* Sharpens the PARCC-wide skills-curation question from "vet/version" toward "**spec** a skill must satisfy." Filed to [[parcc-skills-modules]]; task added under the skills-curation item.
+
+---
+
+## Seventh pull — 2026-07-01T16:38 (digest_20260701T163726.json)
+
+`knowledge/raw/digest_20260701T163726.json` (generated 2026-07-01T16:38:02). 9 chats; **21 new across two**: **Bradley, Ryan Patrick** (20, ~20:25–20:37Z) and **PARCC Group** (1, ~20:14Z).
+
+### ParccSkills 404 — RESOLVED (ops/access)
+- Ryan: *"ok I found it. I'll take a closer look."* — Ryan's access to the (now-private) ParccSkills repo is restored, closing the 404 thread that had run since 7/1 ~7:33am. Next ball is Ryan reading the harness (same as Ken). See [[parcc-skills-modules]].
+
+### Skills shared-format — design principles + benchmark (durable → [[parcc-skills-modules]])
+Continuation of the 6th-pull skill-standards thread, now with concrete design goals for a **heavily-constrained shared format** meant for eventual release to users:
+- **Audience-tagging classification.** Some skills are readable by both humans and AI; others (the harness looper) **require a primer** because they lean on the model knowing domain tools (`nsys`). Tag each skill's audience — *"careful tagging … will require some kind of data structure and review."* Motive: legibility standards avoid *"putting parts of our work behind a metaphorical paywall"* (non-proprietary, interoperable, aids AI uptake).
+- **"Lego-block" composability.** Even fire-off skills must compose: *"avoid a situation where using AI for one block means you can't stick it to another because the outputs are non-clear to you."* Deeper problem for domain-specific skills (Claude "makes choices I haven't internalized").
+- **Jeffrey's taxonomy:** **"loop skills"** vs **"simple fire-off" skills** (latter "require the least" intelligence).
+- **AI-verbose OK if auto-summarizable** into a human-tone, checkable/editable summary (two-representation parity).
+- **Ask Ken to share his skills' data structures** and co-design a shared format/schema.
+- **Three-mode "rachit exercise" benchmark** (Ryan): **(1) no AI**, **(2) full AI w/ Jeffrey's harness**, **(3) discrete skills on GLM-5.2** — discriminate models + test "some tasks need less intelligence"; refine mode 3 → **workshop**. Caveat: rachit's task was **very domain-specific** ("wouldn't have figured it out … without the AI"; Ryan: "usually an RSE task, not a facilitator task").
+
+### ZCode — z.ai's official GLM-5.2 harness (durable → [[z.ai]], [[glm-5.2]])
+- Jeffrey shared **`zcode.z.ai`** — *"Official Harness for GLM-5.2 … plan, code, review, and deploy without friction"* — **"to use with our glm"** (point ZCode at PARCC's served GLM-5.2). Candidate front-end alongside Pi-Agent / opencode. Not yet evaluated.
+
+### OOD Jupyter reached GA (durable → [[open-ondemand-betty]])
+- Ryan (PARCC Group): *"jupyter is working and I dropped 'Beta'. … it only lets you use PARCC-curated environments. the terminal is also very good, and a nice alternative when users are having login problems"* (re OOD). Closes the April "JupyterLab missing" gap; **PARCC-curated envs only** (explains the earlier kernel-selection question); **OOD terminal now a sanctioned login-trouble workaround**.
 
 ---
 
