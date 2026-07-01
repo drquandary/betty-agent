@@ -145,6 +145,29 @@ Continuation of the 6th-pull skill-standards thread, now with concrete design go
 
 ---
 
+## Eighth pull — 2026-07-01T17:13 (digest_20260701T171313.json)
+
+`knowledge/raw/digest_20260701T171313.json` (generated 2026-07-01T17:14:02). 9 chats; **15 new, all in Bradley, Ryan Patrick** (~20:38–21:02Z). Continues the skills/front-end 1:1. Three durable items.
+
+### Front-end / interface strategy (durable → [[parcc-skills-modules]])
+A *new axis*, distinct from the skill-format standards: **what interface drives the skills?**
+- Ryan: **BYO interfaces** — *"there's no way I can work outside of vim or nvim on the cluster,"* is **slow to adopt new tools** beyond sublime/vim, and is **happy with opencode on Betty**.
+- Ken reportedly said [desktop front-ends] *"were a can of worms for some reason."*
+- **VSCode-problem framing:** *"analogous to the VSCode problem … HPC is an unfriendly platform for everything more complicated than jupyter"* — heavyweight GUIs fight the cluster (same constraint as [[open-ondemand-betty]]).
+- Ryan's priority is the **skills-library text** ("so everyone can read it"), *"but … if these kinds of front ends are essential, then we should have an answer."* Jeffrey: *"idk if they are essential."*
+- Motivating data point: Ryan ran GLM-5.2 via opencode → **26 min to "connect [an] email to the code"**; *"part of why I want to break that kind of thing into smaller pieces"* (reinforces the lego-block/fire-off taxonomy). Filed to [[parcc-skills-modules]]; task added.
+
+### ZCode internals (durable → [[z.ai]], [[parcc-skills-modules]])
+- Ryan: *"I have no idea what zcode does."* Jeffrey: it's z.ai's **desktop app** ("just their little desktop thing"), *"supposed to be set up for glm's unique long tasks,"* with **one-click skill install** ("a bunch of skills sort of one click install"); *"idk could be all marketing."* As a desktop GUI it hits the front-end-on-HPC problem above.
+
+### Harness deep-research phase + "gates" — IMPLEMENTED (durable → [[parcc-skills-modules]])
+- Jeffrey: *"i added a lot of 'gates' and the deep research, which makes it scoot around the web after it looks at the code, and sees if there is a solution there."* The loop now **searches the web for an existing solution after reading the code** (closes the 6/29 "should have googled it first" gap) and has added **gates** (checkpoints). Moves the 6/29 "proposed improvement" to done.
+
+### Chit-chat (not durable)
+- Jeffrey: *"claude fable mythos just came back! find me your harde3st problem"* — no content.
+
+---
+
 ## See also
 - [[gpu-host-gather-bottleneck]]
 - [[claude-science]]

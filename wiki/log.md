@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-07-01] ingest | Teams digest (8th pull) — front-end/interface strategy + ZCode internals + harness deep-research IMPLEMENTED
+- Source: [[2026-07-01-teams-chats-digest]] (appended "Eighth pull" section; digest `digest_20260701T171313.json`, 9 chats / 15 new — all Bradley, Ryan Patrick ~20:38–21:02Z).
+- Updated: [[parcc-skills-modules]] (new "Front-end / interface strategy" section; ZCode subsection expanded; deep-research "proposed improvement" flipped to IMPLEMENTED + "gates"; sources line), [[z.ai]] (ZCode = desktop app for GLM long tasks w/ one-click skills, "could be all marketing"), [[index]], tasks.md.
+- Key facts: **Front-end axis (new, durable):** Ryan wants **BYO interfaces** ("no way I can work outside vim/nvim on the cluster"), is happy with **opencode on Betty**, is slow to adopt tools; Ken said desktop front-ends "were a can of worms"; Ryan frames GUIs-on-HPC as the **"VSCode problem"** ("HPC unfriendly for anything more complicated than jupyter"); priority is the skills-library *text* but "if these front ends are essential … we should have an answer"; Jeffrey unsure they're essential. Opencode/GLM-5.2 took **26 min to "connect [an] email to the code"** → "break that into smaller pieces" (motivates lego-block skills). **ZCode:** z.ai **desktop app** for GLM "long tasks" w/ **one-click skill install** ("could be all marketing"); Ryan unfamiliar. **Harness:** Jeffrey **added "gates" + a deep-research phase** ("scoot around the web after it looks at the code, sees if there is a solution") — the 6/29 proposed improvement is now DONE. Tasks: new front-end-strategy item; UPDATEs on ZCode + deep-research items.
+
 ## [2026-07-01] ingest | Teams digest (6th pull) — skill anatomy + Ryan's human/machine-readable standards proposal
 - Source: [[2026-07-01-teams-chats-digest]] (appended "Sixth pull" section; digest `digest_20260701T140201.json`, 9 chats / 15 new — all Bradley, Ryan Patrick ~17:31–17:40Z).
 - Updated: [[parcc-skills-modules]] (new "Skill anatomy & the standards question" section + frontmatter/sources), [[index]], tasks.md.
