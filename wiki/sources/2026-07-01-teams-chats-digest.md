@@ -1,9 +1,9 @@
 ---
 type: source
-tags: [teams, digest, bradley, claude-science, rse, parcc-skills]
+tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions]
 created: 2026-07-01
 updated: 2026-07-01
-related: [claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service]
+related: [claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, jamie-schnaitter, kenneth-chaney]
 status: current
 ---
 
@@ -30,9 +30,32 @@ Bradley↔Vadala 1:1 (2026-07-01T11:37–11:45Z): after a delayed-message mix-up
   - Both: **"we should prep for it."** Jeffrey to **demo it to Ryan at their next meeting** ("I'll show it to you at our meeting" — likely the 10am 7/1 training sync).
 - Relevance: sharpens [[claude-science]] from "a product to try" into "a narrative PARCC's RSE services + [[parcc-skills-modules|ParccSkills]] / betty-toolkit / [[parcc-tokens-as-a-service]] should be positioned against."
 
+---
+
+## Second pull — 2026-07-01T10:12 (digest_20260701T101203.json)
+
+`knowledge/raw/digest_20260701T101203.json` (generated 2026-07-01T10:12:39). 9 chats; 12 new across two: **Chaney, Kenneth P** (5) and **PARCC Group** (7).
+
+### Tokens-as-a-service: first beta lab named (Chaney chat, durable)
+All 5 messages are Jeffrey outbound, continuing the [[parcc-tokens-as-a-service]] thread:
+- The lab is *"quite enthusiastic about getting a api key and a special TUI bot for them."* Jeffrey **asked Ken for a key** and proposed **attaching it to Dr. Anjan Chatterjee (Neurology)** as the owning PI — the **first named beta customer**.
+- Jeffrey flagged a new requirement: *"I'll have to set up some sort of system that lets them know about reboots or down time … open to any ideas"* — a **maintenance/downtime broadcast** the lab bot will need (the served stack sits behind a single-point-of-failure LiteLLM gateway + cluster maintenance windows).
+- "no rush." Ken had not replied in this pull.
+
+### HOME-directory permission policy (PARCC Group, durable)
+Jaime asked the team for the correct HOME-dir permissions, prompted by user **`cnman`** reporting *"she does not have a HOME dir"* though one exists with owner-only rwx. Resolution, filed to [[vast-group-permissions]]:
+- **`0750` is the default**; homes should be **0700 or 0750 only** (Jamie Schnaitter).
+- **Nothing in the "other" tier** (Ken: *"We just don't want anything in the 'other' category"*).
+- **Share via project directories, not homes** (Jamie).
+- When owner == group (as for `cnman`), 0750 vs 0700 is moot; a "missing home" there is likely login/mount/shell, not perms → separate investigation.
+- Jaime's opening note: he'd *"been in meeting for the past 10 days"* and is catching up (pairs with the ticket-backlog item Jamie flagged the same day).
+
 ## See also
 - [[claude-science]]
 - [[ryan-bradley]]
 - [[parcc-skills-modules]]
 - [[parcc-tokens-as-a-service]]
+- [[vast-group-permissions]]
+- [[jamie-schnaitter]]
+- [[kenneth-chaney]]
 - [[jeffrey-vadala]]

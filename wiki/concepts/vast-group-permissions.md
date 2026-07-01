@@ -2,9 +2,9 @@
 type: concept
 tags: [permissions, vast, chgrp, chmod, setgid, facilitation, unix, hpc]
 created: 2026-05-13
-updated: 2026-05-13
-sources: [2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]
-related: [vast-storage, ryan-bradley, betty-cluster]
+updated: 2026-07-01
+sources: [2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms, 2026-07-01-teams-chats-digest]
+related: [vast-storage, ryan-bradley, betty-cluster, jamie-schnaitter]
 status: current
 ---
 
@@ -152,10 +152,23 @@ copy_with_dir_group() {
 
 A user-facing "permissions cheat-sheet dashboard" (jvadala's stated goal in the chat) is a future Betty Agent feature — a small page that shows the user's groups, the project dir's group, and a "fix this file" generator.
 
+## HOME directory permissions (PARCC policy)
+
+For **home directories** (as opposed to shared project dirs), PARCC's convention — settled by Jamie Schnaitter and Ken Chaney in the 2026-07-01 ops chat — is:
+
+- **Default mode is `0750`** (`drwxr-x---`). Jamie: *"Home directory permissions should generally be 0750 or 0700"* and *"I am pretty sure 0750 is the default."*
+- **Nothing in the "other" category.** Ken: *"We just don't want anything in the 'other' category"* — i.e. the world/other tier must stay `---` on homes, so `0750`/`0700` are the only acceptable modes and `0755`/`0777` are wrong.
+- **Sharing goes through project directories, not homes.** Jamie: users should be *"encouraged to use project directories for sharing files with other users"* — homes stay private; cross-group sharing uses the setgid `/vast/projects/<project>/` dirs and the [fixes above](#the-four-standard-fixes).
+- **Caveat when owner == group.** When a user's primary group is their own username (owner == group), the group tier is effectively the same principal as the owner, so `0750` vs `0700` makes no practical difference for that user (raised re: user `cnman`). A "missing HOME" complaint in that situation is usually **not** a perms problem — look at login/mount/shell, not the mode bits.
+
+This complements the home-dir hygiene work in [[jamie-schnaitter]]'s remit (fixing over-permissive homes like `nvis`/`shypula`, and the eBPF-chmod-filter idea to stop users mangling their own home perms).
+
 ## See also
 - [[vast-storage]] — the filesystem these rules apply to
+- [[jamie-schnaitter]] — set the 0750 home-dir default policy (2026-07-01)
 - [[ryan-bradley]] — author of the facilitation framing in the source chat
 - [[betty-cluster]] — ColdFront group-membership propagation behavior
 
 ## Sources
 - [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]
+- [[2026-07-01-teams-chats-digest]] — Jamie/Ken set the HOME-dir permission policy (0750 default, 0700/0750 only, nothing in "other", share via project dirs)

@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-07-01] ingest | Teams digest (2nd pull) — first beta lab named + HOME-dir perms policy
+- Source: [[2026-07-01-teams-chats-digest]] (appended "Second pull" section; digest `digest_20260701T101203.json`, 9 chats / 12 new: Chaney 5, PARCC Group 7).
+- Updated: [[parcc-tokens-as-a-service]] (first beta lab = Dr. Anjan Chatterjee/Neurology, key requested from Ken; downtime-broadcast requirement), [[vast-group-permissions]] (added HOME-dir permission policy section), [[jamie-schnaitter]] (set 0750 home-dir default policy), [[index]], tasks.md.
+- Key facts: Jeffrey asked Ken to **mint an API key** for an enthusiastic lab, attaching it to **Dr. Anjan Chatterjee (Neurology)** — first named tokens-as-a-service customer; also needs a **reboot/downtime notification system** for lab users. PARCC Group: HOME-dir perms Q&A → **0750 default; 0700/0750 only; nothing in "other"; share via project dirs** (Jamie + Ken); user `cnman` reports missing HOME despite one existing (owner==group, so a login/mount issue, not perms — needs a separate check).
+
 ## [2026-06-30] ingest | Teams digest (3rd) — LiteLLM reboot + lab chatbot; `rheer` upgrade
 - Source: [[2026-06-30-teams-chats-digest]] (digest `digest_20260630T164338.json`, 9 chats / 7 new: Chaney 5 ~20:18–20:39Z, PARCC Group 2). 
 - Updated: [[2026-06-30-teams-chats-digest]] (appended 3rd-digest section), [[parcc-tokens-as-a-service]] (LiteLLM gateway reboot = transient GLM-5.2 outage; "chatbot for a lab" = concrete lab-client instance), tasks.md.
