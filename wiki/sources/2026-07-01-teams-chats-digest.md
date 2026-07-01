@@ -73,6 +73,22 @@ Ryan Bradley: *"could somebody remind me if we have a `setfacl` equivalent for V
 - **MIG oversubscription:** Jaime — *"A user points that some MIG processes share a MIG. I see such a case now."* Multiple processes on one MIG slice (same class as the earlier GPU double-booking).
 - **Runaway processes:** Jaime — user **`lwhyc`** has several processes running **~23 days, off the Slurm queue** ("a runaway???"). Login-node/stray processes to hunt and kill.
 
+---
+
+## Fourth pull — 2026-07-01T12:24 (digest_20260701T122459.json)
+
+`knowledge/raw/digest_20260701T122459.json` (generated 2026-07-01T12:25:34). 9 chats; **6 new, all in PARCC Group** (~15:55–16:18Z). Both threads *revise* third-pull items rather than opening new ones.
+
+### Dell shipment reframed — the 4 boxes are Penn Medicine's, not PARCC's (corrects third pull)
+Jaime relayed a **Dell call**: the **4 servers are 99% for Penn Medicine, not PARCC**; Brendan is *"pretty sure we got an R7725."* So PARCC's real unit is the **R7725 seed box**, and the 4× R6725 were **mis-delivered to PARCC's Flexential colo**, not a Dell substitution of PARCC's order. Loose ends:
+- Confirm whether **Dave Cohen is still at Flexential** (colo contact) — Ken offered to call him.
+- **Service tag `8FVY3J4`** to hand to Brendan for lookup.
+- **Flexential is checking for other packages**; one was addressed **"Attn Jaime C"**.
+- Correction to third pull: don't rack the R6725s as PARCC hardware — route them to Penn Medicine. Filed back to [[betty-cluster]] (Incoming hardware).
+
+### `lwhyc` 23-day runaway — premise questioned
+Ken: *"Running for 23 days where? Most nodes should be rebooted at this point."* Recent reboots should have cleared any 23-day process, so the finding may be a **stale/misread uptime** rather than a real runaway — pin down the node before hunting.
+
 ## See also
 - [[claude-science]]
 - [[ryan-bradley]]

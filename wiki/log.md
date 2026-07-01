@@ -528,3 +528,9 @@
 - Updated: [[claude-science]] (new "PARCC / RSE positioning" section + 2nd source + related ryan-bradley/parcc-tokens-as-a-service; updated date), [[index]] (claude-science line → 2 sources + RSE note; new 7/1 source line).
 - Tasks: appended UPDATE sub-bullets in `knowledge/tasks.md` — under the ParccSkills 404 REOPENED item (still unresolved, Jeffrey "idk why", re-invite still owed) and under the Claude Science item (RSE-positioning discussion; demo to Ryan at next sync; "prep for it"). No new standalone tasks.
 - Notes: ~half the messages were delayed-delivery reconciliation (transport noise, not substance). Durable signal = Claude Science reframed from "product to try" → "narrative PARCC's RSE services should respond to"; audience = grad students. claude-science stays tentative.
+
+## [2026-07-01] ingest | Teams digest digest_20260701T122459 (PARCC Group — Dell reframe + lwhyc)
+- Source: PARCC Group chat, 2026-07-01T15:55–16:18Z (6 new msgs). Other 8 chats had 0 new. 4th pull of the day; both threads revise earlier 7/1 items.
+- Updated: [[2026-07-01-teams-chats-digest]] (new "Fourth pull — 12:24" section), [[betty-cluster]] (Incoming hardware — Dell reframe: 4× R6725 ~99% Penn Medicine's not PARCC's; PARCC's unit is the R7725; service tag 8FVY3J4; correction to the "rack to avoid Flexential charges" plan).
+- Tasks: appended UPDATE sub-bullets in `knowledge/tasks.md` under the Dell wrong-server item (Dell call: boxes are Penn Medicine's, route accordingly; give Brendan the tag; confirm R7725) and under the lwhyc runaway item (Ken questions the 23-day premise — reboots should have cleared it; pin down the node).
+- Notes: no new entity/concept pages. Fast-moving procurement logistics kept tentative. Key reframe: the mis-shipped R6725s likely aren't PARCC's at all.
