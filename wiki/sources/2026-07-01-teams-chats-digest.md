@@ -1,9 +1,9 @@
 ---
 type: source
-tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions]
+tags: [teams, digest, bradley, claude-science, rse, parcc-skills, tokens-as-a-service, permissions, vast, nfs4-acl, hardware, mig]
 created: 2026-07-01
 updated: 2026-07-01
-related: [claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, jamie-schnaitter, kenneth-chaney]
+related: [claude-science, ryan-bradley, jeffrey-vadala, parcc-skills-modules, parcc-tokens-as-a-service, vast-group-permissions, vast-storage, betty-cluster, jamie-schnaitter, kenneth-chaney, jaime-combariza]
 status: current
 ---
 
@@ -50,12 +50,38 @@ Jaime asked the team for the correct HOME-dir permissions, prompted by user **`c
 - When owner == group (as for `cnman`), 0750 vs 0700 is moot; a "missing home" there is likely login/mount/shell, not perms → separate investigation.
 - Jaime's opening note: he'd *"been in meeting for the past 10 days"* and is catching up (pairs with the ticket-backlog item Jamie flagged the same day).
 
+---
+
+## Third pull — 2026-07-01T11:19 (digest_20260701T111840.json)
+
+`knowledge/raw/digest_20260701T111840.json` (generated 2026-07-01T11:19:17). 9 chats; **10 new, all in PARCC Group** (~14:49–15:11Z).
+
+### VAST NFSv4 ACLs — the `setfacl` equivalent (durable, filed to wiki)
+Ryan Bradley: *"could somebody remind me if we have a `setfacl` equivalent for VAST? we (Jeffrey and I) are discussing best practices for making a shared folder in VAST with group read-write."* Answered by **Jamie Schnaitter**:
+- **`nfs4_setfacl`** — set NFSv4 ACLs; **`nfs4_editfacl`** — edit the whole ACL directly (opens an editor).
+- *"for NFSv4 it is all the same commands as for POSIX draft ACLs, but with `nfs4_` prepended. The ACEs are different though, as the permissions for v4 are different."*
+- **Correction it implies:** Betty's VAST is NFS 4.2, so the POSIX `setfacl`/`getfacl` in [[vast-group-permissions]] Fix 4 were the wrong tool for VAST — the NFSv4 `nfs4_*` variants are canonical. Filed into [[vast-group-permissions]] and [[vast-storage]].
+
+### Dell shipped the wrong servers — 4× R6725 vs 1× R7725 (durable hardware, tentative)
+- **Ken:** *"Dell sent us more than one server and it doesn't seem to be the right one. They sent 4x R6725 instead of 1x R7725."* Spec (per R6725): **dual EPYC 9655 (96C/192T ea.), 1.5 TB DDR5, dual 100 Gbps Broadcom, 4× 3.2 TB NVMe SSD.** Ken is **racking them so PARCC isn't charged by Flexential**.
+- **Jaime:** one of his emails is *"feedback for the R7725 seed program"* — so the intended R7725 was a **seed-program** unit. Filed to [[betty-cluster]] (Incoming hardware) + task to reconcile the order.
+
+### OOD Jupyter kernel — Ryan will fix (ops)
+- Relay of Jaime's earlier kernel-selection question; **Ryan:** *"apologies; we will fix this shortly. I thought I did it yesterday but something overwrote it."* So the kernel config was set and then clobbered (image rebuild / app update). Ryan owns the re-fix. Updates the 2nd-pull open question.
+
+### Ops issues raised (action items, no wiki page yet)
+- **MIG oversubscription:** Jaime — *"A user points that some MIG processes share a MIG. I see such a case now."* Multiple processes on one MIG slice (same class as the earlier GPU double-booking).
+- **Runaway processes:** Jaime — user **`lwhyc`** has several processes running **~23 days, off the Slurm queue** ("a runaway???"). Login-node/stray processes to hunt and kill.
+
 ## See also
 - [[claude-science]]
 - [[ryan-bradley]]
 - [[parcc-skills-modules]]
 - [[parcc-tokens-as-a-service]]
 - [[vast-group-permissions]]
+- [[vast-storage]]
+- [[betty-cluster]]
 - [[jamie-schnaitter]]
 - [[kenneth-chaney]]
+- [[jaime-combariza]]
 - [[jeffrey-vadala]]

@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, storage, nfs, vast, infiniband, rdma]
 created: 2026-04-08
-updated: 2026-04-21
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion]
-related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty]
+updated: 2026-07-01
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-01-teams-chats-digest]
+related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty, vast-group-permissions, jamie-schnaitter]
 status: current
 ---
 
@@ -37,6 +37,9 @@ Betty's primary filesystem: NFS 4.2 over RDMA on InfiniBand, served by `infiniba
 - **Home is for configs and code only.** 50 GB fills instantly with HuggingFace model downloads.
 - **Always set `HF_HOME`** to a project path -- see [[huggingface-cache-management]].
 - All compute and login nodes see the same namespace (no staging needed).
+
+## Permissions & ACLs
+Because VAST is exported as **NFS 4.2**, its ACL layer is **NFSv4, not POSIX**. Use the `nfs4_`-prefixed tools — `nfs4_setfacl`, `nfs4_getfacl`, `nfs4_editfacl` — not `setfacl`/`getfacl`. Same workflow as POSIX draft ACLs, but the ACEs and permission bits differ (per [[jamie-schnaitter]], 2026-07-01). This is the way to make a **group read-write shared folder** on VAST. Full playbook in [[vast-group-permissions]].
 
 ## Quota tools
 ```bash

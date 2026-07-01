@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, hpc, cluster, parcc, upenn]
 created: 2026-04-08
-updated: 2026-06-25
-sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest]
+updated: 2026-07-01
+sources: [2026-04-08-betty-initial-exploration, 2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-23-teams-chats-digest, 2026-06-25-teams-chats-digest, 2026-07-01-teams-chats-digest]
 related: [dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, vast-storage, slurm-on-betty, open-ondemand-betty, parcc-helper-tools, slurm-cli-filter, kerberos-ssh-macos-fix, bcm-bright-cluster-manager, kenneth-chaney]
 status: current
 ---
@@ -32,6 +32,10 @@ PARCC's first university-wide HPC/AI supercomputer at UPenn, centered on 27 NVID
 
 ## Facility
 - **Server-room noise:** the Betty machine room runs at ~**110 dB** — hearing protection (ear muffs) is required inside the racks (per a Penn Today article photo of [[kenneth-chaney]]). Audio recording on-site is impractical; practical note for visitors/interviews. (2026-06-18)
+
+## Incoming hardware (tentative)
+- **Dell shipment mix-up (2026-07-01):** Dell delivered **4× PowerEdge R6725** instead of the expected **1× R7725** ([[kenneth-chaney]]). Whether it's a substitution or a shipping error is TBD; Ken is **having them racked at the Flexential colo to avoid storage/holding charges** while it's sorted. The R7725 was tied to a **seed-program** ([[jaime-combariza]] has feedback email on it).
+  - **R6725 spec (per node, as received):** dual **AMD EPYC 9655** (Zen5 "Turin", 96C/192T each → 192C/384T/node), **1.5 TB DDR5**, dual **100 Gbps Broadcom** NIC, **4× 3.2 TB NVMe SSD**. These are dense CPU/NVMe nodes (not DGX GPU boxes) — likely destined for CPU-partition / storage / service roles rather than the `dgx-b200` GPU pool. Status: tentative until placement/purpose confirmed.
 
 ## Storage
 See [[vast-storage]].

@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-07-01] ingest | Teams digest (3rd pull) — VAST NFSv4 ACLs + Dell R6725 mix-up
+- Source: [[2026-07-01-teams-chats-digest]] (appended "Third pull" section; digest `digest_20260701T111840.json`, 9 chats / 10 new — all PARCC Group ~14:49–15:11Z).
+- Updated: [[vast-group-permissions]] (Fix 4 corrected to NFSv4 `nfs4_setfacl`/`nfs4_editfacl` for VAST; POSIX form noted as wrong tool there), [[vast-storage]] (new Permissions & ACLs section), [[betty-cluster]] (Incoming hardware: 4× Dell R6725), [[index]], tasks.md.
+- Key facts: **VAST ACL answer (Jamie Schnaitter):** VAST is NFSv4, so use **`nfs4_setfacl`** / **`nfs4_editfacl`** — "same commands as POSIX draft ACLs but `nfs4_` prepended; ACEs differ, v4 permissions differ." This is the tool for Ryan+Jeffrey's **group-RW shared VAST folder**. **Hardware (Ken):** Dell shipped **4× R6725 instead of 1× R7725** (dual EPYC 9655 96C/192T, 1.5TB DDR5, dual 100Gbps Broadcom, 4× 3.2TB NVMe) — racked to dodge Flexential charges; R7725 was a seed-program unit (Jaime has feedback email). **Ops:** OOD Jupyter kernel — Ryan will re-fix ("something overwrote it"); Jaime flags **MIG-slice oversubscription** (procs sharing a MIG) and **`lwhyc` runaway** procs (~23 days, off-queue). Tasks: added VAST-share, MIG, lwhyc, Dell items + OOD-Jupyter and update.
+
 ## [2026-07-01] ingest | Teams digest (2nd pull) — first beta lab named + HOME-dir perms policy
 - Source: [[2026-07-01-teams-chats-digest]] (appended "Second pull" section; digest `digest_20260701T101203.json`, 9 chats / 12 new: Chaney 5, PARCC Group 7).
 - Updated: [[parcc-tokens-as-a-service]] (first beta lab = Dr. Anjan Chatterjee/Neurology, key requested from Ken; downtime-broadcast requirement), [[vast-group-permissions]] (added HOME-dir permission policy section), [[jamie-schnaitter]] (set 0750 home-dir default policy), [[index]], tasks.md.

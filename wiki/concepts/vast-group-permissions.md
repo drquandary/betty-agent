@@ -80,12 +80,22 @@ gpasswd -a <pennkey> <groupname>
 
 Takes effect on next login (and ColdFront propagation may delay up to an hour, per [[betty-cluster]]). Useful when the reader genuinely needs ongoing access to that group's files, not just a one-time share.
 
-### Fix 4 — POSIX ACL grant (when you can't change ownership or group membership)
+### Fix 4 — ACL grant (when you can't change ownership or group membership)
+
+**On Betty's VAST, use the NFSv4 ACL tools, not the POSIX ones.** VAST is exported as **NFS 4.2** (see [[vast-storage]]), so the ACL layer is NFSv4, not POSIX draft ACLs. The commands are the `nfs4_`-prefixed equivalents (confirmed by [[jamie-schnaitter]], 2026-07-01):
+
 ```bash
-setfacl -m u:<pennkey>:r foo.xml
-# verify:
-getfacl foo.xml
+# grant a user read on a VAST file:
+nfs4_setfacl -a A::<pennkey>@parcc.upenn.edu:R foo.xml
+# view the ACL:
+nfs4_getfacl foo.xml
+# edit the entire ACL interactively (opens $EDITOR):
+nfs4_editfacl foo.xml
 ```
+
+Jamie's framing: *"for NFSv4 it is all the same commands as for POSIX draft ACLs, but with `nfs4_` prepended. The ACEs are different though, as the permissions for v4 are different."* — i.e. the **workflow** mirrors `setfacl`/`getfacl`/`edit-via-editor`, but the **ACE syntax and permission bits differ** (NFSv4 ACEs are `type:flags:principal:permissions`, e.g. `A::user@domain:RW`, richer than the POSIX `rwx`). This is the tool of choice for the **group read-write shared folder** use case (ryb + jvadala's 2026-07-01 question).
+
+The old POSIX form (`setfacl -m u:<pennkey>:r foo.xml` / `getfacl`) is what you'd reach for on a POSIX-ACL filesystem; on VAST it's the NFSv4 variant above.
 
 Adds an additional permission tier above the standard mode bits. ACLs **do** copy/move through within VAST, but **do not** survive `scp`, `rsync` without `-A`, or copies from non-ACL filesystems. ryb's caveat from the chat: *"even ACLs do not help when you retain metadata when you transfer data from elsewhere, so just remaining vigilant is best."*
 
@@ -165,10 +175,10 @@ This complements the home-dir hygiene work in [[jamie-schnaitter]]'s remit (fixi
 
 ## See also
 - [[vast-storage]] — the filesystem these rules apply to
-- [[jamie-schnaitter]] — set the 0750 home-dir default policy (2026-07-01)
+- [[jamie-schnaitter]] — set the 0750 home-dir default policy + supplied the NFSv4 ACL tools (`nfs4_setfacl`/`nfs4_editfacl`) for VAST (2026-07-01)
 - [[ryan-bradley]] — author of the facilitation framing in the source chat
 - [[betty-cluster]] — ColdFront group-membership propagation behavior
 
 ## Sources
 - [[2026-05-13-jvadala-ryb-beast2-beagle-bench-and-perms]]
-- [[2026-07-01-teams-chats-digest]] — Jamie/Ken set the HOME-dir permission policy (0750 default, 0700/0750 only, nothing in "other", share via project dirs)
+- [[2026-07-01-teams-chats-digest]] — Jamie/Ken set the HOME-dir permission policy (0750 default, 0700/0750 only, nothing in "other", share via project dirs); Jamie supplied the NFSv4 ACL tooling (`nfs4_setfacl`/`nfs4_editfacl`) as the VAST `setfacl` equivalent
