@@ -1,16 +1,16 @@
 ---
 type: source
-tags: [teams, digest, betty, authentication, pennkey, security, accounts]
+tags: [teams, digest, betty, authentication, pennkey, security, accounts, slurm, cli-filter, job-submit, deployment]
 created: 2026-07-02
 updated: 2026-07-02
-related: [betty-auth-architecture, jaime-combariza, kenneth-chaney, jamie-schnaitter]
+related: [betty-auth-architecture, slurm-cli-filter, jaime-combariza, kenneth-chaney, jamie-schnaitter]
 status: current
 ---
 
 # Teams Chats Digest — 2026-07-02
 
 ## One-line summary
-A single PARCC Group thread: user Gangaram/Vineeth can't log in to Betty because his PennKey went inactive after an HR role change (deprovisioning cascade), plus a root-password rotation-policy debate (event-driven vs 3-month).
+PARCC Group thread on the Gangaram/Vineeth PennKey-deprovisioning login failure + a root-password rotation-policy debate; separately, [[kenneth-chaney]] opened a working meeting to **deploy the `cli_filter` and `job_submit` Slurm plugins** with AHEAD, and a terse 1:1 note that Ken needs a PennKey (to secure-share a credential).
 
 ## Content
 
@@ -29,9 +29,18 @@ A single PARCC Group thread: user Gangaram/Vineeth can't log in to Betty because
 - **Jamie Schnaitter**: will **put in a ticket today**, but disagrees with fixed 3-month rotation — **regular password changes don't improve security (NIST 800-63)**. However a reset **is warranted here** because **AHEAD has had people leave** since the last change. Team should **review standards and set a policy**.
 - **Jaime**: proposing 3 months but open to discussion; wants the periodic reset **documented**, "even more if people leave the group."
 
+### Deploy cli_filter and job_submit plugins (meeting)
+- **Ken** named a meeting **"Deploy cli_filter and job_submit plugins"** (started ~8:59 AM), inviting **Jamie Schnaitter + others** and **AHEAD/vendor guests Swapnil Ninave, Rahul Tiwari, Ryan Heath** (same vendor engineers as the Ceph work). Ryan Heath later left the chat.
+- **Swapnil Ninave** posted the prod config path: **`/cm/shared/apps/slurm/etc/slurm/slurm.conf`**.
+- Significance: `cli_filter` was previously a **client-side** Lua plugin distributed via `~/.bashrc`; `job_submit` is a **server-side** plugin (`JobSubmitPlugins=` in `slurm.conf`). Deploying both centrally = moving flag validation/policy from per-user opt-in to cluster-enforced. See [[slurm-cli-filter]].
+
+### Ken 1:1 — PennKey (terse)
+- **Ken**: "I need a PennKey" / "And I will secure share it over." Context not stated; most likely tied to the [[parcc-tokens-as-a-service]] key-minting for the Dr. Chatterjee beta lab (Ken mints keys and would secure-share the credential). `status: tentative` — attribution inferred, not confirmed.
+
 ## Pages touched
 - Updated [[betty-auth-architecture]] — new "PennKey lifecycle: deprovisioning cascades to Betty" and "Root password rotation policy" sections.
+- Updated [[slurm-cli-filter]] — new "Server-side deployment (2026-07-02)" section (cli_filter + job_submit plugins, prod `slurm.conf` path, AHEAD meeting).
 
 ## See also
-- [[betty-auth-architecture]]
+- [[betty-auth-architecture]] · [[slurm-cli-filter]]
 - [[jaime-combariza]] · [[kenneth-chaney]] · [[jamie-schnaitter]]

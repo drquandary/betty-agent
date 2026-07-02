@@ -1,10 +1,10 @@
 ---
 type: concept
-tags: [betty, slurm, cli-filter, lua, qos, mem, bashrc, facilitation]
+tags: [betty, slurm, cli-filter, job-submit, lua, qos, mem, bashrc, deployment, facilitation]
 created: 2026-06-16
-updated: 2026-06-16
-sources: [2026-06-16-teams-chats-digest]
-related: [slurm-on-betty, slurm-advisor, ryan-bradley, jeffrey-vadala, jaime-combariza, betty-cluster]
+updated: 2026-07-02
+sources: [2026-06-16-teams-chats-digest, 2026-07-02-teams-chats-digest]
+related: [slurm-on-betty, slurm-advisor, ryan-bradley, jeffrey-vadala, jaime-combariza, kenneth-chaney, jamie-schnaitter, betty-cluster]
 status: current
 ---
 
@@ -32,6 +32,14 @@ A Lua `cli_filter` plugin for Slurm on Betty that rewrites and validates job-sub
 ## Rollout guidance
 - Use the updated instructions and put the filter invocation in `~/.bashrc` so it covers interactive sessions, not just batch.
 
+## Server-side deployment (2026-07-02)
+Moving from per-user `~/.bashrc` opt-in toward **centrally-configured Slurm plugins**.
+- [[kenneth-chaney]] convened a working meeting **"Deploy cli_filter and job_submit plugins"** (started ~8:59 AM, 7/2), pulling in [[jamie-schnaitter]] and **AHEAD/vendor guests** (Swapnil Ninave, Rahul Tiwari, Ryan Heath — the same vendor engineers from the Ceph remediation).
+- **Two plugins being deployed together:**
+  - `cli_filter` — the client-side Lua flag-rewriter documented above.
+  - `job_submit` — a **server-side** Slurm plugin (configured via `JobSubmitPlugins=` in `slurm.conf`), i.e. policy/validation enforced centrally at submission time rather than depending on each user's bashrc.
+- **Prod config path** (posted by Swapnil Ninave): `/cm/shared/apps/slurm/etc/slurm/slurm.conf` — the live `slurm.conf` under the BCM/`cm`-shared Slurm install (see [[bcm-bright-cluster-manager]], [[slurm-on-betty]]). `status: tentative` — deployment in progress, outcome not yet confirmed.
+
 ## Related thread — Rachit's GPU code (`ld-gpu`)
 - jvadala hit a permission wall reading a complex GPU LD code at `/vast/home/r/rachitk/src/ld-gpu/` (`not readable by jvadala (permission denied)`) while chasing a similar memory-related issue he hit last year.
 - Rachit offered the code, so copying is implied-OK, but it needs **root** (no sudo system on Betty yet) — ryb to copy it somewhere readable.
@@ -46,3 +54,4 @@ A Lua `cli_filter` plugin for Slurm on Betty that rewrites and validates job-sub
 
 ## Sources
 - [[2026-06-16-teams-chats-digest]] — the `--mem` bug thread, bashrc rollout, and Rachit code thread
+- [[2026-07-02-teams-chats-digest]] — "Deploy cli_filter and job_submit plugins" meeting; prod `slurm.conf` path
