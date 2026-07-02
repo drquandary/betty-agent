@@ -44,13 +44,15 @@ PARCC Group thread on the Gangaram/Vineeth PennKey-deprovisioning login failure 
 - **Cadence licenses.** Jaime asked **Jamie Schnaitter** to check email for Cadence-license follow-ups — "maybe something changed on Betty in the last few weeks." Jamie: "I am replying to it now."
 - **Jury duty.** Jeffrey reminded Jaime his **jury duty is July 9, one of the training days**; Jaime: "Got it. Good luck."
 - **Seed node still unresolved.** Jamie Schnaitter: "Did we ever figure out the confusion with the **seed node**? Did we locate it after we figured out that the **pile of 1U machines wasn't ours**?" — i.e. the R7725 seed unit hasn't been confirmed found/racked (the 1U pile = the mis-delivered 4× R6725 bound for Penn Medicine; see the 7/1 Dell thread).
+- **Seed node — Flex search empty (~4:18pm).** Ken: "**He wasn't able to find anything at Flex**." The Flexential-colo search for the R7725 seed node came up empty; the unit remains missing (escalate via Dell/Brendan, service tag `8FVY3J4`).
 
 **Chaney 1:1 (Jeffrey's own messages):** the served GLM-5.2 (LiteLLM group **`zai-org/GLM-5.2-FP8`**) fails his agent runs with `litellm.APIError … Hosted_vllmException - **413 Request Entity Too Large**` (nginx); "our GLM **gets stuck**" and it "mentions its **context window being at 100k**" vs the real GLM — pointing to an ~100k / request-body ceiling on the serving stack. See [[glm-5.2]].
+- **Ken's reply (~4:08pm): 100k is a regression.** Ken: "booo … I'll have to take a look. **I got it up to 800k before**" — the served GLM context was previously ~**800k tokens**, so the current ~100k is a config regression (favors the nginx/`max_model_len` explanation over a true model limit) and Ken will investigate restoring it. Jeffrey: "**That was with zcode**" — associating the prior 800k with the ZCode harness (`tentative`). See [[glm-5.2]].
 
 ## Pages touched
 - Updated [[betty-auth-architecture]] — new "PennKey lifecycle: deprovisioning cascades to Betty" and "Root password rotation policy" sections.
 - Updated [[slurm-cli-filter]] — "Server-side deployment (2026-07-02)" section + new "Default-memory contract (2026-07-02)" (5.5/15.5 GB per core CPU, 8 GB per thread GPU; Jaime's partition-independent-memory ask).
-- Updated [[glm-5.2]] — served endpoint `413 Request Entity Too Large` / ~100k context ceiling; LiteLLM group still labeled `…GLM-5.2-FP8` post-NVFP4-migration.
+- Updated [[glm-5.2]] — served endpoint `413 Request Entity Too Large` / ~100k context ceiling; LiteLLM group still labeled `…GLM-5.2-FP8` post-NVFP4-migration; **Ken: ~100k is a regression from ~800k before** ("with zcode"), will look at restoring.
 
 ## See also
 - [[betty-auth-architecture]] · [[slurm-cli-filter]] · [[glm-5.2]]

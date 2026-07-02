@@ -27,6 +27,7 @@ status: tentative
 - **ZCode — vendor's official harness (2026-07-01).** z.ai ships **ZCode** (`zcode.z.ai`), its "official harness for GLM-5.2." Jeffrey flagged it as the harness **"to use with our glm"** — point ZCode at PARCC's served GLM-5.2. A third candidate front-end (with Pi-Agent / opencode) for the coding workflow; not yet evaluated. See [[z.ai]], [[parcc-skills-modules]].
 
 - **Served endpoint: `413` / ~100k context ceiling (2026-07-02).** Jeffrey's agent runs against PARCC's served build fail with `litellm.APIError: … Hosted_vllmException - **413 Request Entity Too Large**` (the body is an **nginx** 413 page), on model group **`zai-org/GLM-5.2-FP8`**. He observes the served build "**mentions its context window being at 100k**" (smaller than upstream GLM-5.2's window) and that "our GLM **gets stuck**" on long tasks. Read together: PARCC's serving stack imposes an **~100k-token / request-body ceiling** (either the vLLM `max_model_len` or an nginx `client_max_body_size` cap in front of it), and oversized agent prompts hit it as a hard 413 rather than graceful truncation. NOTE the **LiteLLM model group is still named `zai-org/GLM-5.2-FP8`** even after the 6/30 NVFP4-serving migration — so either the group label lags the backend, or an fp8 build is still what serves under that name. `status: tentative` — cap source (model vs proxy) unconfirmed.
+  - **~100k is a REGRESSION, not a hard limit (2026-07-02, ~4:08pm).** When Jeffrey reported the 413, Ken replied *"booo … I'll have to take a look. **I got it up to 800k before**"* — i.e. the served GLM had **previously been configured to ~800k-token context**. This strongly favors the **config/proxy-cap** reading over a true model limit: the ceiling dropped from ~800k → ~100k across a redeploy (plausibly the NVFP4 migration or a proxy default), and Ken will investigate restoring it. Jeffrey added *"That was with zcode"* — associating the prior 800k with the **[[z.ai|ZCode]] harness** (whether ZCode *enabled* the larger window or was merely the client at the time is unconfirmed — `tentative`).
 
 > status: tentative — served for coding, but quant/benchmark specs unconfirmed, the fp8-vs-full vision split is from chat, the served context ceiling's source (model vs nginx) is unconfirmed, and the "beats Opus 4.8 on long tasks" claim is Jeffrey's impression with no numbers.
 
@@ -34,7 +35,7 @@ status: tentative
 - **Coding:** usable now (move from Kimi); no benchmarks recorded.
 - **Vision:** fp8 build can't; long tasks stalled → Jeffrey delegates vision to Claude (workaround). See [[jeffrey-vadala]].
 - **Quant variants tracked:** **NVFP4** (NVIDIA HF build, B200-native 4-bit — **now the served build as of 6/30, migrated to cut token cost**); **fp8** (prior served build, no vision — but the LiteLLM group is *still labeled* `zai-org/GLM-5.2-FP8` as of 7/2); full-precision (vision-capable, not served). [[kenneth-chaney]].
-- **Served ceiling:** ~**100k** context; oversized requests fail with **nginx `413 Request Entity Too Large`** (not graceful truncation) → keep agent prompts under the cap or trim history. See long-task "gets stuck" symptom.
+- **Served ceiling:** ~**100k** context (currently); oversized requests fail with **nginx `413 Request Entity Too Large`** (not graceful truncation) → keep agent prompts under the cap or trim history. **But this is a regression** — Ken had it at **~800k before** (2026-07-02) and will look at restoring it, so the cap is config, not a model limit.
 
 ## See also
 - [[z.ai]]
@@ -48,4 +49,4 @@ status: tentative
 - [[2026-06-29-teams-chats-digest]] — Jeffrey: GLM-5.2 "beating opus 4.8 … in some long term tasks," "it should work"; Ryan's subscription-subsidy / `ccusage` cost argument for on-prem.
 - [[2026-06-30-teams-chats-digest]] — Ken **migrated GLM-5.2 serving to NVFP4** to bring token cost down ("I migrated us to nvfp4 for glm 5.2").
 - [[2026-07-01-teams-chats-digest]] — Jeffrey shares **ZCode** (`zcode.z.ai`), z.ai's official GLM-5.2 harness, "to use with our glm."
-- [[2026-07-02-teams-chats-digest]] — served `zai-org/GLM-5.2-FP8` returns **nginx 413 Request Entity Too Large**; ~**100k** context ceiling; "our GLM gets stuck" on long tasks.
+- [[2026-07-02-teams-chats-digest]] — served `zai-org/GLM-5.2-FP8` returns **nginx 413 Request Entity Too Large**; ~**100k** context ceiling; "our GLM gets stuck" on long tasks. Ken: this is a **regression** — *"I got it up to 800k before"* (Jeffrey: "That was with zcode"); Ken will look at restoring it.

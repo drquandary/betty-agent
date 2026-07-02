@@ -571,3 +571,10 @@
 - Key facts: PARCC's served GLM-5.2 imposes ~100k / request-body ceiling → oversized agent prompts fail as hard nginx 413, "gets stuck." cli_filter default memory: 5.5 or 15.5 GB/core (CPU), 8 GB/thread (GPU) — Ryan says working as designed; Jaime wants old tasks×MemPerCPU behavior, partition-independent.
 - Tasks: 2 For-me (GLM-5.2-FP8 413/context diagnosis; jury duty 7/9 vs training day) + 2 FYI (CLI default-memory Jaime-vs-Ryan; Cadence-license follow-up) + 1 sub-bullet under the Dell R6725/R7725 thread (unresolved "seed node").
 - Notes: Cadence follow-up and seed-node question left as open FYI threads (no durable facts yet). No new entity/concept pages.
+
+## [2026-07-02] ingest | Teams digest digest_20260702T163204 (late afternoon — GLM 800k regression + Flex seed-node empty)
+- Source: 5 new msgs across 2 chats — Chaney 1:1 (4: Ken "booo"/"I'll have to take a look"/"I got it up to 800k before"; Jeffrey "That was with zcode") + PARCC Group (1: Ken "He wasn't able to find anything at Flex").
+- Updated: [[glm-5.2]] (served-ceiling section + Our-experience + Sources: **~100k is a REGRESSION from ~800k before**, per Ken — favors config/proxy cap over model limit; Jeffrey ties prior 800k to ZCode, tentative), [[2026-07-02-teams-chats-digest]] (Later-cycle: Ken's 800k-regression reply + Flex seed-node-empty note; Pages-touched refreshed).
+- Key facts: PARCC's served GLM context was **~800k before** and dropped to ~100k across a redeploy → the 413 ceiling is a config regression Ken will look at, not a hard model limit. Flexential-colo search for the R7725 seed node came up **empty** ("He wasn't able to find anything at Flex").
+- Tasks: updated 2 existing items — GLM-5.2 413/context (Ken ack + 800k regression) and the Dell/seed-node sub-bullet (Flex search empty). No new tasks; "booo" was pure reaction (skipped).
+- Notes: no new entity/concept/source pages (glm-5.2 + today's source page already existed).
