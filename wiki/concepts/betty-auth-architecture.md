@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, security, authentication, kerberos, pam, ssh]
 created: 2026-04-10
-updated: 2026-06-26
-sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-26-teams-chats-digest]
+updated: 2026-07-02
+sources: [2026-06-16-teams-chats-digest, 2026-06-18-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-07-02-teams-chats-digest]
 related: [betty-cluster, open-ondemand-betty, ood-troubleshooting, kerberos-ssh-macos-fix]
 status: current
 ---
@@ -64,6 +64,25 @@ When a user (especially an **external collaborator** on a **sponsored PennKey** 
 
 Duo/VPN issues are identity-layer problems handled by the central LSP, distinct from Betty's own Kerberos/`pam_slurm_adopt` SSH controls below.
 
+## PennKey lifecycle: deprovisioning cascades to Betty (2026-07-02)
+
+Because PennKey is the identity Betty authenticates against, **a PennKey going inactive silently disables the Betty account** — and PARCC is *not* the fixer. Observed case ([[2026-07-02-teams-chats-digest]], user Gangaram/Vineeth, a Witschey collaborator):
+
+- **Symptom on Betty**: `sudo`-ing to the account fails with `This account is currently not available`, and the login shell has been set to **`/sbin/nologin`** (the account is deprovisioned, not merely locked).
+- **Trigger**: an **HR termination / role change** (here, a radiology resident moving to an adjunct-faculty appointment). Penn's **OMA file** is supposed to flip access **overnight/automatically**, but there is often a **gap**.
+- **Diagnosis**: check the user's PennKey status — if it reads **`NOT_ACTIVE`**, whoever **sponsors** the PennKey hasn't filed the proper paperwork.
+- **Fix (not PARCC's to make)**: the user contacts **PMACS / their department IT** (the sponsor's LSP, per the routing rule above) to reactivate the PennKey. Once active, Betty access returns.
+- **Blast radius** (Ken): a broken PennKey costs the user *more than PARCC* — they also lose **PennVPN**, **AirPennNet**, and other basic Penn services. So an inability to reach Betty may just be the first symptom of a PennKey problem.
+- **Account tier ≠ login fix**: an adjunct/collaborator does **not** need an account "upgrade" (that's a separate PI-vs-non-PI question); the login failure is purely the inactive PennKey.
+
+## Root password rotation policy (under discussion, 2026-07-02)
+
+The shared **root** password on Betty is managed with **AHEAD** (the vendor). Policy is being formalized after AHEAD had staff depart:
+
+- **Reset triggered** because personnel with knowledge of the password have **left AHEAD** — this is the security-relevant event, not the calendar.
+- **Cadence unresolved**: Jaime proposed a **3-month** rotation; [[jamie-schnaitter]] pushed back that **periodic password changes don't improve security (NIST 800-63)** and that resets should be **event-driven** (e.g. someone leaves the group). A written policy + documentation of resets is a to-do.
+- Practical stance: rotate **on personnel departure**, document each reset; fixed-interval rotation is contested.
+
 ## Practical notes
 
 - Kerberos tickets expire -- if SSH starts failing after hours of work, run `kinit` again
@@ -83,3 +102,4 @@ Duo/VPN issues are identity-layer problems handled by the central LSP, distinct 
 - [[2026-06-16-teams-chats-digest]] -- macOS Kerberos SSH failure + fix thread
 - [[2026-06-18-teams-chats-digest]] -- Jamie confirms pam_slurm_adopt is live + multi-job cgroup caveat
 - [[2026-06-26-teams-chats-digest]] -- VPN/Duo for sponsored external users routes to the sponsor's LSP (PARCC→HireIT, SEAS→CETS)
+- [[2026-07-02-teams-chats-digest]] -- PennKey deprovisioning cascade (NOT_ACTIVE → /sbin/nologin) and root-password rotation policy debate

@@ -6,6 +6,11 @@
 
 ---
 
+## [2026-07-02] ingest | Teams digest — PennKey deprovisioning cascade + root-password rotation policy
+- Source: [[2026-07-02-teams-chats-digest]] (created; digest `digest_20260702T083935.json`, 9 chats / 15 new — all PARCC Group, one thread, ~12:11–12:28Z).
+- Created: [[2026-07-02-teams-chats-digest]]. Updated: [[betty-auth-architecture]] (new "PennKey lifecycle: deprovisioning cascades to Betty" + "Root password rotation policy" sections; frontmatter updated→07-02, source added), [[index]], tasks.md (2 FYI items).
+- Key facts: **PennKey deprovisioning cascade:** user Gangaram/Vineeth (Witschey collaborator) can't log in — `sudo` gives `This account is currently not available`, shell set to **`/sbin/nologin`**; PennKey reads **`NOT_ACTIVE`** after an HR role change (radiology resident → adjunct faculty; HR-terminated yesterday, OMA file should auto-flip overnight but expect a **gap**). Fix is **not PARCC's** — user contacts **PMACS / department IT** (the sponsor's LSP) to reactivate; blast radius is bigger than PARCC (also loses **PennVPN, AirPennNet**). Adjunct → **no account upgrade** needed. **Root password:** Jaime asked Jamie Schnaitter to reset it with **AHEAD** (proposed 3-month rotation); Jamie files a ticket today but argues fixed-interval rotation doesn't help (**NIST 800-63**) — reset is warranted because **AHEAD staff left**; policy = **event-driven, documented**, cadence unresolved.
+
 ## [2026-07-01] ingest | Teams digest (8th pull) — front-end/interface strategy + ZCode internals + harness deep-research IMPLEMENTED
 - Source: [[2026-07-01-teams-chats-digest]] (appended "Eighth pull" section; digest `digest_20260701T171313.json`, 9 chats / 15 new — all Bradley, Ryan Patrick ~20:38–21:02Z).
 - Updated: [[parcc-skills-modules]] (new "Front-end / interface strategy" section; ZCode subsection expanded; deep-research "proposed improvement" flipped to IMPLEMENTED + "gates"; sources line), [[z.ai]] (ZCode = desktop app for GLM long tasks w/ one-click skills, "could be all marketing"), [[index]], tasks.md.
