@@ -29,6 +29,12 @@ A Lua `cli_filter` plugin for Slurm on Betty that rewrites and validates job-sub
 - **Fix plan:** prevent `--mem` from propagating / causing the error unless it disagrees with `--mem-per-cpu`; add a test covering `--mem` usage; then jvadala retests.
 - ryb wants the filter solid before [[jaime-combariza]] tests it heavily.
 
+## Default-memory contract (2026-07-02)
+The filter's memory behavior, per owner [[ryan-bradley]] — the design goal is *"the user doesn't need to think about memory if it's enough, and they can use fewer flags"*:
+- **CPU nodes:** **5.5 GB or 15.5 GB per core** (allocated in MB) — i.e. std-mem vs large-mem tiers ([[genoa-std-mem-partition]] / [[genoa-lrg-mem-partition]]).
+- **GPU partitions:** **8 GB per CPU thread**.
+- [[jaime-combariza]] pushed back (7/2), wanting the old Slurm behavior — memory = **tasks × `MemPerCPU` from `slurm.conf`** (e.g. 8 cores → ~48 GB) — set **partition-independently** so users needn't request it explicitly (else an error/warning). Ryan holds it's already working as intended and asked Jaime whether he's *"seeing something that contradicts this."* Open thread; cf. the `--mem` bug below (both concern how memory flags flow through the filter). `status: tentative` — awaiting Jaime's reply.
+
 ## Rollout guidance
 - Use the updated instructions and put the filter invocation in `~/.bashrc` so it covers interactive sessions, not just batch.
 
@@ -54,4 +60,4 @@ Moving from per-user `~/.bashrc` opt-in toward **centrally-configured Slurm plug
 
 ## Sources
 - [[2026-06-16-teams-chats-digest]] — the `--mem` bug thread, bashrc rollout, and Rachit code thread
-- [[2026-07-02-teams-chats-digest]] — "Deploy cli_filter and job_submit plugins" meeting; prod `slurm.conf` path
+- [[2026-07-02-teams-chats-digest]] — "Deploy cli_filter and job_submit plugins" meeting; prod `slurm.conf` path; the default-memory contract (5.5/15.5 GB per core CPU, 8 GB per thread GPU) + Jaime's partition-independent-memory request

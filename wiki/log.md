@@ -564,3 +564,10 @@
 - Key facts: `job_submit` plugin (server-side, central enforcement) being deployed alongside the previously bashrc-distributed `cli_filter`; prod `slurm.conf` lives under the BCM `cm`-shared tree. Status tentative — deployment in progress, outcome unconfirmed.
 - Tasks: appended 1 FYI item (plugin-deployment meeting) under Others/FYI and 1 sub-bullet under the tokens-as-a-service beta item (Ken PennKey, context tentative). No new standalone For-me tasks.
 - Notes: the "Deploy…" chat was mostly meeting-system lines (invites/join/leave); only Swapnil's slurm.conf path carried data. No new entity/concept pages.
+
+## [2026-07-02] ingest | Teams digest digest_20260702T155709 (afternoon — CLI memory, GLM 413, jury duty, seed node)
+- Source: 14 new msgs across 2 chats — Chaney 1:1 (7, all Jeffrey outbound) + PARCC Group (7). Later cycle same day.
+- Updated: [[glm-5.2]] (served endpoint `413 Request Entity Too Large`/~100k context ceiling; LiteLLM group still labeled `zai-org/GLM-5.2-FP8` post-NVFP4-migration; +Content bullet, Our-experience, Sources, frontmatter updated/sources), [[slurm-cli-filter]] (new "Default-memory contract (2026-07-02)": CPU 5.5/15.5 GB per core, GPU 8 GB per thread, per Ryan; Jaime's partition-independent-memory request), [[2026-07-02-teams-chats-digest]] (new "Later cycle" section + frontmatter/See-also), [[index]] (glm-5.2 → 6 sources + 413 note; slurm-cli-filter default-memory note; 7/2 source line extended).
+- Key facts: PARCC's served GLM-5.2 imposes ~100k / request-body ceiling → oversized agent prompts fail as hard nginx 413, "gets stuck." cli_filter default memory: 5.5 or 15.5 GB/core (CPU), 8 GB/thread (GPU) — Ryan says working as designed; Jaime wants old tasks×MemPerCPU behavior, partition-independent.
+- Tasks: 2 For-me (GLM-5.2-FP8 413/context diagnosis; jury duty 7/9 vs training day) + 2 FYI (CLI default-memory Jaime-vs-Ryan; Cadence-license follow-up) + 1 sub-bullet under the Dell R6725/R7725 thread (unresolved "seed node").
+- Notes: Cadence follow-up and seed-node question left as open FYI threads (no durable facts yet). No new entity/concept pages.

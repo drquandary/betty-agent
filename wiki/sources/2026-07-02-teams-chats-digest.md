@@ -3,7 +3,7 @@ type: source
 tags: [teams, digest, betty, authentication, pennkey, security, accounts, slurm, cli-filter, job-submit, deployment]
 created: 2026-07-02
 updated: 2026-07-02
-related: [betty-auth-architecture, slurm-cli-filter, jaime-combariza, kenneth-chaney, jamie-schnaitter]
+related: [betty-auth-architecture, slurm-cli-filter, jaime-combariza, kenneth-chaney, jamie-schnaitter, glm-5.2, ryan-bradley]
 status: current
 ---
 
@@ -37,10 +37,21 @@ PARCC Group thread on the Gangaram/Vineeth PennKey-deprovisioning login failure 
 ### Ken 1:1 — PennKey (terse)
 - **Ken**: "I need a PennKey" / "And I will secure share it over." Context not stated; most likely tied to the [[parcc-tokens-as-a-service]] key-minting for the Dr. Chatterjee beta lab (Ken mints keys and would secure-share the credential). `status: tentative` — attribution inferred, not confirmed.
 
+### Later cycle (afternoon) — CLI memory, Cadence, jury duty, seed node, GLM 413
+
+**PARCC Group:**
+- **CLI default-memory feedback.** Jaime: the CLI could compute memory the old way — **tasks × MemPerCPU from `slurm.conf`** (8 cores → ~48 GB) — set **partition-independently** and not explicitly required (else an error/warning). **Ryan**: it's working as expected — **CPU nodes give 5.5 GB or 15.5 GB (in MB) per core; GPU partitions give 8 GB per CPU thread** — the idea is users needn't think about memory and use fewer flags; asked Jaime if he sees anything contradicting it. See [[slurm-cli-filter]].
+- **Cadence licenses.** Jaime asked **Jamie Schnaitter** to check email for Cadence-license follow-ups — "maybe something changed on Betty in the last few weeks." Jamie: "I am replying to it now."
+- **Jury duty.** Jeffrey reminded Jaime his **jury duty is July 9, one of the training days**; Jaime: "Got it. Good luck."
+- **Seed node still unresolved.** Jamie Schnaitter: "Did we ever figure out the confusion with the **seed node**? Did we locate it after we figured out that the **pile of 1U machines wasn't ours**?" — i.e. the R7725 seed unit hasn't been confirmed found/racked (the 1U pile = the mis-delivered 4× R6725 bound for Penn Medicine; see the 7/1 Dell thread).
+
+**Chaney 1:1 (Jeffrey's own messages):** the served GLM-5.2 (LiteLLM group **`zai-org/GLM-5.2-FP8`**) fails his agent runs with `litellm.APIError … Hosted_vllmException - **413 Request Entity Too Large**` (nginx); "our GLM **gets stuck**" and it "mentions its **context window being at 100k**" vs the real GLM — pointing to an ~100k / request-body ceiling on the serving stack. See [[glm-5.2]].
+
 ## Pages touched
 - Updated [[betty-auth-architecture]] — new "PennKey lifecycle: deprovisioning cascades to Betty" and "Root password rotation policy" sections.
-- Updated [[slurm-cli-filter]] — new "Server-side deployment (2026-07-02)" section (cli_filter + job_submit plugins, prod `slurm.conf` path, AHEAD meeting).
+- Updated [[slurm-cli-filter]] — "Server-side deployment (2026-07-02)" section + new "Default-memory contract (2026-07-02)" (5.5/15.5 GB per core CPU, 8 GB per thread GPU; Jaime's partition-independent-memory ask).
+- Updated [[glm-5.2]] — served endpoint `413 Request Entity Too Large` / ~100k context ceiling; LiteLLM group still labeled `…GLM-5.2-FP8` post-NVFP4-migration.
 
 ## See also
-- [[betty-auth-architecture]] · [[slurm-cli-filter]]
-- [[jaime-combariza]] · [[kenneth-chaney]] · [[jamie-schnaitter]]
+- [[betty-auth-architecture]] · [[slurm-cli-filter]] · [[glm-5.2]]
+- [[jaime-combariza]] · [[kenneth-chaney]] · [[jamie-schnaitter]] · [[ryan-bradley]]

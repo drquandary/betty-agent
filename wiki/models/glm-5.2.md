@@ -2,8 +2,8 @@
 type: model
 tags: [llm, glm, zai, model-serving, mtp]
 created: 2026-06-25
-updated: 2026-07-01
-sources: [2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest, 2026-07-01-teams-chats-digest]
+updated: 2026-07-02
+sources: [2026-06-25-teams-chats-digest, 2026-06-26-teams-chats-digest, 2026-06-29-teams-chats-digest, 2026-06-30-teams-chats-digest, 2026-07-01-teams-chats-digest, 2026-07-02-teams-chats-digest]
 related: [z.ai, multi-token-prediction, kenneth-chaney, jeffrey-vadala, deepseek-v3, parcc-skills-modules]
 status: tentative
 ---
@@ -26,12 +26,15 @@ status: tentative
 - **Ryan's hands-on impression (2026-06-29).** Ryan **tried GLM-5.2 briefly Friday in opencode** and found it **"pretty good"** — but uses it for **Q&A → markdown/diffs he implements himself**, finding the agentic flows "too hands-off." (Jeffrey countered by pitching **Pi-Agent** as a leaner runtime — see [[parcc-skills-modules]].) First end-user datapoint on GLM-5.2 from a PARCC staffer, even if non-agentic.
 - **ZCode — vendor's official harness (2026-07-01).** z.ai ships **ZCode** (`zcode.z.ai`), its "official harness for GLM-5.2." Jeffrey flagged it as the harness **"to use with our glm"** — point ZCode at PARCC's served GLM-5.2. A third candidate front-end (with Pi-Agent / opencode) for the coding workflow; not yet evaluated. See [[z.ai]], [[parcc-skills-modules]].
 
-> status: tentative — served for coding, but quant/benchmark specs unconfirmed, the fp8-vs-full vision split is from chat, and the "beats Opus 4.8 on long tasks" claim is Jeffrey's impression with no numbers.
+- **Served endpoint: `413` / ~100k context ceiling (2026-07-02).** Jeffrey's agent runs against PARCC's served build fail with `litellm.APIError: … Hosted_vllmException - **413 Request Entity Too Large**` (the body is an **nginx** 413 page), on model group **`zai-org/GLM-5.2-FP8`**. He observes the served build "**mentions its context window being at 100k**" (smaller than upstream GLM-5.2's window) and that "our GLM **gets stuck**" on long tasks. Read together: PARCC's serving stack imposes an **~100k-token / request-body ceiling** (either the vLLM `max_model_len` or an nginx `client_max_body_size` cap in front of it), and oversized agent prompts hit it as a hard 413 rather than graceful truncation. NOTE the **LiteLLM model group is still named `zai-org/GLM-5.2-FP8`** even after the 6/30 NVFP4-serving migration — so either the group label lags the backend, or an fp8 build is still what serves under that name. `status: tentative` — cap source (model vs proxy) unconfirmed.
+
+> status: tentative — served for coding, but quant/benchmark specs unconfirmed, the fp8-vs-full vision split is from chat, the served context ceiling's source (model vs nginx) is unconfirmed, and the "beats Opus 4.8 on long tasks" claim is Jeffrey's impression with no numbers.
 
 ## Our experience
 - **Coding:** usable now (move from Kimi); no benchmarks recorded.
 - **Vision:** fp8 build can't; long tasks stalled → Jeffrey delegates vision to Claude (workaround). See [[jeffrey-vadala]].
-- **Quant variants tracked:** **NVFP4** (NVIDIA HF build, B200-native 4-bit — **now the served build as of 6/30, migrated to cut token cost**); **fp8** (prior served build, no vision); full-precision (vision-capable, not served). [[kenneth-chaney]].
+- **Quant variants tracked:** **NVFP4** (NVIDIA HF build, B200-native 4-bit — **now the served build as of 6/30, migrated to cut token cost**); **fp8** (prior served build, no vision — but the LiteLLM group is *still labeled* `zai-org/GLM-5.2-FP8` as of 7/2); full-precision (vision-capable, not served). [[kenneth-chaney]].
+- **Served ceiling:** ~**100k** context; oversized requests fail with **nginx `413 Request Entity Too Large`** (not graceful truncation) → keep agent prompts under the cap or trim history. See long-task "gets stuck" symptom.
 
 ## See also
 - [[z.ai]]
@@ -45,3 +48,4 @@ status: tentative
 - [[2026-06-29-teams-chats-digest]] — Jeffrey: GLM-5.2 "beating opus 4.8 … in some long term tasks," "it should work"; Ryan's subscription-subsidy / `ccusage` cost argument for on-prem.
 - [[2026-06-30-teams-chats-digest]] — Ken **migrated GLM-5.2 serving to NVFP4** to bring token cost down ("I migrated us to nvfp4 for glm 5.2").
 - [[2026-07-01-teams-chats-digest]] — Jeffrey shares **ZCode** (`zcode.z.ai`), z.ai's official GLM-5.2 harness, "to use with our glm."
+- [[2026-07-02-teams-chats-digest]] — served `zai-org/GLM-5.2-FP8` returns **nginx 413 Request Entity Too Large**; ~**100k** context ceiling; "our GLM gets stuck" on long tasks.
