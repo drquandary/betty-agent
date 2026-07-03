@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-07-03] ingest | Teams digest — GLM-5.2 413 root-caused to nginx client_max_body_size
+- Source: [[2026-07-03-teams-chats-digest]] (created; digest `digest_20260703T065558.json`, 11 chats / 3 new — all Chaney 1:1, all self-authored by Jeffrey).
+- Created: [[2026-07-03-teams-chats-digest]]. Updated: [[glm-5.2]] (served-ceiling section + Our-experience "two caps" note + frontmatter updated→07-03 + source line), [[index]] (glm-5.2 line → 7 sources + 413 root-cause; new 7/03 source line), tasks.md (UPDATE sub-bullet under the GLM-5.2 413 item).
+- Key facts: Jeffrey diagnosed the served GLM-5.2 **`413 Request Entity Too Large`** as an **nginx `client_max_body_size` (~1 MB default)** rejection on the reverse proxy fronting PARCC's hosted vLLM — the OpenAI-style JSON body exceeds the cap, so **nginx rejects it before vLLM/GLM**; *"not a model or litellm bug,"* `retryable=false`. GLM-5.2's real **200K context window** makes big bodies legitimate → **server-side fix**: `client_max_body_size 100m;` (+`client_body_buffer_size 1m;`, `proxy_read_timeout 600s;`), reload nginx. IMPORTANT: this **body-size (bytes)** cap is a **separate axis** from the **context-window (tokens)** ~100k↔800k regression Ken owns (7/2) — both must be right. TENTATIVE: flagged as his agent's read (*"the proxy server had limit … at least that's what it thinks"*), unverified against live config.
+- Tasks: appended one UPDATE sub-bullet under the existing GLM-5.2 413/context item (For me). No new standalone task; other 10 chats had 0 new messages.
+
 ## [2026-07-02] ingest | Teams digest — PennKey deprovisioning cascade + root-password rotation policy
 - Source: [[2026-07-02-teams-chats-digest]] (created; digest `digest_20260702T083935.json`, 9 chats / 15 new — all PARCC Group, one thread, ~12:11–12:28Z).
 - Created: [[2026-07-02-teams-chats-digest]]. Updated: [[betty-auth-architecture]] (new "PennKey lifecycle: deprovisioning cascades to Betty" + "Root password rotation policy" sections; frontmatter updated→07-02, source added), [[index]], tasks.md (2 FYI items).
