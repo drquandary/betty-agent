@@ -2,9 +2,9 @@
 type: entity
 tags: [betty, storage, nfs, vast, infiniband, rdma]
 created: 2026-04-08
-updated: 2026-07-01
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-01-teams-chats-digest]
-related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty, vast-group-permissions, jamie-schnaitter]
+updated: 2026-07-06
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-01-teams-chats-digest, 2026-07-06-teams-chats-digest]
+related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty, vast-group-permissions, jamie-schnaitter, kenneth-chaney, parcc-tokens-as-a-service]
 status: current
 ---
 
@@ -41,9 +41,18 @@ Betty's primary filesystem: NFS 4.2 over RDMA on InfiniBand, served by `infiniba
 ## Permissions & ACLs
 Because VAST is exported as **NFS 4.2**, its ACL layer is **NFSv4, not POSIX**. Use the `nfs4_`-prefixed tools — `nfs4_setfacl`, `nfs4_getfacl`, `nfs4_editfacl` — not `setfacl`/`getfacl`. Same workflow as POSIX draft ACLs, but the ACEs and permission bits differ (per [[jamie-schnaitter]], 2026-07-01). This is the way to make a **group read-write shared folder** on VAST. Full playbook in [[vast-group-permissions]].
 
+## Snapshots & protected paths
+As of **2026-07-06** ([[kenneth-chaney]]), VAST has a **per-project protected-paths** setup deployed:
+- **Controllable in ColdFront** — snapshot/protected-path policy is managed per project through the ColdFront allocation UI, not by hand on the filesystem.
+- **Surfaced via `parcc_quota.py --snapshots`** — the `--snapshots` flag is **off by default** and stays quiet **until the snapshots actually populate**.
+- **Ramp-up ~2 weeks** — it takes about two weeks to reach the full number of snapshots in each individual protected path, so early `--snapshots` output will show partial counts.
+
+This gives projects point-in-time recovery on their protected paths — relevant to backup posture for the [[parcc-tokens-as-a-service]] beta labs and any data the lab agent touches.
+
 ## Quota tools
 ```bash
 parcc_quota.py                        # overall quota check
+parcc_quota.py --snapshots            # per-project protected-path snapshots (off by default; populates over ~2 wks)
 parcc_du.py /vast/projects/<project>  # directory usage
 ```
 See [[parcc-helper-tools]].
@@ -66,3 +75,4 @@ See [[parcc-helper-tools]].
 ## Sources
 - [[2026-04-08-betty-initial-exploration]]
 - [[2026-04-08-betty-system-guide]]
+- [[2026-07-06-teams-chats-digest]] — per-project protected-paths / `parcc_quota.py --snapshots` deployed

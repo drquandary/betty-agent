@@ -596,3 +596,10 @@
 - Key facts: PARCC's served GLM context was **~800k before** and dropped to ~100k across a redeploy → the 413 ceiling is a config regression Ken will look at, not a hard model limit. Flexential-colo search for the R7725 seed node came up **empty** ("He wasn't able to find anything at Flex").
 - Tasks: updated 2 existing items — GLM-5.2 413/context (Ken ack + 800k regression) and the Dell/seed-node sub-bullet (Flex search empty). No new tasks; "booo" was pure reaction (skipped).
 - Notes: no new entity/concept/source pages (glm-5.2 + today's source page already existed).
+
+## [2026-07-06] ingest | Teams digest digest_20260706T180523 (VAST protected-paths / snapshots)
+- Source: 1 new msg (PARCC Group, Ken Chaney) — "Deployed the per project protected paths setup in VAST. This is controllable in coldfront and will be visible in parcc_quota.py with --snapshots (off by default until the snapshots populate). It will take two weeks to reach the full number of snapshots in each individual protected path."
+- Updated: [[vast-storage]] (new "Snapshots & protected paths" section + `--snapshots` in Quota tools + frontmatter updated/sources + Sources), [[parcc-helper-tools]] (new July-2026 update: `parcc_quota.py --snapshots` flag + frontmatter/Sources), [[2026-07-06-teams-chats-digest]] (new "Cycle 3" section + one-line summary + Pages-touched + tags/related), [[index]] (vast-storage → 4 sources + snapshots note; 7/6 source line +Cycle 3).
+- Key facts: VAST now has **per-project protected paths** yielding point-in-time **snapshots**; policy is **ColdFront-controlled**; inspect via **`parcc_quota.py --snapshots`** (off by default until populated); **~2-week ramp** to full snapshot count per protected path.
+- Tasks: appended 1 FYI item (VAST protected-paths/snapshots deployed) under Others/FYI.
+- Notes: single-message cycle; no new entity/concept/model pages.
