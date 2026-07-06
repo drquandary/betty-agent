@@ -2,8 +2,8 @@
 type: concept
 tags: [betty, slurm, cli-filter, job-submit, lua, qos, mem, bashrc, deployment, facilitation]
 created: 2026-06-16
-updated: 2026-07-02
-sources: [2026-06-16-teams-chats-digest, 2026-07-02-teams-chats-digest]
+updated: 2026-07-06
+sources: [2026-06-16-teams-chats-digest, 2026-07-02-teams-chats-digest, 2026-07-06-teams-chats-digest]
 related: [slurm-on-betty, slurm-advisor, ryan-bradley, jeffrey-vadala, jaime-combariza, kenneth-chaney, jamie-schnaitter, betty-cluster]
 status: current
 ---
@@ -35,6 +35,12 @@ The filter's memory behavior, per owner [[ryan-bradley]] — the design goal is 
 - **GPU partitions:** **8 GB per CPU thread**.
 - [[jaime-combariza]] pushed back (7/2), wanting the old Slurm behavior — memory = **tasks × `MemPerCPU` from `slurm.conf`** (e.g. 8 cores → ~48 GB) — set **partition-independently** so users needn't request it explicitly (else an error/warning). Ryan holds it's already working as intended and asked Jaime whether he's *"seeing something that contradicts this."* Open thread; cf. the `--mem` bug below (both concern how memory flags flow through the filter). `status: tentative` — awaiting Jaime's reply.
 
+### `MaxMemPerCPU` unset — the CLI filter warns rather than blocks (2026-07-06)
+On the **large-memory nodes** ([[genoa-lrg-mem-partition]]), Jaime observed a default/min ~15872 MB but a stated "max" that resolves to **`MaxMemPerCPU=18432`**, and asked whether requesting the max errors. Ryan's answer clarifies the design split:
+- **`DefMemPerCPU` was deliberately set** to the right proportions weeks ago (by Ryan + Ken), leaving overhead for the OS.
+- **`MaxMemPerCPU` was left *unset*** — "an oversight" — **because the CLI filter wasn't ready** at the time. Consequence: asking for **more than the default** produces a **non-blocking warning from the CLI filter**, *not* a Slurm hard-rejection. So there is currently no enforced hard ceiling on per-CPU memory; the filter is the (soft) guardrail.
+- Ryan offered to **lower `MaxMemPerCPU` to match `DefMemPerCPU`**; decision pending Jaime. This is the enforcement counterpart to the default-memory contract above — `Def*` shapes the automatic allocation, `Max*` would be the hard cap the filter's warning currently substitutes for.
+
 ## Rollout guidance
 - Use the updated instructions and put the filter invocation in `~/.bashrc` so it covers interactive sessions, not just batch.
 
@@ -61,3 +67,4 @@ Moving from per-user `~/.bashrc` opt-in toward **centrally-configured Slurm plug
 ## Sources
 - [[2026-06-16-teams-chats-digest]] — the `--mem` bug thread, bashrc rollout, and Rachit code thread
 - [[2026-07-02-teams-chats-digest]] — "Deploy cli_filter and job_submit plugins" meeting; prod `slurm.conf` path; the default-memory contract (5.5/15.5 GB per core CPU, 8 GB per thread GPU) + Jaime's partition-independent-memory request
+- [[2026-07-06-teams-chats-digest]] — `MaxMemPerCPU=18432` left unset ("oversight"), so over-default requests warn (non-blocking) via the filter rather than hard-fail; Ryan offered to lower it to match `DefMemPerCPU`

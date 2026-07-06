@@ -1,16 +1,16 @@
 ---
 type: source
-tags: [teams, digest, glm, model-serving, nginx, litellm, tokens-as-a-service]
+tags: [teams, digest, glm, model-serving, nginx, litellm, tokens-as-a-service, training, slurm, cli-filter, mailing-list]
 created: 2026-07-06
 updated: 2026-07-06
-related: [glm-5.2, parcc-tokens-as-a-service, kenneth-chaney, jeffrey-vadala]
+related: [glm-5.2, parcc-tokens-as-a-service, kenneth-chaney, jeffrey-vadala, slurm-cli-filter, ryan-bradley, jamie-schnaitter, jaime-combariza]
 status: current
 ---
 
 # Teams Chats Digest — 2026-07-06
 
 ## One-line summary
-Chaney 1:1 (13 new msgs) — Ken **confirms the nginx reverse proxy** exists (corroborating Jeffrey's 7/3 `413` diagnosis) and offers a serving-stack session, with the caveat that **the whole stack changes at production**; Jeffrey is **building Dr. Chatterjee's lab agent** and weighing a model fallback. PARCC Group (2 msgs) — Jaime tracking an inbound **demo unit** (ETA this week).
+Chaney 1:1 (13 new msgs) — Ken **confirms the nginx reverse proxy** exists (corroborating Jeffrey's 7/3 `413` diagnosis) and offers a serving-stack session, with the caveat that **the whole stack changes at production**; Jeffrey is **building Dr. Chatterjee's lab agent** and weighing a model fallback. PARCC Group (2 msgs) — Jaime tracking an inbound **demo unit** (ETA this week). **Cycle 2 (PARCC Group, 10 msgs):** `MaxMemPerCPU` left unset on large-mem nodes (over-default → CLI-filter warning, not error); **PARCC training sessions scheduled** (Thu 7/9 9 AM & Mon 7/13 2 PM) + `parcc-info` listserv send/approval workflow.
 
 ## New this cycle
 - **nginx reverse proxy CONFIRMED (Ken).** Ken: *"We do run a reverse proxy with nginx to get https functionality."* This corroborates the mechanism in Jeffrey's 7/3 root-cause of the served-GLM `413` (a `client_max_body_size` rejection at the nginx layer) — it's now Ken-confirmed that such a layer terminates HTTPS in front of the served vLLM. Cap not yet raised (Ken on morning email from phone, laptop not open). Real-world impact restated: **[[z.ai|ZCode]] "was working really spanky … especially for long tasks … but it hit that error and just totally wanked out."**
@@ -19,9 +19,16 @@ Chaney 1:1 (13 new msgs) — Ken **confirms the nginx reverse proxy** exists (co
 - **Chatterjee lab agent — build underway + fallback question.** Jeffrey: *"I was working on Anjan Chatterjees lab agent."* Weighing a **model fallback** for GLM outages but **unsure whether a GLM outage also downs the other served models** ("not sure if when our glm goes down, if the others do too") — a genuine reliability decision for any lab bot. GLM was **up** ~2pm (Ken: "It is spitting out tokens for somebody right now"), though Jeffrey believed it had been down over the weekend.
 - **PARCC Group — demo unit inbound (Jaime).** A **demo unit** has an **ETA this week**, tracked via **AIT Worldwide Logistics** ("FasTrak"). Vendor/what-it-is unstated in-message (possibly PARCC↔NVIDIA or the Dell/R7725 hardware thread). Second message was an empty "FYI:" (skipped).
 
+## Cycle 2 (14:27) — PARCC Group (10 msgs)
+- **`MaxMemPerCPU` left unset on the large-mem nodes (Ryan calls it an oversight).** Jaime asked whether he can request the max memory or gets an error (saw default/min ~15872 vs a "max" resolving to **`MaxMemPerCPU=18432`**). Ryan: **`DefMemPerCPU`** was set to the right proportions weeks ago (OS overhead reserved) but **`MaxMemPerCPU` wasn't set because the CLI filter wasn't ready** → over-default requests get a **non-blocking CLI-filter warning, not a hard error**. Ryan offered to **lower `MaxMemPerCPU` to match `DefMemPerCPU`**; awaiting Jaime. See [[slurm-cli-filter]].
+- **PARCC training sessions SCHEDULED + announcement workflow.** Two 1-hour **"Best Practices for Navigating the Betty Environment"** sessions: **Thu July 9 @ 9 AM** and **Mon July 13 @ 2 PM**, Zoom registration required (agenda: environment overview, policies/usage limits, workflow-monitoring tools, Q&A). Jeffrey **tested the registration link — works**. Session **duration is moot** (Zoom registration doesn't display it). Jaime approved the language/dates.
+  - **Mailing-list send procedure (Jamie Schnaitter):** email **`parcc-info@lists.upenn.edu`** → listserv replies asking for approval → reply with **just "OK"**. Set **Reply-To** to yourself or **`no-reply@parcc.upenn.edu`** because **users can't post to the list** (replies to the list address are eaten). Ryan will set Reply-To to himself ("I'd rather get questions"). Prior training used the **`parcc-alerts@lists.upenn.edu`** list.
+  - NOTE: **July 9 conflicts with Jeffrey's jury duty** (from the 7/2 cycle).
+
 ## Pages touched
 - [[glm-5.2]] — 413 section: Ken's confirmation of the nginx proxy + pre-production caveat + serving-stack-session note.
 - [[parcc-tokens-as-a-service]] — Chatterjee lab agent build + failure-independence/fallback open question; serving-stack knowledge-transfer; production-architecture-unsettled caveat.
+- [[slurm-cli-filter]] — `MaxMemPerCPU=18432` unset (oversight); over-default requests warn (non-blocking) via the filter, not hard-fail; Ryan offered to lower it to match `DefMemPerCPU`.
 
 ## See also
 - [[glm-5.2]]

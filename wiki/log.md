@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-07-06] ingest | Teams digest (cycle 2) — Slurm MaxMemPerCPU unset; PARCC training sessions scheduled
+- Source: appended to [[2026-07-06-teams-chats-digest]] as "Cycle 2" (digest `digest_20260706T142654.json`, 11 chats / 10 new — all in PARCC Group).
+- Updated: [[slurm-cli-filter]] (new `MaxMemPerCPU` subsection under default-memory contract; frontmatter→07-06 + source line), [[2026-07-06-teams-chats-digest]] (Cycle 2 section, summary, frontmatter tags/related), [[index]] (7/06 source line extended), tasks.md (new training-sessions task [For me], new mailing-list-send task + `MaxMemPerCPU` sub-bullet [Others/FYI]).
+- Key facts: **`MaxMemPerCPU=18432` left UNSET on the large-mem nodes** — Ryan calls it an oversight; `DefMemPerCPU` was set right (OS overhead reserved) but `MaxMemPerCPU` wasn't because the CLI filter wasn't ready → over-default requests get a **non-blocking CLI-filter warning, not a hard Slurm error**. Ryan offered to lower `MaxMemPerCPU` to match `DefMemPerCPU` (awaiting Jaime). **PARCC training SCHEDULED:** two 1-hr "Best Practices for Navigating the Betty Environment" sessions — **Thu 7/9 9 AM & Mon 7/13 2 PM**, Zoom reg (Jeffrey confirmed link works; duration moot). Announcement send workflow via **`parcc-info@lists.upenn.edu`**: listserv approval = reply "OK"; set Reply-To to self/`no-reply@parcc.upenn.edu` (list is post-locked); prior training used `parcc-alerts`. Ryan owns the send; Jaime approved. NOTE 7/9 collides with Jeffrey's jury duty.
+- Tasks: 1 new For-me task (training sessions), 1 new Others/FYI task (mailing-list send), 1 sub-bullet under the CLI default-memory item (MaxMemPerCPU). Chit-chat (Jeffrey's "reg link works" 👍) folded into the training task, not a standalone item.
+
 ## [2026-07-06] ingest | Teams digest — Ken confirms nginx proxy; Chatterjee lab-agent build + fallback question
 - Source: [[2026-07-06-teams-chats-digest]] (created; digest `digest_20260706T101520.json`, 11 chats / 21 new — 19 in Chaney 1:1 [13 substantive], 2 in PARCC Group [1 substantive]).
 - Created: [[2026-07-06-teams-chats-digest]]. Updated: [[glm-5.2]] (413 section: Ken-confirms-nginx + pre-prod caveat + session; frontmatter→07-06 + source line), [[parcc-tokens-as-a-service]] (Chatterjee build + failure-independence/fallback Q + serving-stack session + open-questions; frontmatter→07-06 + source line), [[index]] (glm-5.2 → 8 sources, tokens-as-a-service → 4 sources, new 7/06 source line), tasks.md (413 update, new serving-stack-session task, Chatterjee-agent update, demo-unit FYI).
