@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-07-06] ingest | Teams digest — Ken confirms nginx proxy; Chatterjee lab-agent build + fallback question
+- Source: [[2026-07-06-teams-chats-digest]] (created; digest `digest_20260706T101520.json`, 11 chats / 21 new — 19 in Chaney 1:1 [13 substantive], 2 in PARCC Group [1 substantive]).
+- Created: [[2026-07-06-teams-chats-digest]]. Updated: [[glm-5.2]] (413 section: Ken-confirms-nginx + pre-prod caveat + session; frontmatter→07-06 + source line), [[parcc-tokens-as-a-service]] (Chatterjee build + failure-independence/fallback Q + serving-stack session + open-questions; frontmatter→07-06 + source line), [[index]] (glm-5.2 → 8 sources, tokens-as-a-service → 4 sources, new 7/06 source line), tasks.md (413 update, new serving-stack-session task, Chatterjee-agent update, demo-unit FYI).
+- Key facts: **Ken confirmed the nginx reverse proxy** ("we do run a reverse proxy with nginx to get https functionality") — corroborates Jeffrey's 7/3 `413` mechanism (cap not yet raised). **Durable caveat:** "the whole stack will change when we go into production" → current serving specs transient. Ken offered a **serving-stack session** (did a short one for Jamie). Jeffrey **building the Chatterjee lab agent**, weighing a **model fallback** — open Q: does a GLM outage down the other served models, or are LiteLLM model groups failure-independent? GLM up ~2pm ("spitting out tokens for somebody right now"). ZCode "wanked out" on the same 413. PARCC Group: Jaime tracking an inbound **demo unit** (ETA this week, AIT Worldwide Logistics; vendor unstated) + empty "FYI:" (skipped).
+- Tasks: 1 update to the 413 item, 1 new serving-stack-session task, 1 update to the Chatterjee/tokens-as-a-service item, 1 new demo-unit FYI. Chit-chat (holiday greeting, GLM-up banter) skipped.
+
 ## [2026-07-03] ingest | Teams digest — GLM-5.2 413 root-caused to nginx client_max_body_size
 - Source: [[2026-07-03-teams-chats-digest]] (created; digest `digest_20260703T065558.json`, 11 chats / 3 new — all Chaney 1:1, all self-authored by Jeffrey).
 - Created: [[2026-07-03-teams-chats-digest]]. Updated: [[glm-5.2]] (served-ceiling section + Our-experience "two caps" note + frontmatter updated→07-03 + source line), [[index]] (glm-5.2 line → 7 sources + 413 root-cause; new 7/03 source line), tasks.md (UPDATE sub-bullet under the GLM-5.2 413 item).
