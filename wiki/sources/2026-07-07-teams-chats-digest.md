@@ -43,6 +43,9 @@ Follow-up that resolves the ~4:17pm b200-license report above. Jamie asked how t
 ### Bhuv Jain meeting set for Friday 3pm + Outlook calendar how-to (Bradley 1:1 · Vadala/Bradley · ~4:34pm)
 Jeffrey got an email from Prof. [[bhuv-jain]] and **agreed to a Friday 3pm** meeting ("only because i cant do the 3pm thursd[a]y one"). Ryan is fine with it and **hopeful it can be in-person** — "(as long as you consulted my outlook calendar!)". How to check Ryan's availability: in Outlook, when scheduling a meeting choose **"Scheduling Assistant"** and enter **`ryb@upenn.edu`**. This partly resolves the ~11:46am "Bhuv never confirmed" uncertainty (a slot is now agreed on Jeffrey's side); still owes a calendar cross-check + in-person confirmation. Session then interrupted — Jeffrey's laptop battery died (~4:47pm).
 
+### Custom Jupyter kernel — Ryan's "wrong kernel / no torch" hypothesis (Bradley 1:1 · Bradley/Vadala · ~5:50pm)
+Continuation of the ipykernel `ModuleNotFoundError` thread. Ryan's leading guess: **the notebook is attached to the second kernel on the list** — "if you created **'PyTorch Zen4 Betty'** but didn't install pytorch, that might explain the module error." So the failure may not be a `sys.executable` path bug but simply a **self-made kernel whose env never had torch `pip install`ed**. Jeffrey questioned whether he was even expected to install it himself ("I Was supposed to install it? Then I set it up"), will **check logs**, and **committed to looking at it first thing tomorrow (7/8)**. Fix path: confirm torch is present in the env backing "PyTorch Zen4 Betty" (`pip list | grep torch`); if absent, install it there or re-point the kernel at curated `venv-pytorch-v01`. Note the name drift vs the curated **"PyTorch 2.10 (Zen4)"** default. Filed to [[open-ondemand-betty#Custom ipykernel registration]].
+
 ## See also
 - [[vast-storage]]
 - [[parcc-helper-tools]]
@@ -56,3 +59,4 @@ Jeffrey got an email from Prof. [[bhuv-jain]] and **agreed to a Friday 3pm** mee
 - Teams digest `digest_20260707T141131.json`
 - Teams digest `digest_20260707T161820.json`
 - Teams digest `digest_20260707T165220.json`
+- Teams digest `digest_20260707T175841.json`

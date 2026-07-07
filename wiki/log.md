@@ -630,3 +630,10 @@
 - Key facts: b200 desync = **MIG jobs consume 1 license per MIG slice, not per B200**; original total 928=29×8×4; Ken fixed `job_submit` (no retro-update of running jobs); Jamie bumped `b200` cap to **2000**. Bhuv Jain meeting now **Friday 3pm** (in-person hoped); Outlook Scheduling-Assistant + `ryb@upenn.edu` to see Ryan's calendar.
 - Tasks: added UPDATE to the b200-license FYI (root cause + 2000), UPDATE to the Bhuv item (Fri 3pm agreed + calendar how-to), UPDATE to the ipykernel item (Ryan's known-good sys.executable = /vast/parcc/sw/26.1.zen4/envs/venv-pytorch-v01/bin/python; no custom envs; battery-died interrupt).
 - Notes: no new entity/concept/model pages; chit-chat ("Shoot, battery died"→captured as interrupt context only).
+
+## [2026-07-07] ingest | Teams digest digest_20260707T175841 (ipykernel "wrong kernel / no torch" hypothesis)
+- Source: 4 new msgs, all in Ryan Bradley 1:1 (1 Ryan hypothesis + 3 short Jeffrey replies); all other 10 chats had 0 new.
+- Updated: [[open-ondemand-betty]] (Custom ipykernel registration → added "Known pitfall" bullet: two convergent torch-ModuleNotFoundError hypotheses (wrong sys.executable vs. self-made "PyTorch Zen4 Betty" env with no torch), Ryan's known-good venv-pytorch-v01 ref, name-drift tell, 7/8 diagnose), [[2026-07-07-teams-chats-digest]] (appended ~5:50pm "wrong kernel / no torch" section + 5th digest to Sources).
+- Key facts: Ryan's leading guess for the custom-kernel `import torch` failure — the notebook is on a **second, self-made kernel ("PyTorch Zen4 Betty") whose env never had torch installed** (vs. earlier sys.executable-mismatch theory). Jeffrey to look "first thing tomorrow" (7/8).
+- Tasks: added 1 UPDATE to the ipykernel deliverable (Ryan's wrong-kernel/no-torch hypothesis + 7/8 follow-up).
+- Notes: no new pages; no other chats active this cycle.
