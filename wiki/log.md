@@ -6,6 +6,12 @@
 
 ---
 
+## [2026-07-07] ingest | Teams digest — VAST snapshots starting to populate
+- Source: new page [[2026-07-07-teams-chats-digest]] (digest `digest_20260707T133825.json`, 11 chats / 1 new — PARCC Group only).
+- Updated: [[vast-storage]] (Snapshots section + 7/7 populating note, exact `--snapshots` invocation, frontmatter→07-07 + source line), [[index]] (vast-storage summary → "populating 7/7", 5 sources; new 7/07 source line), tasks.md (7/7 UPDATE sub-bullet on the existing snapshot FYI item).
+- Key facts: Ken — VAST **per-project snapshots are starting to populate**; visible now via `/usr/bin/python3 $(which parcc_quota.py) --snapshots` (adds a **Snapshots** column). Actively read/written paths show data (e.g. `/vast/projects/chaneyk/test` 13.18 GB snapshots), idle/new paths still `0 B`/`-` — consistent with the 7/6 ~2-week ramp estimate.
+- Tasks: no new action items — status update on already-tracked 7/6 snapshot deployment.
+
 ## [2026-07-06] ingest | Teams digest (cycle 2) — Slurm MaxMemPerCPU unset; PARCC training sessions scheduled
 - Source: appended to [[2026-07-06-teams-chats-digest]] as "Cycle 2" (digest `digest_20260706T142654.json`, 11 chats / 10 new — all in PARCC Group).
 - Updated: [[slurm-cli-filter]] (new `MaxMemPerCPU` subsection under default-memory contract; frontmatter→07-06 + source line), [[2026-07-06-teams-chats-digest]] (Cycle 2 section, summary, frontmatter tags/related), [[index]] (7/06 source line extended), tasks.md (new training-sessions task [For me], new mailing-list-send task + `MaxMemPerCPU` sub-bullet [Others/FYI]).

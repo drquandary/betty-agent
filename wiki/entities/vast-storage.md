@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, storage, nfs, vast, infiniband, rdma]
 created: 2026-04-08
-updated: 2026-07-06
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-01-teams-chats-digest, 2026-07-06-teams-chats-digest]
+updated: 2026-07-07
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-01-teams-chats-digest, 2026-07-06-teams-chats-digest, 2026-07-07-teams-chats-digest]
 related: [betty-cluster, betty-storage-architecture, parcc-helper-tools, huggingface-cache-management, runai-betty, vast-group-permissions, jamie-schnaitter, kenneth-chaney, parcc-tokens-as-a-service]
 status: current
 ---
@@ -44,8 +44,10 @@ Because VAST is exported as **NFS 4.2**, its ACL layer is **NFSv4, not POSIX**. 
 ## Snapshots & protected paths
 As of **2026-07-06** ([[kenneth-chaney]]), VAST has a **per-project protected-paths** setup deployed:
 - **Controllable in ColdFront** — snapshot/protected-path policy is managed per project through the ColdFront allocation UI, not by hand on the filesystem.
-- **Surfaced via `parcc_quota.py --snapshots`** — the `--snapshots` flag is **off by default** and stays quiet **until the snapshots actually populate**.
+- **Surfaced via `parcc_quota.py --snapshots`** — the `--snapshots` flag is **off by default** and stays quiet **until the snapshots actually populate**. Ken's exact invocation: `/usr/bin/python3 $(which parcc_quota.py) --snapshots`.
 - **Ramp-up ~2 weeks** — it takes about two weeks to reach the full number of snapshots in each individual protected path, so early `--snapshots` output will show partial counts.
+
+**Update 2026-07-07** ([[kenneth-chaney]]): snapshots are **starting to populate** — "if you've been reading and writing files, you can start to see it." The `--snapshots` output adds a **Snapshots** column to the quota table. Actively-used paths already show data (e.g. `/vast/projects/chaneyk/test`: 13.18 GB snapshots vs 10.39 GB used), while idle/new paths still read `0 B` or `-`, consistent with the ~2-week ramp.
 
 This gives projects point-in-time recovery on their protected paths — relevant to backup posture for the [[parcc-tokens-as-a-service]] beta labs and any data the lab agent touches.
 
@@ -76,3 +78,4 @@ See [[parcc-helper-tools]].
 - [[2026-04-08-betty-initial-exploration]]
 - [[2026-04-08-betty-system-guide]]
 - [[2026-07-06-teams-chats-digest]] — per-project protected-paths / `parcc_quota.py --snapshots` deployed
+- [[2026-07-07-teams-chats-digest]] — snapshots starting to populate (Snapshots column live for actively-used paths)
