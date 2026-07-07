@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, ood, web-portal, parcc, broken]
 created: 2026-04-08
-updated: 2026-07-01
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-09-jvadala-ood-bug-reproduction, 2026-04-10-jaime-modules-sh-fix, 2026-07-01-teams-chats-digest]
+updated: 2026-07-07
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-07-ryb-ood-bc-desktop-investigation, 2026-04-09-jvadala-ood-bug-reproduction, 2026-04-10-jaime-modules-sh-fix, 2026-07-01-teams-chats-digest, 2026-07-07-teams-chats-digest]
 related: [betty-cluster, slurm-on-betty, ood-troubleshooting, b200-mig45-partition, vast-storage, betty-lmod-architecture, betty-auth-architecture]
 status: current
 ---
@@ -109,9 +109,15 @@ Full investigation details preserved in [[ood-troubleshooting#Lmod cache corrupt
 
 ## OOD Jupyter reached GA (2026-07-01)
 Ryan Bradley announced in PARCC Group (2026-07-01 ~4:14pm) that the OOD **Jupyter** app **"is working and I dropped 'Beta'"** — so the notebook app is now generally available in the portal, closing the long-standing "JupyterLab missing" gap from the April audit. Key facts:
-- **PARCC-curated environments only.** The app *"only lets you use PARCC-curated environments"* — users can't register arbitrary kernels; this is the likely reason Jaime's earlier "I don't see kernel options" question surfaced (the fix that "something overwrote" the day before now appears to hold). A deliberate constraint, not a bug.
+- **PARCC-curated environments appear by default** — the app *"only lets you use PARCC-curated environments"* out of the box (the picker is seeded with curated kernels like "PyTorch 2.10 (Zen4)"); this is the likely reason Jaime's earlier "I don't see kernel options" question surfaced. **But users CAN add their own** — see [[#Custom ipykernel registration]] below (confirmed 2026-07-07). A deliberate default, not a hard lock.
 - **OOD terminal recommended as a login-trouble workaround.** Ryan: the **terminal is "very good, and a nice alternative when users are having login problems."** So for users hitting SSH/Duo/Kerberos login friction ([[betty-auth-architecture]], [[kerberos-ssh-macos-fix]]), the OOD web terminal is now a sanctioned fallback path onto Betty.
 - Ryan invited feedback from the team. Status of the older April desktop bugs (black screen, Files-app 404, shell-allowlist) is unchanged by this note — this is specifically about the Jupyter + terminal apps.
+
+## Custom ipykernel registration (confirmed 2026-07-07)
+The "PARCC-curated environments only" line above is a *default*, not a lock. On 2026-07-07 Jeffrey verified with Ryan that **users can register their own Jupyter kernel** on OOD Jupyter: install a **separate environment independent of the curated default** (Ryan's example baseline: the **"PyTorch 2.10 (Zen4)"** kernel) and register it as a custom **ipykernel**. Ryan's framing: he wanted to check *"if it's easy for users to add a custom kernel. It sounds like it is."* — easy enough that he planned to include it in the **Thursday 2026-07-09 training slide deck** (subject to it "working out of the box").
+- **Open perf question (as of 7/7):** how the custom-env kernel's notebook performance compares to the default PyTorch 2.10 (Zen4) kernel, and whether running the same notebook in the default env is "not much worse." Jeffrey was collecting these numbers for Ryan.
+- **Facilitation takeaway:** when a user needs a package/stack the curated kernels don't provide, point them at building their own env + `python -m ipykernel install --user` rather than telling them OOD Jupyter is curated-only.
+- Source: [[2026-07-07-teams-chats-digest]] (Bradley 1:1).
 
 ## Interactive Desktop form (Betty's customization)
 Betty's form differs from stock upstream bc_desktop. Fields present:
@@ -152,3 +158,4 @@ OOD writes per-session staging files under `~/ondemand/data/sys/dashboard/batch_
 - [[2026-04-07-ryb-ood-bc-desktop-investigation]]
 - [[2026-04-09-jvadala-ood-bug-reproduction]]
 - [[2026-07-01-teams-chats-digest]] — Ryan: OOD Jupyter out of Beta (GA), PARCC-curated envs only; terminal a good login-trouble workaround.
+- [[2026-07-07-teams-chats-digest]] — Custom ipykernel registration confirmed easy (separate env vs. curated "PyTorch 2.10 (Zen4)" default); Ryan to feature it in the 7/9 training deck.

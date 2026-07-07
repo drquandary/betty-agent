@@ -3,14 +3,14 @@ type: source
 tags: [teams, digest, vast, storage, snapshots]
 created: 2026-07-07
 updated: 2026-07-07
-related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service]
+related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service, open-ondemand-betty, ryan-bradley, gromacs-on-betty]
 status: current
 ---
 
 # 2026-07-07 Teams Chats Digest
 
 ## One-line summary
-Small cycle — one new message: Ken Chaney reports VAST per-project snapshots are starting to populate and are now visible via `parcc_quota.py --snapshots`.
+Two pulls this day. (1) Ken Chaney reports VAST per-project snapshots starting to populate via `parcc_quota.py --snapshots`. (2) Ryan Bradley 1:1 — GROMACS onboarding bench ran; users **can** register a custom Jupyter kernel (a separate env) on OOD, independent of the curated "PyTorch 2.10 (Zen4)" default — Ryan wants perf numbers for Thursday's training deck.
 
 ## Content
 
@@ -21,9 +21,21 @@ Follow-up to the 7/6 deployment of [[vast-storage]] per-project protected paths:
 - The `--snapshots` view adds a **Snapshots** column to the quota table. Actively-used paths already show data — e.g. `/vast/projects/chaneyk/test` reports **13.18 GB** in snapshots against 10.39 GB used — while idle/new paths still read `0 B` or `-`, consistent with the ~2-week ramp Ken flagged on 7/6.
 - Confirms the feature is live and observable now for projects that are reading/writing; snapshot counts will keep climbing over the next ~2 weeks. Relevant to backup/recovery posture for the [[parcc-tokens-as-a-service]] beta labs.
 
+### GROMACS onboarding bench ran (Bradley 1:1 · Bradley/Vadala · ~1:51pm)
+Ryan checked in on the two onboarding tasks he'd assigned. Jeffrey: **"The gromacs bench ran. I think it worked fine? I'm getting used to spack."** So the [[gromacs-on-betty]] compile-and-benchmark onboarding item (originally targeted Wed 7/1) is effectively complete; only a light results-sanity-check remains.
+
+### Custom Jupyter kernels ARE user-addable on OOD (Bradley 1:1 · Bradley/Vadala · ~1:59–2:04pm)
+Ryan's ipykernel task was to see **whether it's easy for users to add a custom kernel** to OOD Jupyter. Jeffrey did it: he **installed a separate environment, independent of the default "PyTorch 2.10 (Zen4)" kernel**, and registered it as a custom ipykernel. Ryan confirmed the approach ("that's correct") and said it **sounds like adding a custom kernel is easy** — he plans to **include it in Thursday's (7/9) training slide deck** "as long as that works out of the box."
+- This refines the 7/1 "PARCC-curated environments only" note on [[open-ondemand-betty]]: the curated envs are what appear in the picker by default, but a user **can** register their own ipykernel from a self-installed environment. See [[open-ondemand-betty#Custom ipykernel registration]].
+- Ryan's two follow-up asks (Jeffrey committed to both, "I've got time now"): **(1)** report the **notebook performance in the custom env** and compare against the default PyTorch 2.10 (Zen4) kernel; **(2)** if PyTorch was also installed in the custom env, **run the notebook in the default environment** to confirm the default isn't much worse. Origin of the confusion: Jeffrey assumed "make an env" meant a fully **independent** env (it did — that's what Ryan wanted for the custom-kernel test).
+
 ## See also
 - [[vast-storage]]
 - [[parcc-helper-tools]]
+- [[open-ondemand-betty]]
+- [[gromacs-on-betty]]
+- [[ryan-bradley]]
 
 ## Sources
 - Teams digest `digest_20260707T133825.json`
+- Teams digest `digest_20260707T141131.json`

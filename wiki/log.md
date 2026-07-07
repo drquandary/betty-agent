@@ -609,3 +609,10 @@
 - Key facts: VAST now has **per-project protected paths** yielding point-in-time **snapshots**; policy is **ColdFront-controlled**; inspect via **`parcc_quota.py --snapshots`** (off by default until populated); **~2-week ramp** to full snapshot count per protected path.
 - Tasks: appended 1 FYI item (VAST protected-paths/snapshots deployed) under Others/FYI.
 - Notes: single-message cycle; no new entity/concept/model pages.
+
+## [2026-07-07] ingest | Teams digest digest_20260707T141131 (Bradley 1:1 — GROMACS bench + custom ipykernel)
+- Source: 19 new msgs, **all in the Ryan Bradley 1:1** (all 2026-07-07); every other chat had 0 new. Two threads: GROMACS onboarding bench ran ("worked fine"); custom Jupyter kernel on OOD (separate env vs. curated "PyTorch 2.10 (Zen4)" default) — Ryan wants it for the 7/9 training deck + perf comparison.
+- Updated: [[open-ondemand-betty]] (new "Custom ipykernel registration (confirmed 2026-07-07)" section + revised the 7/1 "curated envs only" line to "default, not a lock" + frontmatter updated/sources + Sources line + index line → 7 sources), [[2026-07-07-teams-chats-digest]] (appended GROMACS + custom-kernel sections, 2nd digest to Sources, related/one-line refreshed), [[index]] (OOD line + 7/7 source line → 2 pulls).
+- Key facts: OOD Jupyter is **not curated-only** — users can `ipykernel install` a self-built env; Ryan judged it "easy" and will put it in the Thu 7/9 training deck. GROMACS compile-and-benchmark onboarding effectively **done**.
+- Tasks: updated the GROMACS bench item (ran 7/7) + added a new "Deliver ipykernel/custom-kernel results to Ryan" action item (perf in custom env vs. default; run notebook in default env too).
+- Notes: no new entity/concept/model pages; chit-chat ("Awww", "No problem man") skipped.
