@@ -3,14 +3,14 @@ type: source
 tags: [teams, digest, vast, storage, snapshots]
 created: 2026-07-07
 updated: 2026-07-07
-related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service, open-ondemand-betty, ryan-bradley, gromacs-on-betty, slurm-on-betty, jamie-schnaitter, dgx-b200-partition]
+related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service, open-ondemand-betty, ryan-bradley, gromacs-on-betty, slurm-on-betty, jamie-schnaitter, dgx-b200-partition, bhuv-jain]
 status: current
 ---
 
 # 2026-07-07 Teams Chats Digest
 
 ## One-line summary
-Several pulls this day. (1) Ken Chaney reports VAST per-project snapshots starting to populate via `parcc_quota.py --snapshots`. (2) Ryan Bradley 1:1 — GROMACS onboarding bench ran; users **can** register a custom Jupyter kernel (a separate env) on OOD, independent of the curated "PyTorch 2.10 (Zen4)" default — Ryan wants perf numbers for Thursday's training deck; late pull adds an `import torch` `ModuleNotFoundError` in the custom kernel (Ryan can't repro → likely wrong `sys.executable`). (3) Jamie Schnaitter flags a Slurm **b200 "license" desync** — 8 DGX nodes idle but no b200 licenses free, stranding GPUs.
+Several pulls this day. (1) Ken Chaney reports VAST per-project snapshots starting to populate via `parcc_quota.py --snapshots`. (2) Ryan Bradley 1:1 — GROMACS onboarding bench ran; users **can** register a custom Jupyter kernel (a separate env) on OOD, independent of the curated "PyTorch 2.10 (Zen4)" default — Ryan wants perf numbers for Thursday's training deck; late pull adds an `import torch` `ModuleNotFoundError` in the custom kernel (Ryan can't repro → likely wrong `sys.executable`). (3) Jamie Schnaitter flags a Slurm **b200 "license" desync** — 8 DGX nodes idle but no b200 licenses free, stranding GPUs; **root-caused later the same day** to MIG jobs taking 1 license per MIG slice (not per B200), with the `b200` cap raised to 2000. (4) Bhuv Jain meeting agreed for **Friday 3pm** (in-person hoped) + Outlook Scheduling-Assistant how-to for Ryan's calendar.
 
 ## Content
 
@@ -37,6 +37,12 @@ Jamie: **"it looks like something is off with the 'licenses' in slurm. there are
 ### Custom Jupyter kernel — `import torch` fails, Ryan can't reproduce (Bradley 1:1 · Bradley/Vadala · ~3:52pm)
 Continuation of the ipykernel thread above. Jeffrey: "default kernel starts but `import torch` throws `ModuleNotFoundError`." Ryan couldn't reproduce and asked him to **check `sys.executable` and the kernel names** — pointing at the usual custom-kernel pitfall: the registered ipykernel's `kernel.json` points at a **Python interpreter that doesn't have torch installed**, rather than a real torch problem. Jeffrey suspected mis-registration ("Maybe I did it wrong") and stepped out. Fix path: from the failing kernel print `sys.executable`, compare against the env where torch lives, and re-run `ipykernel install` if they mismatch. Gates the perf-comparison deliverable Ryan wants for the 7/9 deck. See [[open-ondemand-betty#Custom ipykernel registration]].
 
+### B200 license desync ROOT-CAUSED + cap raised (PARCC Group · Chaney/Schnaitter · ~4:20pm)
+Follow-up that resolves the ~4:17pm b200-license report above. Jamie asked how the **928** total was computed; Ken: **`29 × 8 × 4`** (nodes × GPUs/node × 4). Diagnosis (Jamie): **MIG jobs take 1 license per MIG *slice* rather than 1 per B200**, so MIG usage drains the [[slurm-on-betty]] `b200` pool faster than a per-B200 count assumes → the idle-node stranding. Ken **updated the `job_submit` script** to fix the accounting bugs but noted it **doesn't update already-running jobs**, so the pool can stay artificially exhausted until in-flight jobs drain. Since the license count can legitimately exceed the GPU count (real allocation is gated by other factors) and over-provisioning is harmless, Ken proposed **+50% on all three** pools; **Jamie raised `b200` to 2000** (CPU pools left as-is). Filed to [[slurm-on-betty#Licenses — B200 gating]] (section promoted out of "tentative").
+
+### Bhuv Jain meeting set for Friday 3pm + Outlook calendar how-to (Bradley 1:1 · Vadala/Bradley · ~4:34pm)
+Jeffrey got an email from Prof. [[bhuv-jain]] and **agreed to a Friday 3pm** meeting ("only because i cant do the 3pm thursd[a]y one"). Ryan is fine with it and **hopeful it can be in-person** — "(as long as you consulted my outlook calendar!)". How to check Ryan's availability: in Outlook, when scheduling a meeting choose **"Scheduling Assistant"** and enter **`ryb@upenn.edu`**. This partly resolves the ~11:46am "Bhuv never confirmed" uncertainty (a slot is now agreed on Jeffrey's side); still owes a calendar cross-check + in-person confirmation. Session then interrupted — Jeffrey's laptop battery died (~4:47pm).
+
 ## See also
 - [[vast-storage]]
 - [[parcc-helper-tools]]
@@ -49,3 +55,4 @@ Continuation of the ipykernel thread above. Jeffrey: "default kernel starts but 
 - Teams digest `digest_20260707T133825.json`
 - Teams digest `digest_20260707T141131.json`
 - Teams digest `digest_20260707T161820.json`
+- Teams digest `digest_20260707T165220.json`

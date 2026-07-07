@@ -43,11 +43,12 @@ Betty runs Slurm 24.11.7 with backfill scheduling, per-partition QOS limits, and
 
 See [[betty-billing-model]] for how weights convert to PC minutes.
 
-## Licenses — B200 gating (tentative)
-Betty appears to gate full-B200 allocation with a Slurm **`Licenses=`** resource (a `b200` license pool), requested by jobs via `-L` / `--licenses` and tracked cluster-wide independent of per-node gres. This is a second admission axis on top of gres/QOS: a job can only land on a DGX node if a b200 license is also free.
-- **Failure mode observed (7/7):** the license pool drifted out of sync with real capacity — **8 DGX nodes sat idle while `b200` licenses read as exhausted**, stranding GPUs the scheduler wouldn't fill (Jamie Schnaitter). Symptom of a **stale/leaked license count** (jobs not releasing their license, or a total that no longer matches deployed GPUs).
+## Licenses — B200 gating
+Betty gates full-B200 allocation with a Slurm **`Licenses=`** resource (a `b200` license pool), requested by jobs via `-L` / `--licenses` and tracked cluster-wide independent of per-node gres. This is a second admission axis on top of gres/QOS: a job can only land on a DGX node if a b200 license is also free.
+- **Failure mode observed (7/7):** the license pool drifted out of sync with real capacity — **8 DGX nodes sat idle while `b200` licenses read as exhausted**, stranding GPUs the scheduler wouldn't fill (Jamie Schnaitter). Symptom of a **stale/leaked / mis-accounted license count**.
+- **Root cause (7/7, Chaney/Schnaitter):** the original `b200` total was **928 = 29 × 8 × 4** (nodes × GPUs/node × 4). The desync is a **MIG-accounting mismatch** — **MIG jobs consume 1 license per MIG *slice* rather than 1 per B200**, so heavy MIG usage drains the pool faster than a per-B200 count anticipates, exhausting licenses while whole DGX nodes still sit idle. Ken **updated the `job_submit` script** to fix the accounting bugs, but the fix **does not update already-running jobs**, so the pool can stay artificially exhausted until in-flight jobs drain.
+- **Mitigation applied:** the license count may legitimately **exceed** the GPU count (real allocation is gated by other limiting factors too), and over-provisioning is harmless — Ken proposed **+50% on all three** license pools; **Jamie raised `b200` to 2000** (CPU pools left as-is). Watch whether the higher cap + fixed `job_submit` clears the stranding.
 - **Debug path:** `scontrol show lic` to see Total/Used/Free per license; compare against actually-idle DGX GPUs (`sinfo`, `parcc_sfree.py`); reconcile the total if it has leaked. Same stranded-capacity class as the [[2026-04-17-dgx002-gpu5-oversubscription]] gres incident, but at the license layer rather than gres.
-- Status **tentative** — the license mechanism is inferred from the outage report, not yet confirmed against `slurm.conf` (`Licenses=` line) or `sacctmgr show resource`.
 
 ## Typical commands
 ```bash

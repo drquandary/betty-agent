@@ -623,3 +623,10 @@
 - Key facts: Betty gates full-B200 alloc with a Slurm **`Licenses=` (`b200`)** counter; on 7/7 it **desynced — 8 idle DGX nodes couldn't be scheduled** (Jamie). Custom OOD ipykernel throws `import torch` ModuleNotFoundError, Ryan can't repro → likely wrong `sys.executable` in the registered kernel.
 - Tasks: added 1 FYI item (Slurm b200 license desync) + 1 UPDATE to the ipykernel deliverable (torch ModuleNotFoundError / check sys.executable).
 - Notes: no new entity/concept/model pages; the b200-license section is status: tentative pending slurm.conf confirmation.
+
+## [2026-07-07] ingest | Teams digest digest_20260707T165220 (b200 license root-cause + Bhuv Fri 3pm)
+- Source: 26 new msgs — 12 in PARCC Group (Schnaitter/Chaney b200-license thread), 14 in Ryan Bradley 1:1 (Bhuv meeting + calendar how-to + continued ipykernel/torch debug + battery-died interrupt).
+- Updated: [[slurm-on-betty]] ("Licenses — B200 gating" promoted out of tentative: added 928=29×8×4 math, per-MIG-slice accounting root cause, `job_submit` fix + doesn't-update-in-flight caveat, cap raised to 2000), [[2026-07-07-teams-chats-digest]] (appended b200-root-cause + Bhuv-Fri-3pm sections, 4th digest to Sources, one-line summary/related +bhuv-jain), [[index]] (slurm-on-betty b200 note refreshed to root-caused/2000).
+- Key facts: b200 desync = **MIG jobs consume 1 license per MIG slice, not per B200**; original total 928=29×8×4; Ken fixed `job_submit` (no retro-update of running jobs); Jamie bumped `b200` cap to **2000**. Bhuv Jain meeting now **Friday 3pm** (in-person hoped); Outlook Scheduling-Assistant + `ryb@upenn.edu` to see Ryan's calendar.
+- Tasks: added UPDATE to the b200-license FYI (root cause + 2000), UPDATE to the Bhuv item (Fri 3pm agreed + calendar how-to), UPDATE to the ipykernel item (Ryan's known-good sys.executable = /vast/parcc/sw/26.1.zen4/envs/venv-pytorch-v01/bin/python; no custom envs; battery-died interrupt).
+- Notes: no new entity/concept/model pages; chit-chat ("Shoot, battery died"→captured as interrupt context only).
