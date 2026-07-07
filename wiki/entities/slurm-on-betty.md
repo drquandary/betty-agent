@@ -2,8 +2,8 @@
 type: entity
 tags: [betty, slurm, scheduler, qos]
 created: 2026-04-08
-updated: 2026-04-21
-sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion]
+updated: 2026-07-07
+sources: [2026-04-08-betty-initial-exploration, 2026-04-08-betty-system-guide, 2026-04-21-parcc-ops-discussion, 2026-07-07-teams-chats-digest]
 related: [betty-cluster, dgx-b200-partition, b200-mig45-partition, b200-mig90-partition, genoa-std-mem-partition, genoa-lrg-mem-partition, betty-billing-model, parcc-helper-tools]
 status: current
 ---
@@ -42,6 +42,12 @@ Betty runs Slurm 24.11.7 with backfill scheduling, per-partition QOS limits, and
 - [[genoa-lrg-mem-partition]] — ~1 TB RAM, CPU=15
 
 See [[betty-billing-model]] for how weights convert to PC minutes.
+
+## Licenses — B200 gating (tentative)
+Betty appears to gate full-B200 allocation with a Slurm **`Licenses=`** resource (a `b200` license pool), requested by jobs via `-L` / `--licenses` and tracked cluster-wide independent of per-node gres. This is a second admission axis on top of gres/QOS: a job can only land on a DGX node if a b200 license is also free.
+- **Failure mode observed (7/7):** the license pool drifted out of sync with real capacity — **8 DGX nodes sat idle while `b200` licenses read as exhausted**, stranding GPUs the scheduler wouldn't fill (Jamie Schnaitter). Symptom of a **stale/leaked license count** (jobs not releasing their license, or a total that no longer matches deployed GPUs).
+- **Debug path:** `scontrol show lic` to see Total/Used/Free per license; compare against actually-idle DGX GPUs (`sinfo`, `parcc_sfree.py`); reconcile the total if it has leaked. Same stranded-capacity class as the [[2026-04-17-dgx002-gpu5-oversubscription]] gres incident, but at the license layer rather than gres.
+- Status **tentative** — the license mechanism is inferred from the outage report, not yet confirmed against `slurm.conf` (`Licenses=` line) or `sacctmgr show resource`.
 
 ## Typical commands
 ```bash

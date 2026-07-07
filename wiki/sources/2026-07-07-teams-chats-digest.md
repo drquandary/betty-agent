@@ -3,14 +3,14 @@ type: source
 tags: [teams, digest, vast, storage, snapshots]
 created: 2026-07-07
 updated: 2026-07-07
-related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service, open-ondemand-betty, ryan-bradley, gromacs-on-betty]
+related: [vast-storage, parcc-helper-tools, kenneth-chaney, parcc-tokens-as-a-service, open-ondemand-betty, ryan-bradley, gromacs-on-betty, slurm-on-betty, jamie-schnaitter, dgx-b200-partition]
 status: current
 ---
 
 # 2026-07-07 Teams Chats Digest
 
 ## One-line summary
-Two pulls this day. (1) Ken Chaney reports VAST per-project snapshots starting to populate via `parcc_quota.py --snapshots`. (2) Ryan Bradley 1:1 — GROMACS onboarding bench ran; users **can** register a custom Jupyter kernel (a separate env) on OOD, independent of the curated "PyTorch 2.10 (Zen4)" default — Ryan wants perf numbers for Thursday's training deck.
+Several pulls this day. (1) Ken Chaney reports VAST per-project snapshots starting to populate via `parcc_quota.py --snapshots`. (2) Ryan Bradley 1:1 — GROMACS onboarding bench ran; users **can** register a custom Jupyter kernel (a separate env) on OOD, independent of the curated "PyTorch 2.10 (Zen4)" default — Ryan wants perf numbers for Thursday's training deck; late pull adds an `import torch` `ModuleNotFoundError` in the custom kernel (Ryan can't repro → likely wrong `sys.executable`). (3) Jamie Schnaitter flags a Slurm **b200 "license" desync** — 8 DGX nodes idle but no b200 licenses free, stranding GPUs.
 
 ## Content
 
@@ -29,13 +29,23 @@ Ryan's ipykernel task was to see **whether it's easy for users to add a custom k
 - This refines the 7/1 "PARCC-curated environments only" note on [[open-ondemand-betty]]: the curated envs are what appear in the picker by default, but a user **can** register their own ipykernel from a self-installed environment. See [[open-ondemand-betty#Custom ipykernel registration]].
 - Ryan's two follow-up asks (Jeffrey committed to both, "I've got time now"): **(1)** report the **notebook performance in the custom env** and compare against the default PyTorch 2.10 (Zen4) kernel; **(2)** if PyTorch was also installed in the custom env, **run the notebook in the default environment** to confirm the default isn't much worse. Origin of the confusion: Jeffrey assumed "make an env" meant a fully **independent** env (it did — that's what Ryan wanted for the custom-kernel test).
 
+### Slurm B200 "licenses" desynced — idle nodes stranded (PARCC Group · Schnaitter, Jamie · ~4:17pm)
+Jamie: **"it looks like something is off with the 'licenses' in slurm. there are 8 DGX nodes idle but there are no more b200 licenses available."**
+- Reveals that [[slurm-on-betty]] gates full-B200 allocation with a Slurm **`Licenses=`** (`b200`) counter — a cluster-wide admission axis on top of gres/QOS — and the pool drifted out of sync: **8 idle [[dgx-b200-partition]] nodes couldn't be filled** because the scheduler read the b200 licenses as exhausted.
+- Classic **stale/leaked license count** (jobs not releasing, or a total no longer matching deployed GPUs). Debug: `scontrol show lic` vs actually-idle DGX GPUs, then reconcile. Same stranded-capacity class as the [[2026-04-17-dgx002-gpu5-oversubscription]] gres incident, one layer up. New tentative section filed at [[slurm-on-betty#Licenses — B200 gating (tentative)]].
+
+### Custom Jupyter kernel — `import torch` fails, Ryan can't reproduce (Bradley 1:1 · Bradley/Vadala · ~3:52pm)
+Continuation of the ipykernel thread above. Jeffrey: "default kernel starts but `import torch` throws `ModuleNotFoundError`." Ryan couldn't reproduce and asked him to **check `sys.executable` and the kernel names** — pointing at the usual custom-kernel pitfall: the registered ipykernel's `kernel.json` points at a **Python interpreter that doesn't have torch installed**, rather than a real torch problem. Jeffrey suspected mis-registration ("Maybe I did it wrong") and stepped out. Fix path: from the failing kernel print `sys.executable`, compare against the env where torch lives, and re-run `ipykernel install` if they mismatch. Gates the perf-comparison deliverable Ryan wants for the 7/9 deck. See [[open-ondemand-betty#Custom ipykernel registration]].
+
 ## See also
 - [[vast-storage]]
 - [[parcc-helper-tools]]
 - [[open-ondemand-betty]]
 - [[gromacs-on-betty]]
 - [[ryan-bradley]]
+- [[slurm-on-betty]]
 
 ## Sources
 - Teams digest `digest_20260707T133825.json`
 - Teams digest `digest_20260707T141131.json`
+- Teams digest `digest_20260707T161820.json`

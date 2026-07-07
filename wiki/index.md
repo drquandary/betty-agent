@@ -14,7 +14,7 @@
 - [[runai-betty]] — RunAI AI job scheduling platform; now seen serving test inference (sglang/gpt-oss-120b/dflash endpoint, 6/26); VAST mount at /mnt/vast/runai (tentative, 1 source)
 - [[parcc-helper-tools]] — `parcc_*.py` scripts for quota, queue, debug (1 source)
 - [[open-ondemand-betty]] — Web portal at ood.betty.parcc.upenn.edu; **Jupyter GA (out of Beta 7/1); curated envs by default but users CAN register a custom ipykernel (confirmed 7/7); OOD terminal = login-trouble workaround** (7 sources)
-- [[slurm-on-betty]] — Slurm 24.11.7 with backfill scheduler (1 source)
+- [[slurm-on-betty]] — Slurm 24.11.7 with backfill scheduler; **b200 "license" gating (desync stranded 8 idle nodes 7/7)** (2 sources)
 - [[ryan-bradley]] — PARCC director (ryb); owns overspack/cli_filter, sponsors GROMACS + facilitation onboarding (3 sources)
 - [[jeffrey-vadala]] — PARCC user-facilitation hire (jvadala); builds the Betty AI agent, owns ERF/GROMACS onboarding (1 source)
 - [[jaime-combariza]] — senior PARCC staff (jcombar1); drives ops, accounts, hardware, licensing; heavy cli_filter tester (2 sources)

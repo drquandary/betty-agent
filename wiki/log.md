@@ -616,3 +616,10 @@
 - Key facts: OOD Jupyter is **not curated-only** — users can `ipykernel install` a self-built env; Ryan judged it "easy" and will put it in the Thu 7/9 training deck. GROMACS compile-and-benchmark onboarding effectively **done**.
 - Tasks: updated the GROMACS bench item (ran 7/7) + added a new "Deliver ipykernel/custom-kernel results to Ryan" action item (perf in custom env vs. default; run notebook in default env too).
 - Notes: no new entity/concept/model pages; chit-chat ("Awww", "No problem man") skipped.
+
+## [2026-07-07] ingest | Teams digest digest_20260707T161820 (b200 license desync + torch kernel)
+- Source: 9 new msgs — 1 in PARCC Group (Jamie Schnaitter), 8 in Ryan Bradley 1:1 (mostly Jeffrey's own; chit-chat "so"/"Ok"/"back in like 10" skipped).
+- Updated: [[slurm-on-betty]] (new tentative "Licenses — B200 gating" section + frontmatter updated 7/7 + 4th source), [[2026-07-07-teams-chats-digest]] (appended b200-license + torch-kernel sections, 3rd digest to Sources, one-line summary + related refreshed), [[index]] (slurm-on-betty → 2 sources + b200-license note).
+- Key facts: Betty gates full-B200 alloc with a Slurm **`Licenses=` (`b200`)** counter; on 7/7 it **desynced — 8 idle DGX nodes couldn't be scheduled** (Jamie). Custom OOD ipykernel throws `import torch` ModuleNotFoundError, Ryan can't repro → likely wrong `sys.executable` in the registered kernel.
+- Tasks: added 1 FYI item (Slurm b200 license desync) + 1 UPDATE to the ipykernel deliverable (torch ModuleNotFoundError / check sys.executable).
+- Notes: no new entity/concept/model pages; the b200-license section is status: tentative pending slurm.conf confirmation.
